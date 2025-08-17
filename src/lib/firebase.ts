@@ -18,6 +18,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+console.log('Firebase Config during build:', {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  // Add others if needed
+});
+
 // This is a more robust way to initialize Firebase in a Next.js environment.
 // It prevents re-initializing the app on every hot-reload.
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
