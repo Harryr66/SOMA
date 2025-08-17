@@ -24,6 +24,8 @@ console.log('Firebase Config during build:', {
   // Add others if needed
 });
 
+console.log('Test Var:', process.env.TEST_VAR);
+
 // This is a more robust way to initialize Firebase in a Next.js environment.
 // It prevents re-initializing the app on every hot-reload.
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
