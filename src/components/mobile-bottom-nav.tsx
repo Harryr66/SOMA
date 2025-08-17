@@ -1,0 +1,68 @@
+
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Home, Eye, Upload, User, Bookmark, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/providers/auth-provider';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
+const mobileNavItems = [
+  { href: '/feed', icon: Home, label: 'Home' },
+  { href: '/discover', icon: Eye, label: 'Discover' },
+  { href: '/search', icon: Search, label: 'Search' },
+  { href: '/upload', icon: Upload, label: 'Upload' },
+  { href: '/saved', icon: Bookmark, label: 'Saved' },
+  { href: '/profile', icon: User, label: 'Profile' },
+];
+
+export function MobileBottomNav() {
+  const pathname = usePathname();
+  const { user, avatarUrl, isProfessional } = useAuth();
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:hidden">
+      <div className="flex h-16 items-center justify-around">
+        {mobileNavItems.map((item) => {
+          if (item.href === '/upload' && !isProfessional) {
+            return null;
+          }
+          const isActive = item.href === '/profile' ? pathname.startsWith(item.href) : pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 p-2 rounded-md transition-colors text-foreground w-16 border-2 border-transparent',
+                isActive && 'gradient-border'
+              )}
+            >
+              {item.href === '/profile' ? (
+                <Avatar className="h-6 w-6">
+                   <AvatarImage src={avatarUrl || undefined} alt={user?.displayName || 'User'} data-ai-hint="artist portrait" />
+                   <AvatarFallback>
+                      <svg
+                          role="img"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-full w-full"
+                      >
+                          <path
+                          d="M12 2C9.243 2 7 4.243 7 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5zm0 10c-3.309 0-6 2.691-6 6v2h12v-2c0-3.309-2.691-6-6-6z"
+                          fill="currentColor"
+                          />
+                      </svg>
+                   </AvatarFallback>
+                </Avatar>
+              ) : (
+                <item.icon className="h-6 w-6" />
+              )}
+              <span className="text-xs font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
