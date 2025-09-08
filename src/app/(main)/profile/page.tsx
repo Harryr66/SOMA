@@ -32,7 +32,7 @@ export default function ProfilePage() {
   const artworks: any[] = []; // Mock data - replace with actual data if needed
   const router = useRouter();
 
-  const userPortfolio = artworks.filter(artwork => artwork.artist.id === user?.uid);
+  const userPortfolio = artworks.filter(artwork => artwork.artist.id === user.id);
   const products = artworkData.slice(6, 10);
   const watchlistItems = artworkData.slice(2, 5);
   
@@ -254,7 +254,7 @@ export default function ProfilePage() {
           <TabsContent value="feed" className="mt-6">
             {(() => {
                 const userFeedPosts = posts
-                .filter(p => p.resharedBy?.id === user?.uid || p.artist.id === user?.uid)
+                .filter(p => p.resharedBy?.id === user.id || p.artist.id === user.id)
                 .sort((a, b) => b.createdAt - a.createdAt);
 
                 if (userFeedPosts.length > 0) {

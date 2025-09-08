@@ -63,11 +63,13 @@ const productFormSchema = z.object({
 export default function ManageProfilePage() {
   // Mock user data for demo
   const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const isProfessional = false;
+  
   const loading = false;
   const signOut = () => {};
   const router = useRouter();
   const { toast } = useToast();
+  const [isProfessional, setIsProfessional] = useState(false);
+  const [isTipJarEnabled, setIsTipJarEnabled] = useState(false);
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -201,7 +203,7 @@ export default function ManageProfilePage() {
             <TabsTrigger value="analytics"><BarChart4 className="w-4 h-4 mr-2"/>Analytics</TabsTrigger>
           </TabsList>
           <TabsContent value="edit-profile" className="mt-6">
-            <EditProfileForm form={form} onSubmit={onSubmit} />
+            <EditProfileForm form={form} onSubmit={onSubmit} isProfessional={isProfessional} setIsProfessional={setIsProfessional} isTipJarEnabled={isTipJarEnabled} setIsTipJarEnabled={setIsTipJarEnabled} />
           </TabsContent>
           <TabsContent value="products" className="mt-6">
             <ProductsTabContent />
@@ -214,19 +216,19 @@ export default function ManageProfilePage() {
           </TabsContent>
         </Tabs>
       ) : (
-         <EditProfileForm form={form} onSubmit={onSubmit} />
+         <EditProfileForm form={form} onSubmit={onSubmit} isProfessional={isProfessional} setIsProfessional={setIsProfessional} isTipJarEnabled={isTipJarEnabled} setIsTipJarEnabled={setIsTipJarEnabled} />
       )}
     </div>
   );
 }
 
 // Helper component for the form to avoid repetition
-function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any) => void }) {
+function EditProfileForm({ form, onSubmit, isProfessional, setIsProfessional, isTipJarEnabled, setIsTipJarEnabled }: { form: any, onSubmit: (values: any) => void, isProfessional: boolean, setIsProfessional: (value: boolean) => void, isTipJarEnabled: boolean, setIsTipJarEnabled: (value: boolean) => void }) {
     const { toast } = useToast();
     const { theme } = useTheme();
     // Mock user data for demo
   const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const isProfessional = false;
+  
   const loading = false;
   const signOut = () => {};
     
@@ -236,6 +238,7 @@ function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any
     const [isUploading, setIsUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [hasCustomAvatar, setHasCustomAvatar] = useState(false);
+  const [profileRingColor, setProfileRingColor] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const resetDialog = () => {

@@ -64,23 +64,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       if (user) {
         // Load user-specific settings from localStorage
-        const savedProf = localStorage.getItem(`isProfessional-${user.id}`);
+        const savedProf = localStorage.getItem(`isProfessional-${user.uid || "demo-user"}`);
         setIsProfessional(savedProf ? JSON.parse(savedProf) : false);
 
-        const savedTipJar = localStorage.getItem(`isTipJarEnabled-${user.id}`);
+        const savedTipJar = localStorage.getItem(`isTipJarEnabled-${user.uid || "demo-user"}`);
         setIsTipJarEnabled(savedTipJar ? JSON.parse(savedTipJar) : false);
 
         // Centralized avatar loading logic
-        const storedAvatar = await idbGetAvatar(user.id);
+        const storedAvatar = await idbGetAvatar(user.uid || "demo-user");
         if (storedAvatar) {
           setAvatarUrlState(URL.createObjectURL(storedAvatar));
           setHasCustomAvatar(true);
         } else {
-          setAvatarUrlState(undefined);
-          setHasCustomAvatar(!!undefined);
+          setAvatarUrlState(null);
+          setHasCustomAvatar(false);
         }
         // Load ring color
-        const color = localStorage.getItem(`profileRingColor-${user.id}`);
+        const color = localStorage.getItem(`profileRingColor-${user.uid || "demo-user"}`);
         setProfileRingColorState(color);
 
       } else {
@@ -113,13 +113,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Persist changes to localStorage for the current user
   useEffect(() => {
     if (user) {
-      localStorage.setItem(`isProfessional-${user.id}`, JSON.stringify(isProfessional));
+      localStorage.setItem(`isProfessional-${user.uid || "demo-user"}`, JSON.stringify(isProfessional));
     }
   }, [isProfessional, user]);
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem(`isTipJarEnabled-${user.id}`, JSON.stringify(isTipJarEnabled));
+      localStorage.setItem(`isTipJarEnabled-${user.uid || "demo-user"}`, JSON.stringify(isTipJarEnabled));
     }
   }, [isTipJarEnabled, user]);
 
@@ -130,9 +130,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setProfileRingColor = (color: string | null) => {
     if (user) {
       if (color) {
-        localStorage.setItem(`profileRingColor-${user.id}`, color);
+        localStorage.setItem(`profileRingColor-${user.uid || "demo-user"}`, color);
       } else {
-        localStorage.removeItem(`profileRingColor-${user.id}`);
+        localStorage.removeItem(`profileRingColor-${user.uid || "demo-user"}`);
       }
       setProfileRingColorState(color);
       toast({

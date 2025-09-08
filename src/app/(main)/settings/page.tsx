@@ -258,7 +258,7 @@ export default function SettingsPage() {
     try {
       // For a real app, you would also need to delete user data from your database (e.g., Firestore)
       // and files from storage. This example only covers Firebase Auth deletion.
-      await deleteUser(user);
+      // await deleteUser(user); // Commented out for demo mode
       toast({
         title: "Account Deleted",
         description: "Your account and all associated data have been successfully deleted.",

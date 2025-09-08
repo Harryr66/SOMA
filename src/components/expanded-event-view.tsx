@@ -27,7 +27,7 @@ export function ExpandedEventView({ event, onBack }: ExpandedEventViewProps) {
 
     const isCreator = useMemo(() => {
         if (!user || !discussion) return false;
-        return user.id === discussion.author.id;
+        return (user.uid || "demo-user") === discussion.author.id;
     }, [user, discussion]);
 
     const renderDiscussion = () => {

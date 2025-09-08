@@ -70,7 +70,7 @@ export function DiscussionThread({ discussion }: DiscussionThreadProps) {
         }
 
         const currentUserArtist: Artist = {
-            id: user.id,
+            id: user.uid || "demo-user",
             name: user.displayName || 'Anonymous User',
             handle: user.email?.split('@')[0] || 'anonymous',
             avatarUrl: undefined,
