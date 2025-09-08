@@ -14,7 +14,7 @@ export default function RootPage() {
             Welcome to SOMA
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Connect with artists worldwide on SOMA, discover unique artworks, and be part of the creative journey from studio to collection.
+            Connect with emerging artists worldwide on SOMA, discover unique artworks, and be part of the creative journey from studio to collection.
           </p>
           <div className="mt-8 flex justify-center items-center gap-4">
             <Button asChild variant="gradient" size="lg">
