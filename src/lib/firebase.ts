@@ -5,41 +5,33 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-// This configuration reads the keys from your .env file.
-// IMPORTANT: You MUST create a .env.local file in the root of your project
-// and add your Firebase project's configuration keys there.
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+// Fallback configuration in case environment variables are not available
+const fallbackConfig = {
+  apiKey: "AIzaSyBi_3rG4Kn31tvjsXl6kB_C2iYZhdOEuO0",
+  authDomain: "soma-social.firebaseapp.com",
+  projectId: "soma-social",
+  storageBucket: "soma-social.firebasestorage.app",
+  messagingSenderId: "44064741792",
+  appId: "1:44064741792:web:232214570fc8bc58dcecc5",
+  measurementId: "G-KS591CG0QZ"
 };
 
-console.log('Firebase Config during build:', {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+// This configuration reads the keys from your .env file or uses fallback
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || fallbackConfig.apiKey,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || fallbackConfig.authDomain,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || fallbackConfig.projectId,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || fallbackConfig.storageBucket,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || fallbackConfig.messagingSenderId,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || fallbackConfig.appId,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || fallbackConfig.measurementId
+};
+
+console.log('Firebase Config (with fallback):', {
+  apiKey: firebaseConfig.apiKey,
+  projectId: firebaseConfig.projectId,
+  usingFallback: !process.env.NEXT_PUBLIC_FIREBASE_API_KEY
 });
-
-console.log('Test Var:', process.env.TEST_VAR);
-
-// Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
-  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID'
-];
-
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-if (missingVars.length > 0) {
-  console.error('Missing required environment variables:', missingVars);
-  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-}
 
 // This is a more robust way to initialize Firebase in a Next.js environment.
 // It prevents re-initializing the app on every hot-reload.
