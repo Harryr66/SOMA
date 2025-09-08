@@ -14,7 +14,6 @@ import {
   Bookmark,
   Search,
 } from 'lucide-react';
-import { useAuth } from '@/providers/auth-provider';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -33,7 +32,11 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user, avatarUrl, isProfessional } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const avatarUrl = null;
+  const isProfessional = false;
+  const signOut = () => {};
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r bg-background shrink-0">

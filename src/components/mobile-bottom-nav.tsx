@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Eye, Upload, User, Bookmark, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/providers/auth-provider';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const mobileNavItems = [
@@ -19,7 +18,11 @@ const mobileNavItems = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { user, avatarUrl, isProfessional } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const avatarUrl = null;
+  const isProfessional = false;
+  const signOut = () => {};
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:hidden">

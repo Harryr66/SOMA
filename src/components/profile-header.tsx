@@ -21,8 +21,13 @@ import { StoryViewer } from "./story-viewer";
 
 
 export function ProfileHeader() {
-  const { user, isTipJarEnabled, avatarUrl, profileRingColor } = useAuth();
-  const { storyItems } = useContent();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isTipJarEnabled = false;
+  const avatarUrl = null;
+  const profileRingColor = null;
+  // Mock story items for demo
+  const storyItems = [];
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState('');

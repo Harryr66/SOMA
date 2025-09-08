@@ -5,14 +5,17 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, Users, Gavel, Search, User as UserIcon, LogOut, Menu } from 'lucide-react';
-import { useAuth } from '@/providers/auth-provider';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 
 export function SiteHeader() {
-  const { user, signOut, avatarUrl } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const avatarUrl = null;
+  const isProfessional = false;
+  const signOut = () => {};
 
   const userAvatar = (className: string) => (
     <Avatar className={className}>
