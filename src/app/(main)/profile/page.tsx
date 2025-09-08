@@ -6,7 +6,6 @@ import { ArtworkCard } from '@/components/artwork-card';
 import { ProfileHeader } from '@/components/profile-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PenSquare, Users, ShoppingBag, Heart, Star, DollarSign, Gavel, Upload, Calendar, PlusCircle, Repeat } from 'lucide-react';
-import { useAuth } from '@/providers/auth-provider';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -16,15 +15,21 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Textarea } from '@/components/ui/textarea';
-import { useContent } from '@/providers/content-provider';
+
 import { artworkData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { type Artwork } from '@/lib/types';
 
 export default function ProfilePage() {
-  const { user, isProfessional } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const { toast } = useToast();
-  const { posts, artworks } = useContent();
+  // Using mock data instead of useContent
+  const posts = [];
+  const artworks = []; // Mock data - replace with actual data if needed
   const router = useRouter();
 
   const userPortfolio = artworks.filter(artwork => artwork.artist.id === user?.uid);

@@ -37,62 +37,27 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    let email = values.usernameOrEmail;
-    const isEmail = email.includes('@');
-
-    if (!isEmail) {
-        const handle = email.replace(/^@/, ''); // Remove '@' if user typed it
-        const emails = JSON.parse(localStorage.getItem('soma-user-emails') || '{}');
-        const storedEmail = emails[handle];
-
-        if (!storedEmail) {
-            toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: "Invalid credentials. Please check your username and password.",
-            });
-            setIsLoading(false);
-            return;
-        }
-        email = storedEmail;
-    }
-
     try {
-      await signInWithEmailAndPassword(auth, email, values.password);
+      // DEMO MODE: Simulate successful login
+      console.log('Demo login with values:', values);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       toast({
-        title: "Login Successful!",
-        description: "Welcome back! Redirecting you to your feed.",
+        title: "Login Successful! (Demo Mode)",
+        description: "Welcome back to SOMA! This is a demo - no real authentication.",
       });
-      router.push("/feed");
-    } catch (error: any) {
-      console.error("Login error", error);
-      let errorMessage = "An unexpected error occurred. Please try again.";
-      switch (error.code) {
-        case 'auth/api-key-not-valid':
-          errorMessage = "Invalid Firebase API Key. Please check your .env file and ensure you have entered the correct credentials from your Firebase project settings.";
-          break;
-        case 'auth/configuration-not-found':
-          errorMessage = "Email/Password sign-in is not enabled for this project. Please enable it in the Firebase Console under Authentication > Sign-in method.";
-          break;
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          errorMessage = "Invalid credentials. Please check your email and password and try again.";
-          break;
-        case 'auth/invalid-email':
-          errorMessage = "The email address you entered is not valid.";
-          break;
-        case 'auth/user-disabled':
-          errorMessage = "This user account has been disabled.";
-          break;
-        default:
-          errorMessage = error.message || "An unknown error occurred. Please check your Firebase configuration and network connection.";
-          break;
-      }
+      
+      // Redirect to dashboard in demo mode
+      router.push('/feed');
+      
+    } catch (error) {
+      console.error('Demo login error:', error);
       toast({
+        title: "Demo Error",
+        description: "This is demo mode - no real authentication.",
         variant: "destructive",
-        title: "Login Failed",
-        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -102,54 +67,26 @@ export function LoginForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Check if the user is new
-        const isNewUser = !localStorage.getItem(`userProfile-${user.uid}`);
-        if (isNewUser) {
-            // For new Google users, we need to create a profile and handle
-            const handle = user.email?.split('@')[0] || `user${Date.now()}`;
-            
-            const usernames = JSON.parse(localStorage.getItem('soma-usernames') || '{}');
-            usernames[handle] = user.uid;
-            localStorage.setItem('soma-usernames', JSON.stringify(usernames));
-
-            const emails = JSON.parse(localStorage.getItem('soma-user-emails') || '{}');
-            emails[handle] = user.email;
-            localStorage.setItem('soma-user-emails', JSON.stringify(emails));
-
-            const profileData = {
-                handle,
-                bio1: '',
-                bio2: '',
-                bio3: '',
-                bio4: '',
-                website: '',
-                artistType: '',
-                displayName: user.displayName,
-            };
-            localStorage.setItem(`userProfile-${user.uid}`, JSON.stringify(profileData));
-        }
-
+        // DEMO MODE: Simulate Google sign-in
+        console.log('Demo Google sign-in');
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         toast({
-            title: "Login Successful!",
-            description: "Welcome back! Redirecting you to your feed.",
+            title: "Google Sign-in Successful! (Demo Mode)",
+            description: "Welcome back to SOMA! This is a demo - no real Google authentication.",
         });
-        router.push("/feed");
-    } catch (error: any) {
-        console.error("Google Sign-in error", error);
-        let errorMessage = "An unknown error occurred. Please try again.";
-        if (error.code === 'auth/unauthorized-domain') {
-          errorMessage = "This domain is not authorized for Google Sign-In. Please add your development domain to the list of authorized domains in your Firebase project's Authentication settings.";
-        } else {
-          errorMessage = error.message || "An unknown error occurred. Please try again.";
-        }
+        
+        // Redirect to dashboard in demo mode
+        router.push('/dashboard');
+        
+    } catch (error) {
+        console.error('Demo Google sign-in error:', error);
         toast({
+            title: "Demo Error",
+            description: "This is demo mode - no real Google authentication.",
             variant: "destructive",
-            title: "Sign In Failed",
-            description: errorMessage,
         });
     } finally {
         setIsGoogleLoading(false);

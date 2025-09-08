@@ -8,14 +8,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, UserCheck, UserPlus } from 'lucide-react';
 import { useMemo, useEffect, useState } from 'react';
-import { useAuth } from '@/providers/auth-provider';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 export default function ArtistProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const artistId = params.id as string;
 
   const artist = useMemo(() => artists.find((a) => a.id === artistId), [artistId]);

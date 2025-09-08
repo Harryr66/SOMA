@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useAuth } from "@/providers/auth-provider";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { deleteUser } from "firebase/auth";
@@ -82,7 +81,11 @@ function ProfileCompletionCard() {
 }
 
 function ReportBugDialog() {
-  const { user } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -232,7 +235,11 @@ function ReportBugDialog() {
 
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [hasAgreed, setHasAgreed] = useState(false);

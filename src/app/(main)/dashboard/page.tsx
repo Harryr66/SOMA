@@ -19,7 +19,7 @@ import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { AdminLoginForm } from '@/components/admin/admin-login-form';
 import { type Report, type Post, type Artwork, type Discussion, type Reply } from '@/lib/types';
-import { useContent } from '@/providers/content-provider';
+
 
 
 const revenueData: { month: string, revenue: number }[] = [];
@@ -89,7 +89,10 @@ const mockReports: Report[] = [
 export default function DashboardPage() {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
     const { toast } = useToast();
-    const { posts, artworks, discussions } = useContent();
+    // Using mock data instead of useContent
+  const posts = [];
+  const artworks = [];
+  const discussions = []; // Mock data - replace with actual data if needed
     
     const [users, setUsers] = React.useState<{id: string, name: string, handle: string, avatarUrl: string, imageAiHint: string, status: string}[]>([]);
     const [reportedContent, setReportedContent] = React.useState<Report[]>([]);

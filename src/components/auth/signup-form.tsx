@@ -44,56 +44,26 @@ export function SignUpForm() {
     setIsLoading(true);
 
     try {
-      // Note: A robust handle uniqueness check should query a dedicated 'handles' collection.
-      // This implementation is simplified for the prototype.
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
+      // DEMO MODE: Simulate successful signup
+      console.log('Demo signup with values:', values);
       
-      await updateProfile(user, {
-        displayName: values.name,
-      });
-
-      // Create user document in Firestore
-      const newUser: Artist = {
-        id: user.uid,
-        name: values.name,
-        handle: values.handle,
-        avatarUrl: user.photoURL || undefined,
-      };
-
-      await setDoc(doc(db, "users", user.uid), newUser);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // The local profile is for non-critical data or quick access, but Firestore is the source of truth.
-      const profileData = {
-          handle: values.handle,
-          displayName: values.name,
-          bio1: '',
-          bio2: '',
-          bio3: '',
-          bio4: '',
-          website: '',
-          artistType: '',
-      };
-      localStorage.setItem(`userProfile-${user.uid}`, JSON.stringify(profileData));
-
       toast({
-        title: "Account Created!",
-        description: "Welcome! We're redirecting you to your feed.",
+        title: "Account Created! (Demo Mode)",
+        description: "Welcome to SOMA! This is a demo - no real account was created.",
       });
-      router.push("/feed");
-
-    } catch (error: any) {
-      console.error("Sign up error", error);
-      let errorMessage = "An unexpected error occurred. Please try again.";
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = "This email address is already in use by another account.";
-      } else if (error.message.includes('permission-denied')) {
-        errorMessage = "Permission denied. Please check your Firestore security rules to allow user creation.";
-      }
+      
+      // Redirect to dashboard in demo mode
+      router.push('/feed');
+      
+    } catch (error) {
+      console.error('Demo signup error:', error);
       toast({
+        title: "Demo Error",
+        description: "This is demo mode - no real authentication.",
         variant: "destructive",
-        title: "Sign Up Failed",
-        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -103,46 +73,26 @@ export function SignUpForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Check if a user document already exists in Firestore
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-            // This is a new user signing up with Google
-            const handle = user.email?.split('@')[0] || `user${Date.now()}`;
-            
-            const newUser: Artist = {
-              id: user.uid,
-              name: user.displayName || "Google User",
-              handle: handle,
-              avatarUrl: user.photoURL || undefined,
-            };
-            await setDoc(userDocRef, newUser);
-
-            const profileData = {
-                handle,
-                displayName: user.displayName,
-                 bio1: '', bio2: '', bio3: '', bio4: '', website: '', artistType: '',
-            };
-            localStorage.setItem(`userProfile-${user.uid}`, JSON.stringify(profileData));
-        }
-
-
+        // DEMO MODE: Simulate Google signup
+        console.log('Demo Google signup');
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         toast({
-            title: "Sign In Successful!",
-            description: "Welcome! Redirecting you to your feed.",
+            title: "Google Signup Successful! (Demo Mode)",
+            description: "Welcome to SOMA! This is a demo - no real Google account was used.",
         });
-        router.push("/feed");
-    } catch (error: any) {
-        console.error("Google Sign-in error", error);
+        
+        // Redirect to dashboard in demo mode
+        router.push('/dashboard');
+        
+    } catch (error) {
+        console.error('Demo Google signup error:', error);
         toast({
+            title: "Demo Error",
+            description: "This is demo mode - no real Google authentication.",
             variant: "destructive",
-            title: "Sign In Failed",
-            description: error.message || "An unknown error occurred. Please try again.",
         });
     } finally {
         setIsGoogleLoading(false);

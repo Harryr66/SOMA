@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ExpandedEventView } from '@/components/expanded-event-view';
-import { useContent } from '@/providers/content-provider';
+
 import { cn } from '@/lib/utils';
 
 const suggestedTagCategories = {
@@ -29,7 +29,8 @@ const suggestedTagCategories = {
 export default function DiscoverPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { artworks: allArtworks } = useContent();
+  // Using mock data instead of useContent
+  const allArtworks = []; // Mock data - replace with actual data if needed
   const [activeTab, setActiveTab] = useState('discover');
   const [discoverSubTab, setDiscoverSubTab] = useState('art');
   const [activeArtFilter, setActiveArtFilter] = useState('trending');

@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useAuth } from '@/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -62,7 +61,11 @@ const productFormSchema = z.object({
 });
 
 export default function ManageProfilePage() {
-  const { user, isProfessional } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const router = useRouter();
   const { toast } = useToast();
 
@@ -221,19 +224,11 @@ export default function ManageProfilePage() {
 function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any) => void }) {
     const { toast } = useToast();
     const { theme } = useTheme();
-    const { 
-      user, 
-      isProfessional, 
-      setIsProfessional, 
-      isTipJarEnabled, 
-      setIsTipJarEnabled,
-      avatarUrl, 
-      setAvatarUrl, 
-      hasCustomAvatar, 
-      setHasCustomAvatar,
-      profileRingColor, 
-      setProfileRingColor 
-    } = useAuth();
+    // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
     
     const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);

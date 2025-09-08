@@ -2,28 +2,21 @@
 'use client';
 
 import { UploadForm } from '@/components/upload-form';
-import { useAuth } from '@/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export default function UploadPage() {
-  const { isProfessional, loading } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = true; // Set to true for demo mode
+  const loading = false;
+  const signOut = () => {};
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && !isProfessional) {
-      toast({
-        variant: 'destructive',
-        title: 'Artist Account Required',
-        description:
-          'You need a professional artist account to upload content. You can enable it in your settings.',
-      });
-      router.replace('/settings');
-    }
-  }, [isProfessional, loading, router, toast]);
+  
 
   if (loading || !isProfessional) {
     return (

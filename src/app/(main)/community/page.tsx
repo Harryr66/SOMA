@@ -28,7 +28,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useAuth } from '@/providers/auth-provider';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 
@@ -194,7 +193,11 @@ function LinksTabContent() {
 // Updated component for Discussions Tab
 function DiscussionsTabContent() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
   const [discussions, setDiscussions] = useState<Discussion[]>(discussionsData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 

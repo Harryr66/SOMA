@@ -6,19 +6,24 @@ import { type Discussion } from '@/lib/types';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useMemo, useEffect, useState } from 'react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { useContent } from '@/providers/content-provider';
+
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { DiscussionThread } from '@/components/discussion-thread';
-import { useAuth } from '@/providers/auth-provider';
 
 export default function DiscussionPage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
-    const { user } = useAuth();
-    const { discussions, posts } = useContent();
+    // Mock user data for demo
+  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
+  const isProfessional = false;
+  const loading = false;
+  const signOut = () => {};
+    // Using mock data instead of useContent
+  const discussions = [];
+  const posts = []; // Mock data - replace with actual data if needed
 
     const discussion = useMemo(() => discussions.find((d) => d.id === id), [id, discussions]);
     const post = useMemo(() => posts.find((p) => p.discussionId === id), [id, posts]);

@@ -53,7 +53,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Set a shorter timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('Firebase auth timeout - proceeding without authentication');
+      setLoading(false);
+    }, 3000);
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      clearTimeout(timeoutId);
       setUser(user);
       if (user) {
         // Load user-specific settings from localStorage
@@ -85,9 +92,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setProfileRingColorState(null);
       }
       setLoading(false);
+    }, (error) => {
+      console.warn('Firebase auth error:', error);
+      clearTimeout(timeoutId);
+      setLoading(false);
+      // Show user-friendly error message
+      toast({
+        title: "Authentication Error",
+        description: "Please check if Firebase Authentication is enabled in your project.",
+        variant: "destructive",
+      });
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   // Persist changes to localStorage for the current user
