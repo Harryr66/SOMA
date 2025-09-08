@@ -87,9 +87,6 @@
     background-clip: padding-box, border-box;
   }
   
-  .hover\:gradient-border:hover {
-      @apply gradient-border;
-  }
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -171,4 +168,21 @@ html:not(.dark) .btn-gradient-outline {
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box;
+}
+
+/* Theme-specific hover gradient borders */
+html:not(.dark) .hover\:gradient-border:hover {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+    linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box;
+  background-clip: padding-box, border-box;
+}
+
+html.dark .hover\:gradient-border:hover {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+    linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box;
+  background-clip: padding-box, border-box;
 }
