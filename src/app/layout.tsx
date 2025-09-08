@@ -44,10 +44,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* <AuthProvider> - Disabled until Firebase Auth is enabled */}
+          <AuthProvider>
             {children}
             <Toaster />
-          {/* </AuthProvider> */}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -5,10 +5,12 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteFooter } from '@/components/site-footer';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
+import { ContentProvider } from '@/providers/content-provider';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <ContentProvider>
+      <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
         <MobileHeader />
@@ -18,6 +20,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <SiteFooter />
       </div>
       <MobileBottomNav />
-    </div>
+      </div>
+    </ContentProvider>
   );
 }
