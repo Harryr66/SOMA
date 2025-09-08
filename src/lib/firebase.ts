@@ -1,4 +1,3 @@
-
 // This is your master file for connecting to Firebase.
 
 import { initializeApp, getApps, getApp } from "firebase/app";
@@ -15,7 +14,8 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 console.log('Firebase Config during build:', {
@@ -26,15 +26,36 @@ console.log('Firebase Config during build:', {
 
 console.log('Test Var:', process.env.TEST_VAR);
 
+// Validate required environment variables
+const requiredEnvVars = [
+  'NEXT_PUBLIC_FIREBASE_API_KEY',
+  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'NEXT_PUBLIC_FIREBASE_APP_ID'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('Missing required environment variables:', missingVars);
+  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+}
+
 // This is a more robust way to initialize Firebase in a Next.js environment.
 // It prevents re-initializing the app on every hot-reload.
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app;
+try {
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  console.log("Firebase has been initialized from the central lib/firebase.ts file!");
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  throw error;
+}
 
 // Initialize and export Firebase services
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
-
-console.log("Firebase has been initialized from the central lib/firebase.ts file!");
 
 export { db, auth, storage };
