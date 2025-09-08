@@ -33,7 +33,7 @@ export function ExpandedArtworkView({ artwork, onBack }: ExpandedArtworkViewProp
     
     const isCreator = useMemo(() => {
         if (!user || !discussion) return false;
-        return user.uid === discussion.author.id;
+        return user.id === discussion.author.id;
     }, [user, discussion]);
 
     const handleLike = () => setIsLiked(!isLiked);

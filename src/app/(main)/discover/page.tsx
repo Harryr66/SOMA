@@ -30,7 +30,7 @@ export default function DiscoverPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Using mock data instead of useContent
-  const allArtworks = []; // Mock data - replace with actual data if needed
+  const allArtworks: any[] = []; // Mock data - replace with actual data if needed
   const [activeTab, setActiveTab] = useState('discover');
   const [discoverSubTab, setDiscoverSubTab] = useState('art');
   const [activeArtFilter, setActiveArtFilter] = useState('trending');
@@ -80,7 +80,7 @@ export default function DiscoverPage() {
           sourceList = allArtworks;
         } else {
           sourceList = allArtworks.filter(artwork =>
-            filterTags.every(tag => artwork.tags?.map(t => t.toLowerCase()).includes(tag.toLowerCase()))
+            filterTags.every(tag => artwork.tags?.map((t: any) => t.toLowerCase()).includes(tag.toLowerCase()))
           );
         }
         break;

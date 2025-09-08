@@ -85,7 +85,7 @@ export default function ManageProfilePage() {
 
   useEffect(() => {
     if (user) {
-      const savedProfile = JSON.parse(localStorage.getItem(`userProfile-${user.uid}`) || '{}');
+      const savedProfile = JSON.parse(localStorage.getItem(`userProfile-${user.id}`) || '{}');
       form.reset({
         name: user.displayName || '',
         handle: (savedProfile.handle || user.email?.split('@')[0] || ''),
@@ -110,13 +110,13 @@ export default function ManageProfilePage() {
     }
 
     try {
-        const oldProfile = JSON.parse(localStorage.getItem(`userProfile-${user.uid}`) || '{}');
+        const oldProfile = JSON.parse(localStorage.getItem(`userProfile-${user.id}`) || '{}');
         const oldHandle = oldProfile.handle || '';
         const newHandle = values.handle;
 
         if (newHandle.toLowerCase() !== oldHandle.toLowerCase()) {
             const usernames = JSON.parse(localStorage.getItem('soma-usernames') || '{}');
-            if (Object.values(usernames).some((uid: any) => uid !== user.uid && Object.keys(usernames).find(h => usernames[h] === uid)?.toLowerCase() === newHandle.toLowerCase())) {
+            if (Object.values(usernames).some((uid: any) => uid !== user.id && Object.keys(usernames).find(h => usernames[h] === uid)?.toLowerCase() === newHandle.toLowerCase())) {
                 toast({
                     variant: 'destructive',
                     title: 'Update Failed',
@@ -131,7 +131,7 @@ export default function ManageProfilePage() {
               delete usernames[oldHandle];
               delete emails[oldHandle];
             }
-            usernames[newHandle] = user.uid;
+            usernames[newHandle] = user.id;
             if (user.email) {
               emails[newHandle] = user.email;
             }
@@ -153,13 +153,13 @@ export default function ManageProfilePage() {
             artistType: values.artistType,
             displayName: values.name,
         };
-        localStorage.setItem(`userProfile-${user.uid}`, JSON.stringify(profileData));
+        localStorage.setItem(`userProfile-${user.id}`, JSON.stringify(profileData));
 
         // Update user in the global list of searchable users
         const allUsersRaw = localStorage.getItem('soma-all-users');
         if (allUsersRaw) {
             let allUsers: Artist[] = JSON.parse(allUsersRaw);
-            const userIndex = allUsers.findIndex(u => u.id === user.uid);
+            const userIndex = allUsers.findIndex(u => u.id === user.id);
             if (userIndex > -1) {
                 allUsers[userIndex].name = values.name;
                 allUsers[userIndex].handle = newHandle;
@@ -234,6 +234,8 @@ function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [hasCustomAvatar, setHasCustomAvatar] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const resetDialog = () => {
@@ -294,7 +296,7 @@ function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any
       setIsUploading(true);
   
       try {
-          await idbSetAvatar(user.uid, selectedFile);
+          await idbSetAvatar(user.id, selectedFile);
           setAvatarUrl(previewUrl);
           setHasCustomAvatar(true);
           toast({
@@ -318,7 +320,7 @@ function EditProfileForm({ form, onSubmit }: { form: any, onSubmit: (values: any
     const handleRemovePicture = async () => {
       if (!user) return;
       try {
-          await idbDeleteAvatar(user.uid);
+          await idbDeleteAvatar(user.id);
           setAvatarUrl(null);
           setHasCustomAvatar(false);
           resetDialog();

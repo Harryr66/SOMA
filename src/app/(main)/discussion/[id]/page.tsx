@@ -22,15 +22,15 @@ export default function DiscussionPage() {
   const loading = false;
   const signOut = () => {};
     // Using mock data instead of useContent
-  const discussions = [];
-  const posts = []; // Mock data - replace with actual data if needed
+  const discussions: any[] = [];
+  const posts: any[] = []; // Mock data - replace with actual data if needed
 
     const discussion = useMemo(() => discussions.find((d) => d.id === id), [id, discussions]);
     const post = useMemo(() => posts.find((p) => p.discussionId === id), [id, posts]);
     
     const isCreator = useMemo(() => {
         if (!user || !discussion) return false;
-        return user.uid === discussion.author.id;
+        return user.id === discussion.author.id;
     }, [user, discussion]);
 
     if (discussions.length > 0 && !discussion) {

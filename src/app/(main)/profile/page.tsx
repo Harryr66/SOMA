@@ -28,8 +28,8 @@ export default function ProfilePage() {
   const signOut = () => {};
   const { toast } = useToast();
   // Using mock data instead of useContent
-  const posts = [];
-  const artworks = []; // Mock data - replace with actual data if needed
+  const posts: any[] = [];
+  const artworks: any[] = []; // Mock data - replace with actual data if needed
   const router = useRouter();
 
   const userPortfolio = artworks.filter(artwork => artwork.artist.id === user?.uid);

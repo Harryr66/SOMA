@@ -61,7 +61,7 @@ export function ReportDialog({
       toast({ variant: 'destructive', title: 'You must be logged in to report content.' });
       return;
     }
-    const reporterHandle = JSON.parse(localStorage.getItem(`userProfile-${user.uid}`) || '{}').handle || user.email?.split('@')[0] || 'anonymous';
+    const reporterHandle = JSON.parse(localStorage.getItem(`userProfile-${user.id}`) || '{}').handle || user.email?.split('@')[0] || 'anonymous';
 
     const newReport: Report = {
       id: `report-${Date.now()}`,

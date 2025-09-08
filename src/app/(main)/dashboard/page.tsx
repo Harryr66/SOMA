@@ -90,9 +90,9 @@ export default function DashboardPage() {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
     const { toast } = useToast();
     // Using mock data instead of useContent
-  const posts = [];
-  const artworks = [];
-  const discussions = []; // Mock data - replace with actual data if needed
+  const posts: any[] = [];
+  const artworks: any[] = [];
+  const discussions: any[] = []; // Mock data - replace with actual data if needed
     
     const [users, setUsers] = React.useState<{id: string, name: string, handle: string, avatarUrl: string, imageAiHint: string, status: string}[]>([]);
     const [reportedContent, setReportedContent] = React.useState<Report[]>([]);

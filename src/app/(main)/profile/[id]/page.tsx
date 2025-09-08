@@ -30,7 +30,7 @@ export default function ArtistProfilePage() {
 
   useEffect(() => {
     // Redirect the user to their own editable profile page if they land here.
-    if (user && user.uid === artistId) {
+    if (user && user.id === artistId) {
       router.replace('/profile');
     }
   }, [user, artistId, router]);
@@ -45,7 +45,7 @@ export default function ArtistProfilePage() {
   }
   
   // While redirecting, it's best to show nothing to prevent a flash of content.
-  if (user && user.uid === artistId) {
+  if (user && user.id === artistId) {
       return null;
   }
 

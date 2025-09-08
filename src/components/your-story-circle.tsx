@@ -19,7 +19,7 @@ export function YourStoryCircle() {
 
   const hasActiveStory = useMemo(() => {
     if (!user) return false;
-    return storyItems.some(item => item.artistId === user.uid);
+    return storyItems.some(item => item.artistId === user.id);
   }, [storyItems, user]);
 
 
@@ -28,7 +28,7 @@ export function YourStoryCircle() {
   }
   
   const currentUserArtist: Artist = {
-    id: user.uid,
+    id: user.id,
     name: user.displayName || 'Anonymous User',
     handle: user.email?.split('@')[0] || 'anonymous',
     avatarUrl: avatarUrl || undefined,

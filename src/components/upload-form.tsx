@@ -238,7 +238,7 @@ export function UploadForm() {
     }
 
     const currentUserArtist: Artist = {
-        id: user.uid,
+        id: user.id,
         name: user.displayName || 'Anonymous User',
         handle: user.email?.split('@')[0] || 'anonymous',
         avatarUrl: avatarUrl || undefined,

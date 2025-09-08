@@ -218,12 +218,12 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
     if (!user) {
         throw new Error('User not authenticated.');
     }
-    const storageRef = ref(storage, `stories/${user.uid}/${Date.now()}_${file.name}`);
+    const storageRef = ref(storage, `stories/${user.id}/${Date.now()}_${file.name}`);
     await uploadBytes(storageRef, file);
     const mediaUrl = await getDownloadURL(storageRef);
 
     const newItem: Omit<StoryItem, 'id'> = {
-        artistId: user.uid,
+        artistId: user.id,
         mediaUrl,
         mediaType: file.type.startsWith('video') ? 'video' : 'image',
         createdAt: Date.now(),
@@ -252,9 +252,9 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const currentUserArtist: Artist = {
-      id: user.uid,
+      id: user.id,
       name: user.displayName || 'Anonymous User',
-      handle: JSON.parse(localStorage.getItem(`userProfile-${user.uid}`) || '{}').handle || user.email?.split('@')[0] || 'anonymous',
+      handle: JSON.parse(localStorage.getItem(`userProfile-${user.id}`) || '{}').handle || user.email?.split('@')[0] || 'anonymous',
       avatarUrl: avatarUrl || undefined,
     };
     

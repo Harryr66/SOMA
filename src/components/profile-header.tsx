@@ -27,7 +27,7 @@ export function ProfileHeader() {
   const avatarUrl = null;
   const profileRingColor = null;
   // Mock story items for demo
-  const storyItems = [];
+  const storyItems: any[] = [];
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState('');
@@ -46,12 +46,12 @@ export function ProfileHeader() {
 
   const hasActiveStory = useMemo(() => {
     if (!user) return false;
-    return storyItems.some(item => item.artistId === user.uid);
+    return storyItems.some(item => item.artistId === user.id);
   }, [storyItems, user]);
 
   useEffect(() => {
     if (user) {
-      const savedProfile = JSON.parse(localStorage.getItem(`userProfile-${user.uid}`) || '{}');
+      const savedProfile = JSON.parse(localStorage.getItem(`userProfile-${user.id}`) || '{}');
 
       setDisplayName(user.displayName || savedProfile.displayName || "New Artist");
       const handleFromStorage = savedProfile.handle || user.email?.split('@')[0] || "newartist";
@@ -96,7 +96,7 @@ export function ProfileHeader() {
   };
 
   const currentUserArtist: Artist | null = user ? {
-    id: user.uid,
+    id: user.id,
     name: displayName,
     handle: handle,
     avatarUrl: avatarUrl || undefined,
