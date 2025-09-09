@@ -7,6 +7,7 @@ import { CommunityService } from '@/lib/database';
 import { Community } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Users, Plus } from 'lucide-react';
 
@@ -16,6 +17,7 @@ export default function CommunityPage() {
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     loadCommunities();
@@ -99,7 +101,10 @@ export default function CommunityPage() {
               Discover and join communities of artists and art enthusiasts
             </p>
           </div>
-          <CreateCommunityDialog onCommunityCreated={handleCommunityCreated} />
+          <Button onClick={() => setShowCreateDialog(true)} variant="gradient">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Community
+          </Button>
         </div>
 
         {/* Search */}
@@ -171,6 +176,14 @@ export default function CommunityPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Create Community Dialog */}
+      {showCreateDialog && (
+        <CreateCommunityDialog 
+          onClose={() => setShowCreateDialog(false)}
+          onCommunityCreated={handleCommunityCreated}
+        />
+      )}
     </div>
   );
 }
