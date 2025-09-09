@@ -29,6 +29,9 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    
+    /* Light theme gradient colors */
+    --gradient-colors: #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%;
   }
 
   .dark {
@@ -56,6 +59,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Dark theme gradient colors */
+    --gradient-colors: #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1;
   }
 }
 
@@ -77,22 +83,22 @@
     border-radius: 0.375rem;
   }
 
-  /* Default gradient-border shows gradient ALWAYS */
+  /* Default gradient-border shows gradient ALWAYS using CSS custom properties */
   .gradient-border {
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, transparent, transparent) border-box;
+      linear-gradient(135deg, var(--gradient-colors)) border-box;
     background-clip: padding-box, border-box;
     border-radius: 0.375rem;
   }
   
-  /* Hover gradient-border shows gradient ONLY on hover */
+  /* Hover gradient-border shows gradient ONLY on hover using CSS custom properties */
   .hover\:gradient-border:hover {
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, transparent, transparent) border-box;
+      linear-gradient(135deg, var(--gradient-colors)) border-box;
     background-clip: padding-box, border-box;
   }
 
@@ -109,7 +115,7 @@
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, transparent, transparent) border-box;
+      linear-gradient(135deg, var(--gradient-colors)) border-box;
     background-clip: padding-box, border-box;
   }
 }
@@ -200,4 +206,4 @@ body.dark [data-radix-collection-item]:hover {
   background-clip: padding-box, border-box !important;
 }
 
-/* Cache bust - $(date) - Ultra high specificity dark theme selectors */
+/* Cache bust - $(date) - Using CSS custom properties + ultra high specificity */
