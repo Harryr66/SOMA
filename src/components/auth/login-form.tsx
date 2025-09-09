@@ -53,8 +53,8 @@ export function LoginForm() {
         description: `Welcome back to SOMA, ${user.displayName || user.email}!`,
       });
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Redirect to feed
+      router.push('/feed');
       
     } catch (error: any) {
       console.error('Login error:', error);
@@ -96,8 +96,8 @@ export function LoginForm() {
             description: `Welcome back to SOMA, ${user.displayName || user.email}!`,
         });
         
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Redirect to feed
+        router.push('/feed');
         
     } catch (error: any) {
         console.error('Google sign-in error:', error);

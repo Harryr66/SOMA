@@ -96,8 +96,8 @@ export function SignUpForm() {
         description: `Welcome to SOMA, ${values.name}! Your account has been created successfully.`,
       });
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Redirect to feed
+      router.push('/feed');
       
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -171,8 +171,8 @@ export function SignUpForm() {
             description: `Welcome to SOMA, ${user.displayName || user.email}! Your account has been created successfully.`,
         });
         
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Redirect to feed
+        router.push('/feed');
         
     } catch (error: any) {
         console.error('Google signup error:', error);
