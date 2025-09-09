@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 
 interface CreateCommunityDialogProps {
   onClose: () => void;
+  onCommunityCreated?: (community: any) => void;
 }
 
 const COMMUNITY_TYPES = [
@@ -36,7 +37,7 @@ const COMMUNITY_TYPES = [
   }
 ];
 
-export function CreateCommunityDialog({ onClose }: CreateCommunityDialogProps) {
+export function CreateCommunityDialog({ onClose, onCommunityCreated }: CreateCommunityDialogProps) {
   const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -92,6 +93,11 @@ export function CreateCommunityDialog({ onClose }: CreateCommunityDialogProps) {
         title: "Community created",
         description: `Your community "${formData.name}" has been created successfully.`,
       });
+
+      // Call the callback if provided
+      if (onCommunityCreated) {
+        onCommunityCreated(communityData);
+      }
 
       onClose();
     } catch (error) {
