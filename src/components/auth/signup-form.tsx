@@ -44,25 +44,77 @@ export function SignUpForm() {
     setIsLoading(true);
 
     try {
-      // DEMO MODE: Simulate successful signup
-      console.log('Demo signup with values:', values);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Check if username is already taken
+      const userDoc = await getDoc(doc(db, 'users', values.handle));
+      if (userDoc.exists()) {
+        toast({
+          title: "Username Taken",
+          description: "This username is already taken. Please choose another one.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+
+      const user = userCredential.user;
+
+      // Update user profile with display name
+      await updateProfile(user, {
+        displayName: values.name,
+      });
+
+      // Create user document in Firestore
+      const userData: Artist = {
+        id: user.uid,
+        displayName: values.name,
+        handle: values.handle,
+        email: values.email,
+        avatarUrl: user.photoURL || null,
+        bio: "",
+        location: "",
+        website: "",
+        isProfessional: false,
+        followers: [],
+        following: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(doc(db, 'users', values.handle), userData);
+      await setDoc(doc(db, 'userProfiles', user.uid), userData);
+
+      console.log('User created:', user);
       
       toast({
-        title: "Account Created! (Demo Mode)",
-        description: "Welcome to SOMA! This is a demo - no real account was created.",
+        title: "Account Created!",
+        description: `Welcome to SOMA, ${values.name}! Your account has been created successfully.`,
       });
       
-      // Redirect to dashboard in demo mode
-      router.push('/feed');
+      // Redirect to dashboard
+      router.push('/dashboard');
       
-    } catch (error) {
-      console.error('Demo signup error:', error);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      
+      let errorMessage = "An error occurred during signup. Please try again.";
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "An account with this email already exists. Please sign in instead.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "Password is too weak. Please choose a stronger password.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email address format.";
+      }
+      
       toast({
-        title: "Demo Error",
-        description: "This is demo mode - no real authentication.",
+        title: "Signup Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -73,25 +125,71 @@ export function SignUpForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-        // DEMO MODE: Simulate Google signup
-        console.log('Demo Google signup');
+        // Real Google authentication
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
         
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const user = result.user;
+        console.log('User signed up with Google:', user);
+
+        // Generate a unique handle from email
+        const emailPrefix = user.email?.split('@')[0] || 'user';
+        const baseHandle = emailPrefix.replace(/[^a-zA-Z0-9]/g, '');
+        let handle = baseHandle;
+        let counter = 1;
+
+        // Check if handle is available, if not add numbers
+        while (true) {
+          const userDoc = await getDoc(doc(db, 'users', handle));
+          if (!userDoc.exists()) break;
+          handle = `${baseHandle}${counter}`;
+          counter++;
+        }
+
+        // Create user document in Firestore
+        const userData: Artist = {
+          id: user.uid,
+          displayName: user.displayName || 'User',
+          handle: handle,
+          email: user.email || '',
+          avatarUrl: user.photoURL || null,
+          bio: "",
+          location: "",
+          website: "",
+          isProfessional: false,
+          followers: [],
+          following: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await setDoc(doc(db, 'users', handle), userData);
+        await setDoc(doc(db, 'userProfiles', user.uid), userData);
         
         toast({
-            title: "Google Signup Successful! (Demo Mode)",
-            description: "Welcome to SOMA! This is a demo - no real Google account was used.",
+            title: "Google Signup Successful!",
+            description: `Welcome to SOMA, ${user.displayName || user.email}! Your account has been created successfully.`,
         });
         
-        // Redirect to dashboard in demo mode
+        // Redirect to dashboard
         router.push('/dashboard');
         
-    } catch (error) {
-        console.error('Demo Google signup error:', error);
+    } catch (error: any) {
+        console.error('Google signup error:', error);
+        
+        let errorMessage = "An error occurred during Google signup. Please try again.";
+        
+        if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = "Sign-up was cancelled. Please try again.";
+        } else if (error.code === 'auth/popup-blocked') {
+            errorMessage = "Popup was blocked. Please allow popups and try again.";
+        } else if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMessage = "An account already exists with this email using a different sign-in method.";
+        }
+        
         toast({
-            title: "Demo Error",
-            description: "This is demo mode - no real Google authentication.",
+            title: "Google Signup Failed",
+            description: errorMessage,
             variant: "destructive",
         });
     } finally {

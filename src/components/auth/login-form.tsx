@@ -38,25 +38,42 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      // DEMO MODE: Simulate successful login
-      console.log('Demo login with values:', values);
+      // Real Firebase authentication
+      const userCredential = await signInWithEmailAndPassword(
+        auth, 
+        values.usernameOrEmail, 
+        values.password
+      );
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const user = userCredential.user;
+      console.log('User signed in:', user);
       
       toast({
-        title: "Login Successful! (Demo Mode)",
-        description: "Welcome back to SOMA! This is a demo - no real authentication.",
+        title: "Login Successful!",
+        description: `Welcome back to SOMA, ${user.displayName || user.email}!`,
       });
       
-      // Redirect to dashboard in demo mode
-      router.push('/feed');
+      // Redirect to dashboard
+      router.push('/dashboard');
       
-    } catch (error) {
-      console.error('Demo login error:', error);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      let errorMessage = "An error occurred during login. Please try again.";
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "No account found with this email address.";
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email address format.";
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = "Too many failed attempts. Please try again later.";
+      }
+      
       toast({
-        title: "Demo Error",
-        description: "This is demo mode - no real authentication.",
+        title: "Login Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -67,25 +84,37 @@ export function LoginForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-        // DEMO MODE: Simulate Google sign-in
-        console.log('Demo Google sign-in');
+        // Real Google authentication
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
         
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const user = result.user;
+        console.log('User signed in with Google:', user);
         
         toast({
-            title: "Google Sign-in Successful! (Demo Mode)",
-            description: "Welcome back to SOMA! This is a demo - no real Google authentication.",
+            title: "Google Sign-in Successful!",
+            description: `Welcome back to SOMA, ${user.displayName || user.email}!`,
         });
         
-        // Redirect to dashboard in demo mode
+        // Redirect to dashboard
         router.push('/dashboard');
         
-    } catch (error) {
-        console.error('Demo Google sign-in error:', error);
+    } catch (error: any) {
+        console.error('Google sign-in error:', error);
+        
+        let errorMessage = "An error occurred during Google sign-in. Please try again.";
+        
+        if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = "Sign-in was cancelled. Please try again.";
+        } else if (error.code === 'auth/popup-blocked') {
+            errorMessage = "Popup was blocked. Please allow popups and try again.";
+        } else if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMessage = "An account already exists with this email using a different sign-in method.";
+        }
+        
         toast({
-            title: "Demo Error",
-            description: "This is demo mode - no real Google authentication.",
+            title: "Google Sign-in Failed",
+            description: errorMessage,
             variant: "destructive",
         });
     } finally {

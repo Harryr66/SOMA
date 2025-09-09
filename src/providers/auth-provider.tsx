@@ -35,21 +35,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (firebaseUser) {
         try {
-          // Get user data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          // Get user data from Firestore using userProfiles collection
+          const userDoc = await getDoc(doc(db, 'userProfiles', firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const user: User = {
               id: firebaseUser.uid,
-              username: userData.username || '',
+              username: userData.handle || '',
               email: firebaseUser.email || '',
               displayName: userData.displayName || firebaseUser.displayName || '',
               avatarUrl: userData.avatarUrl || firebaseUser.photoURL || undefined,
               bio: userData.bio || '',
               website: userData.website || '',
               location: userData.location || '',
-              followerCount: userData.followerCount || 0,
-              followingCount: userData.followingCount || 0,
+              followerCount: userData.followers?.length || 0,
+              followingCount: userData.following?.length || 0,
               postCount: userData.postCount || 0,
               createdAt: userData.createdAt?.toDate() || new Date(),
               updatedAt: userData.updatedAt?.toDate() || new Date(),
