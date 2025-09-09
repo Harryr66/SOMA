@@ -29,9 +29,6 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    
-    /* Light theme gradient colors */
-    --gradient-colors: #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%;
   }
 
   .dark {
@@ -59,9 +56,6 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    
-    /* Dark theme gradient colors */
-    --gradient-colors: #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1;
   }
 }
 
@@ -83,22 +77,22 @@
     border-radius: 0.375rem;
   }
 
-  /* Default gradient-border shows gradient ALWAYS using CSS custom properties */
+  /* Base gradient-border - neutral by default */
   .gradient-border {
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, var(--gradient-colors)) border-box;
+      linear-gradient(135deg, transparent, transparent) border-box;
     background-clip: padding-box, border-box;
     border-radius: 0.375rem;
   }
   
-  /* Hover gradient-border shows gradient ONLY on hover using CSS custom properties */
+  /* Hover gradient-border - neutral by default */
   .hover\:gradient-border:hover {
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, var(--gradient-colors)) border-box;
+      linear-gradient(135deg, transparent, transparent) border-box;
     background-clip: padding-box, border-box;
   }
 
@@ -115,65 +109,53 @@
     border: 2px solid transparent;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      linear-gradient(135deg, var(--gradient-colors)) border-box;
+      linear-gradient(135deg, transparent, transparent) border-box;
     background-clip: padding-box, border-box;
   }
 }
 
-/* Force light theme gradients with high specificity - ALWAYS for gradient-border */
+/* LIGHT THEME GRADIENTS - EXPLICIT COLORS */
 body:not(.dark) .gradient-border {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
 body:not(.dark) .hover\:gradient-border:hover {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
 body:not(.dark) .btn-gradient-outline {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
 }
 
 body:not(.dark) .story-gradient-border {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
-/* Force dark theme gradients with ULTRA HIGH specificity - ALWAYS for gradient-border - COMES AFTER LIGHT THEME */
+/* DARK THEME GRADIENTS - EXPLICIT COLORS - MAXIMUM SPECIFICITY */
 html body.dark .gradient-border,
 body.dark .gradient-border {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
 html body.dark .hover\:gradient-border:hover,
 body.dark .hover\:gradient-border:hover {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
 html body.dark .btn-gradient-outline,
 body.dark .btn-gradient-outline {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
@@ -181,29 +163,23 @@ body.dark .btn-gradient-outline {
 
 html body.dark .story-gradient-border,
 body.dark .story-gradient-border {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
-/* Fix dropdown menu gradient borders for theme switching - HOVER ONLY */
+/* Dropdown menu items */
 body:not(.dark) [data-radix-collection-item]:hover {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
 html body.dark [data-radix-collection-item]:hover,
 body.dark [data-radix-collection-item]:hover {
-  border: 2px solid transparent !important;
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
-  background-clip: padding-box, border-box !important;
 }
 
-/* Cache bust - $(date) - Using CSS custom properties + ultra high specificity */
+/* Cache bust - $(date) - Simplified approach with explicit colors */
