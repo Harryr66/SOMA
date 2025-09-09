@@ -1,9 +1,11 @@
 // This is your master file for connecting to Firebase.
 
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getMessaging, isSupported } from "firebase/messaging";
+import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
 
 // Fallback configuration in case environment variables are not available
 const fallbackConfig = {
@@ -35,7 +37,7 @@ console.log('Firebase Config (with fallback):', {
 
 // This is a more robust way to initialize Firebase in a Next.js environment.
 // It prevents re-initializing the app on every hot-reload.
-let app;
+let app: FirebaseApp;
 try {
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   console.log("Firebase has been initialized from the central lib/firebase.ts file!");
@@ -49,4 +51,24 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-export { db, auth, storage };
+// Initialize messaging (only in browser)
+let messaging = null;
+if (typeof window !== 'undefined') {
+  isSupported().then((supported) => {
+    if (supported) {
+      messaging = getMessaging(app);
+    }
+  });
+}
+
+// Initialize analytics (only in browser)
+let analytics = null;
+if (typeof window !== 'undefined') {
+  isAnalyticsSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  });
+}
+
+export { app, db, auth, storage, messaging, analytics };

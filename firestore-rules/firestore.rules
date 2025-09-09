@@ -1,0 +1,201 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isOwnerOrAdmin(userId) {
+      return isOwner(userId) || isAdmin();
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isValidUser(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId));
+    }
+    
+    function isFollowing(followerId, followingId) {
+      return exists(/databases/$(database)/documents/users/$(followerId)/following/$(followingId));
+    }
+    
+    function isCommunityMember(communityId, userId) {
+      return exists(/databases/$(database)/documents/communities/$(communityId)/members/$(userId));
+    }
+    
+    function isAuctionParticipant(auctionId, userId) {
+      return exists(/databases/$(database)/documents/auctions/$(auctionId)/participants/$(userId));
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+      
+      // User following subcollection
+      match /following/{followingId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId) && isValidUser(followingId);
+      }
+      
+      // User followers subcollection
+      match /followers/{followerId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId) && isValidUser(followerId);
+      }
+      
+      // User conversations subcollection
+      match /conversations/{conversationId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // User cart subcollection
+      match /cart/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // User orders subcollection
+      match /orders/{orderId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Usernames collection (for username uniqueness)
+    match /usernames/{username} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isOwner(resource.data.uid);
+    }
+
+    // Posts collection
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(resource.data.artist.id);
+      allow update: if isAuthenticated() && isOwner(resource.data.artist.id);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.artist.id) || isAdmin());
+    }
+
+    // Artworks collection
+    match /artworks/{artworkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(resource.data.artist.id);
+      allow update: if isAuthenticated() && isOwner(resource.data.artist.id);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.artist.id) || isAdmin());
+    }
+
+    // Stories collection
+    match /stories/{storyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(resource.data.artistId);
+      allow update: if isAuthenticated() && isOwner(resource.data.artistId);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.artistId) || isAdmin());
+    }
+
+    // Discussions collection
+    match /discussions/{discussionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(resource.data.author.id) || isAdmin());
+      allow delete: if isAuthenticated() && (isOwner(resource.data.author.id) || isAdmin());
+    }
+
+    // Communities collection
+    match /communities/{communityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isOwner(resource.data.ownerId) || isAdmin());
+      allow delete: if isAuthenticated() && (isOwner(resource.data.ownerId) || isAdmin());
+      
+      // Community members subcollection
+      match /members/{userId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && (isOwner(userId) || isOwner(communityId) || isAdmin());
+      }
+      
+      // Community posts subcollection
+      match /posts/{postId} {
+        allow read: if isAuthenticated() && isCommunityMember(communityId, request.auth.uid);
+        allow create: if isAuthenticated() && isCommunityMember(communityId, request.auth.uid);
+        allow update: if isAuthenticated() && (isOwner(resource.data.author.id) || isOwner(communityId) || isAdmin());
+        allow delete: if isAuthenticated() && (isOwner(resource.data.author.id) || isOwner(communityId) || isAdmin());
+      }
+    }
+
+    // Conversations collection
+    match /conversations/{conversationId} {
+      allow read, write: if isAuthenticated() && 
+        (isOwner(resource.data.participants[0]) || isOwner(resource.data.participants[1]));
+      
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated() && 
+          (isOwner(resource.data.senderId) || isOwner(resource.data.recipientId));
+      }
+    }
+
+    // Auctions collection
+    match /auctions/{auctionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(resource.data.sellerId);
+      allow update: if isAuthenticated() && (isOwner(resource.data.sellerId) || isAdmin());
+      allow delete: if isAuthenticated() && (isOwner(resource.data.sellerId) || isAdmin());
+      
+      // Auction bids subcollection
+      match /bids/{bidId} {
+        allow read: if isAuthenticated() && isAuctionParticipant(auctionId, request.auth.uid);
+        allow create: if isAuthenticated() && isAuctionParticipant(auctionId, request.auth.uid);
+        allow update: if isAuthenticated() && isOwner(resource.data.bidderId);
+        allow delete: if isAuthenticated() && (isOwner(resource.data.bidderId) || isAdmin());
+      }
+      
+      // Auction participants subcollection
+      match /participants/{userId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && isOwner(userId);
+      }
+    }
+
+    // Products collection
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(resource.data.sellerId);
+      allow update: if isAuthenticated() && isOwner(resource.data.sellerId);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.sellerId) || isAdmin());
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      allow read, write: if isAuthenticated() && isOwner(resource.data.buyerId);
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Reports collection
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Admins collection
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Analytics collection (for app analytics)
+    match /analytics/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,77 +1,125 @@
-
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import { DiscussionCard } from '@/components/discussion-card';
-import { type Discussion } from '@/lib/types';
-import { notFound, useParams, useRouter } from 'next/navigation';
-import { useMemo, useEffect, useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-
+import { DiscussionThread } from '@/components/discussion-thread';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import Image from 'next/image';
-import { DiscussionThread } from '@/components/discussion-thread';
+import { useAuth } from '@/providers/auth-provider';
+import { useContent } from '@/providers/content-provider';
+import { Discussion } from '@/lib/types';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-export default function DiscussionPage() {
-    const params = useParams();
-    const router = useRouter();
-    const id = params.id as string;
-    // Mock user data for demo
-  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const isProfessional = false;
-  const loading = false;
-  const signOut = () => {};
-    // Using mock data instead of useContent
-  const discussions: any[] = [];
-  const posts: any[] = []; // Mock data - replace with actual data if needed
+interface DiscussionPageProps {
+  params: {
+    id: string;
+  };
+}
 
-    const discussion = useMemo(() => discussions.find((d) => d.id === id), [id, discussions]);
-    const post = useMemo(() => posts.find((p) => p.discussionId === id), [id, posts]);
-    
-    const isCreator = useMemo(() => {
-        if (!user || !discussion) return false;
-        return user.id === discussion.author.id;
-    }, [user, discussion]);
+export default function DiscussionPage({ params }: DiscussionPageProps) {
+  const { user } = useAuth();
+  const { discussions } = useContent();
+  const router = useRouter();
+  const [discussion, setDiscussion] = useState<Discussion | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    if (discussions.length > 0 && !discussion) {
-        notFound();
+  useEffect(() => {
+    const foundDiscussion = discussions.find(d => d.id === params.id);
+    if (foundDiscussion) {
+      setDiscussion(foundDiscussion);
     }
+    setLoading(false);
+  }, [discussions, params.id]);
 
-    if (!discussion) {
-        return (
-            <div className="flex h-full min-h-[calc(100vh-10rem)] w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
+  const isCreator = user?.id === discussion?.author.id;
 
+  const handleLike = (discussionId: string) => {
+    // Handle like logic
+    console.log('Like discussion:', discussionId);
+  };
+
+  const handleDislike = (discussionId: string) => {
+    // Handle dislike logic
+    console.log('Dislike discussion:', discussionId);
+  };
+
+  const handleReply = (discussionId: string) => {
+    // Handle reply logic
+    console.log('Reply to discussion:', discussionId);
+  };
+
+  const handlePin = (discussionId: string) => {
+    // Handle pin logic
+    console.log('Pin discussion:', discussionId);
+  };
+
+  const handleLock = (discussionId: string) => {
+    // Handle lock logic
+    console.log('Lock discussion:', discussionId);
+  };
+
+  const handleReport = (report: any) => {
+    // Handle report logic
+    console.log('Report discussion:', report);
+  };
+
+  if (loading) {
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <Button variant="outline" onClick={() => router.back()} className="mb-4">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-            </Button>
-            
-            {post && (
-                <div className="mb-6 rounded-lg overflow-hidden border">
-                    <Image
-                        src={post.imageUrl}
-                        alt={post.caption}
-                        width={800}
-                        height={600}
-                        className="object-cover w-full"
-                        data-ai-hint={post.imageAiHint}
-                    />
-                </div>
-            )}
-
-            <div className="mb-6">
-                 <DiscussionCard discussion={discussion} isCreator={isCreator} isExpanded={true} />
-            </div>
-
-            <Separator className="my-8" />
-            
-            <DiscussionThread discussion={discussion} />
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
+  }
+
+  if (!discussion) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center">
+          <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Discussion Not Found</h1>
+          <p className="text-muted-foreground mb-4">
+            The discussion you're looking for doesn't exist or has been removed.
+          </p>
+          <Button onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center space-x-4 mb-6">
+          <Button variant="ghost" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <h1 className="text-2xl font-bold">Discussion</h1>
+        </div>
+
+        {/* Discussion */}
+        <div className="mb-6">
+          <DiscussionCard 
+            discussion={discussion} 
+            onLike={handleLike}
+            onDislike={handleDislike}
+            onReply={handleReply}
+            onPin={handlePin}
+            onLock={handleLock}
+            onReport={handleReport}
+          />
+        </div>
+
+        <Separator className="my-8" />
+
+        {/* Discussion Thread */}
+        <DiscussionThread discussion={discussion} />
+      </div>
+    </div>
+  );
 }

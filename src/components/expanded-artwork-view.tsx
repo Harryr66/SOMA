@@ -1,145 +1,219 @@
-
 'use client';
 
-import { type Artwork, type Discussion } from '@/lib/types';
+import React, { useState, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Heart, Repeat, Send, Bookmark, Info, Loader2, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
-import { useState, useMemo, useEffect } from 'react';
-import { GradientHeart } from './gradient-heart';
-import { useToast } from '@/hooks/use-toast';
-import { useContent } from '@/providers/content-provider';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Heart, MessageCircle, Share2, Bookmark, Flag, MoreHorizontal } from 'lucide-react';
+import { Artwork, Discussion } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
-import { DiscussionCard } from './discussion-card';
-import { Separator } from './ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import Link from 'next/link';
-import { DiscussionThread } from './discussion-thread';
+import { useContent } from '@/providers/content-provider';
+import { formatDistanceToNow } from 'date-fns';
+import Image from 'next/image';
 
 interface ExpandedArtworkViewProps {
-  artwork: Artwork;
-  onBack: () => void;
+    artwork: Artwork;
+    discussion?: Discussion;
+    onClose: () => void;
 }
 
-export function ExpandedArtworkView({ artwork, onBack }: ExpandedArtworkViewProps) {
-    const { toast } = useToast();
-    const [isLiked, setIsLiked] = useState(false);
-    const [isSaved, setIsSaved] = useState(false);
-
+export function ExpandedArtworkView({ artwork, discussion, onClose }: ExpandedArtworkViewProps) {
     const { user } = useAuth();
-    const { discussions } = useContent();
+    const { updateDiscussion } = useContent();
+    const [isLiked, setIsLiked] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [showComments, setShowComments] = useState(false);
 
-    const discussion = useMemo(() => discussions.find((d) => d.id === artwork.discussionId), [artwork.discussionId, discussions]);
-    
     const isCreator = useMemo(() => {
         if (!user || !discussion) return false;
-        return (user.uid || "demo-user") === discussion.author.id;
+        return user.id === discussion.author.id;
     }, [user, discussion]);
 
     const handleLike = () => setIsLiked(!isLiked);
-    const handleSave = () => {
-        const newSavedState = !isSaved;
-        setIsSaved(newSavedState);
-        toast({
-            title: newSavedState ? 'Saved to collection' : 'Removed from collection',
-        });
+    const handleBookmark = () => setIsBookmarked(!isBookmarked);
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: artwork.title,
+                text: artwork.description,
+                url: window.location.href,
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+        }
     };
-    const handleReshare = () => toast({ title: 'Reshared!' });
-    const handleSend = () => toast({ title: 'Sent!' });
 
-    const renderDiscussion = () => {
-        if (!artwork.discussionId) {
-            return (
-                 <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
-                    <div>
-                        <MessageSquare className="mx-auto h-12 w-12" />
-                        <h3 className="mt-4 text-lg font-semibold">No Discussion Available</h3>
-                        <p>There is no discussion thread associated with this artwork.</p>
-                    </div>
-                </div>
-            );
-        }
-
-        if (discussions.length > 0 && !discussion) {
-            return (
-                <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
-                    <div>
-                        <MessageSquare className="mx-auto h-12 w-12" />
-                        <h3 className="mt-4 text-lg font-semibold">Discussion Not Found</h3>
-                    </div>
-                </div>
-            );
-        }
-
-        if (!discussion) {
-            return (
-                <div className="flex items-center justify-center h-full">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            );
-        }
-
-        return (
-             <div className="space-y-2">
-                <DiscussionCard discussion={discussion} isCreator={isCreator} isExpanded={true} />
-                <Separator />
-                <DiscussionThread discussion={discussion} />
-            </div>
-        )
+    const handleReport = () => {
+        // Handle report logic
+        console.log('Report artwork:', artwork.id);
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-background overflow-hidden animate-in fade-in-25">
-            <div className="flex h-full flex-col md:flex-row">
-                <div className="w-full md:w-1/2 flex flex-col p-4 md:p-8 relative">
-                    <div className="absolute top-4 left-4 z-10">
-                        <Button variant="ghost" size="icon" onClick={onBack} className="bg-background/50 hover:bg-background/80 rounded-full h-10 w-10">
-                            <ArrowLeft className="h-5 w-5" />
-                            <span className="sr-only">Back to Discover</span>
-                        </Button>
-                    </div>
-                    <div className="flex-grow flex flex-col bg-card rounded-lg p-4 border overflow-hidden">
-                        <div className="relative flex-grow">
-                             <Image src={artwork.imageUrl} alt={artwork.title} fill style={{objectFit: "contain"}} data-ai-hint={artwork.imageAiHint} />
-                        </div>
-                        <div className="mt-4 pt-4 border-t">
-                            <h2 className="font-headline text-2xl font-semibold">{artwork.title}</h2>
-                            <div className="flex items-center mt-2 -ml-3">
-                                <Button variant="ghost" size="icon" className="h-12 w-12" onClick={handleLike}>
-                                    {isLiked ? <GradientHeart className="w-7 h-7" /> : <Heart className="w-7 h-7" />}
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-12 w-12" onClick={handleReshare}>
-                                    <Repeat className="h-7 h-7" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-12 w-12" onClick={handleSend}>
-                                    <Send className="h-7 h-7" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-12 w-12" onClick={handleSave}>
-                                    <Bookmark className={`w-7 h-7 transition-colors ${isSaved ? 'text-primary fill-current' : ''}`} />
-                                </Button>
-                            </div>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-background rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                <div className="flex flex-col lg:flex-row h-full">
+                    {/* Image Section */}
+                    <div className="lg:w-2/3 bg-muted flex items-center justify-center p-4">
+                        <div className="relative max-w-full max-h-full">
+                            <Image
+                                src={artwork.imageUrl}
+                                alt={artwork.imageAiHint}
+                                width={800}
+                                height={600}
+                                className="max-w-full max-h-full object-contain rounded-lg"
+                            />
                         </div>
                     </div>
-                </div>
 
-                <div className="hidden md:block w-full md:w-1/2 p-4 md:p-8 overflow-y-auto no-scrollbar space-y-4">
-                    <div className="flex items-center justify-between gap-4">
-                        <Link href={`/profile/${artwork.artist.id}`} className="flex items-center gap-3 group" onClick={(e) => e.stopPropagation()}>
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={artwork.artist.avatarUrl} alt={artwork.artist.name} data-ai-hint="artist portrait" />
-                                <AvatarFallback>{artwork.artist.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
+                    {/* Details Section */}
+                    <div className="lg:w-1/3 flex flex-col">
+                        {/* Header */}
+                        <div className="p-4 border-b flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Artwork Details</h2>
+                            <Button variant="ghost" size="sm" onClick={onClose}>
+                                ×
+                            </Button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {/* Title and Artist */}
                             <div>
-                                <p className="font-bold text-lg group-hover:underline">{artwork.artist.name}</p>
-                                <p className="text-sm text-muted-foreground">{artwork.artist.handle}</p>
+                                <h3 className="text-lg font-semibold mb-2">{artwork.title}</h3>
+                                <div className="flex items-center space-x-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={artwork.artist.avatarUrl} alt={artwork.artist.name} />
+                                        <AvatarFallback>{artwork.artist.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-medium text-sm">{artwork.artist.name}</p>
+                                        <p className="text-xs text-muted-foreground">@{artwork.artist.handle}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </Link>
-                        <Button asChild size="sm">
-                           <Link href={`/profile/${artwork.artist.id}`} onClick={(e) => e.stopPropagation()}>View Profile</Link>
-                        </Button>
+
+                            {/* Description */}
+                            {artwork.description && (
+                                <div>
+                                    <h4 className="font-medium mb-2">Description</h4>
+                                    <p className="text-sm text-muted-foreground">{artwork.description}</p>
+                                </div>
+                            )}
+
+                            {/* Tags */}
+                            {artwork.tags && artwork.tags.length > 0 && (
+                                <div>
+                                    <h4 className="font-medium mb-2">Tags</h4>
+                                    <div className="flex flex-wrap gap-1">
+                                        {artwork.tags.map((tag) => (
+                                            <Badge key={tag} variant="outline" className="text-xs">
+                                                #{tag}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Details */}
+                            <div className="space-y-2">
+                                <h4 className="font-medium">Details</h4>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    {artwork.category && (
+                                        <div>
+                                            <span className="text-muted-foreground">Category:</span>
+                                            <span className="ml-1">{artwork.category}</span>
+                                        </div>
+                                    )}
+                                    {artwork.medium && (
+                                        <div>
+                                            <span className="text-muted-foreground">Medium:</span>
+                                            <span className="ml-1">{artwork.medium}</span>
+                                        </div>
+                                    )}
+                                    {artwork.dimensions && (
+                                        <div className="col-span-2">
+                                            <span className="text-muted-foreground">Dimensions:</span>
+                                            <span className="ml-1">
+                                                {artwork.dimensions.width} × {artwork.dimensions.height} {artwork.dimensions.unit}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {artwork.isAI && (
+                                        <div className="col-span-2">
+                                            <span className="text-muted-foreground">AI Assistance:</span>
+                                            <span className="ml-1">{artwork.aiAssistance}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Price */}
+                            {artwork.isForSale && artwork.price && (
+                                <div className="p-4 bg-muted rounded-lg">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Price</p>
+                                            <p className="text-2xl font-bold">${artwork.price.toLocaleString()}</p>
+                                        </div>
+                                        <Button>Buy Now</Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Stats */}
+                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                                <span>{artwork.views || 0} views</span>
+                                <span>{artwork.likes || 0} likes</span>
+                                <span>{discussion?.replyCount || 0} comments</span>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="p-4 border-t">
+                            <div className="flex items-center justify-between">
+                                <div className="flex space-x-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleLike}
+                                        className={isLiked ? 'text-red-500' : ''}
+                                    >
+                                        <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
+                                        Like
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowComments(!showComments)}
+                                    >
+                                        <MessageCircle className="h-4 w-4 mr-1" />
+                                        Comment
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={handleShare}>
+                                        <Share2 className="h-4 w-4 mr-1" />
+                                        Share
+                                    </Button>
+                                </div>
+                                <div className="flex space-x-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleBookmark}
+                                        className={isBookmarked ? 'text-yellow-500' : ''}
+                                    >
+                                        <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={handleReport}>
+                                        <Flag className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <Separator />
-                    {renderDiscussion()}
                 </div>
             </div>
         </div>

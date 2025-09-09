@@ -1,163 +1,145 @@
-
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { idbGetAvatar } from '@/lib/idb';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { User } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
+  firebaseUser: FirebaseUser | null;
   loading: boolean;
-  signOut: () => Promise<void>;
-  isProfessional: boolean;
-  setIsProfessional: React.Dispatch<React.SetStateAction<boolean>>;
-  isTipJarEnabled: boolean;
-  setIsTipJarEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   avatarUrl: string | null;
-  setAvatarUrl: (url: string | null) => void;
-  hasCustomAvatar: boolean;
-  setHasCustomAvatar: React.Dispatch<React.SetStateAction<boolean>>;
-  profileRingColor: string | null;
-  setProfileRingColor: (color: string | null) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  signOut: async () => {},
-  isProfessional: false,
-  setIsProfessional: () => {},
-  isTipJarEnabled: false,
-  setIsTipJarEnabled: () => {},
-  avatarUrl: null,
-  setAvatarUrl: () => {},
-  hasCustomAvatar: false,
-  setHasCustomAvatar: () => {},
-  profileRingColor: null,
-  setProfileRingColor: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [avatarUrl, setAvatarUrlState] = useState<string | null>(null);
-  const [hasCustomAvatar, setHasCustomAvatar] = useState(false);
-  const [isProfessional, setIsProfessional] = useState(false);
-  const [isTipJarEnabled, setIsTipJarEnabled] = useState(false);
-  const [profileRingColor, setProfileRingColorState] = useState<string | null>(null);
-  const router = useRouter();
-  const { toast } = useToast();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set a shorter timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.warn('Firebase auth timeout - proceeding without authentication');
-      setLoading(false);
-    }, 3000);
-
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      clearTimeout(timeoutId);
-      setUser(user);
-      if (user) {
-        // Load user-specific settings from localStorage
-        const savedProf = localStorage.getItem(`isProfessional-${user.uid || "demo-user"}`);
-        setIsProfessional(savedProf ? JSON.parse(savedProf) : false);
-
-        const savedTipJar = localStorage.getItem(`isTipJarEnabled-${user.uid || "demo-user"}`);
-        setIsTipJarEnabled(savedTipJar ? JSON.parse(savedTipJar) : false);
-
-        // Centralized avatar loading logic
-        const storedAvatar = await idbGetAvatar(user.uid || "demo-user");
-        if (storedAvatar) {
-          setAvatarUrlState(URL.createObjectURL(storedAvatar));
-          setHasCustomAvatar(true);
-        } else {
-          setAvatarUrlState(null);
-          setHasCustomAvatar(false);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setFirebaseUser(firebaseUser);
+      
+      if (firebaseUser) {
+        try {
+          // Get user data from Firestore
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const user: User = {
+              id: firebaseUser.uid,
+              username: userData.username || '',
+              email: firebaseUser.email || '',
+              displayName: userData.displayName || firebaseUser.displayName || '',
+              avatarUrl: userData.avatarUrl || firebaseUser.photoURL || undefined,
+              bio: userData.bio || '',
+              website: userData.website || '',
+              location: userData.location || '',
+              followerCount: userData.followerCount || 0,
+              followingCount: userData.followingCount || 0,
+              postCount: userData.postCount || 0,
+              createdAt: userData.createdAt?.toDate() || new Date(),
+              updatedAt: userData.updatedAt?.toDate() || new Date(),
+              isVerified: userData.isVerified || false,
+              isProfessional: userData.isProfessional || false,
+              isActive: userData.isActive !== false,
+              lastSeen: userData.lastSeen?.toDate(),
+              socialLinks: userData.socialLinks || {},
+              preferences: userData.preferences || {
+                notifications: {
+                  likes: true,
+                  comments: true,
+                  follows: true,
+                  messages: true,
+                  auctions: true
+                },
+                privacy: {
+                  showEmail: false,
+                  showLocation: false,
+                  allowMessages: true
+                }
+              }
+            };
+            setUser(user);
+            setAvatarUrl(user.avatarUrl || null);
+          } else {
+            // User document doesn't exist, create a basic user object
+            const user: User = {
+              id: firebaseUser.uid,
+              username: firebaseUser.displayName?.toLowerCase().replace(/\s+/g, '') || '',
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || '',
+              avatarUrl: firebaseUser.photoURL || undefined,
+              bio: '',
+              website: '',
+              location: '',
+              followerCount: 0,
+              followingCount: 0,
+              postCount: 0,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              isVerified: false,
+              isProfessional: false,
+              isActive: true,
+              lastSeen: new Date(),
+              socialLinks: {},
+              preferences: {
+                notifications: {
+                  likes: true,
+                  comments: true,
+                  follows: true,
+                  messages: true,
+                  auctions: true
+                },
+                privacy: {
+                  showEmail: false,
+                  showLocation: false,
+                  allowMessages: true
+                }
+              }
+            };
+            setUser(user);
+            setAvatarUrl(user.avatarUrl || null);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setUser(null);
+          setAvatarUrl(null);
         }
-        // Load ring color
-        const color = localStorage.getItem(`profileRingColor-${user.uid || "demo-user"}`);
-        setProfileRingColorState(color);
-
       } else {
-        // Clear state on logout
-        setIsProfessional(false);
-        setIsTipJarEnabled(false);
-        setAvatarUrlState(null);
-        setHasCustomAvatar(false);
-        setProfileRingColorState(null);
+        setUser(null);
+        setAvatarUrl(null);
       }
+      
       setLoading(false);
-    }, (error) => {
-      console.warn('Firebase auth error:', error);
-      clearTimeout(timeoutId);
-      setLoading(false);
-      // Show user-friendly error message
-      toast({
-        title: "Authentication Error",
-        description: "Please check if Firebase Authentication is enabled in your project.",
-        variant: "destructive",
-      });
     });
 
-    return () => {
-      clearTimeout(timeoutId);
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
-  // Persist changes to localStorage for the current user
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(`isProfessional-${user.uid || "demo-user"}`, JSON.stringify(isProfessional));
-    }
-  }, [isProfessional, user]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(`isTipJarEnabled-${user.uid || "demo-user"}`, JSON.stringify(isTipJarEnabled));
-    }
-  }, [isTipJarEnabled, user]);
-
-  const setAvatarUrl = (url: string | null) => {
-    setAvatarUrlState(url);
-  };
-  
-  const setProfileRingColor = (color: string | null) => {
-    if (user) {
-      if (color) {
-        localStorage.setItem(`profileRingColor-${user.uid || "demo-user"}`, color);
-      } else {
-        localStorage.removeItem(`profileRingColor-${user.uid || "demo-user"}`);
-      }
-      setProfileRingColorState(color);
-      toast({
-        title: 'Profile Ring Updated!',
-        description: 'Your new profile ring color has been saved.',
-      });
-    }
-  };
-
-  const signOut = async () => {
-    await firebaseSignOut(auth);
-    router.push('/login');
+  const value = {
+    user,
+    firebaseUser,
+    loading,
+    avatarUrl
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, isProfessional, setIsProfessional, isTipJarEnabled, setIsTipJarEnabled, avatarUrl, setAvatarUrl, hasCustomAvatar, setHasCustomAvatar, profileRingColor, setProfileRingColor }}>
-      {loading ? (
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-foreground" />
-        </div>
-      ) : (
-        children
-      )}
+    <AuthContext.Provider value={value}>
+      {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

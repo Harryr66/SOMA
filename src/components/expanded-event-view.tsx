@@ -1,117 +1,207 @@
-
 'use client';
 
-import { type Event, type Discussion } from '@/lib/types';
+import React, { useState, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, MapPin, Info, Loader2, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
-import { useMemo } from 'react';
-import { useContent } from '@/providers/content-provider';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Calendar, MapPin, Users, Clock, Share2, Bookmark, Flag, MoreHorizontal } from 'lucide-react';
+import { Event, Discussion } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
-import { DiscussionCard } from './discussion-card';
-import { Separator } from './ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import Link from 'next/link';
-import { DiscussionThread } from './discussion-thread';
+import { useContent } from '@/providers/content-provider';
+import { formatDistanceToNow } from 'date-fns';
+import Image from 'next/image';
 
 interface ExpandedEventViewProps {
-  event: Event;
-  onBack: () => void;
+    event: Event;
+    discussion?: Discussion;
+    onClose: () => void;
 }
 
-export function ExpandedEventView({ event, onBack }: ExpandedEventViewProps) {
-    const { discussions } = useContent();
+export function ExpandedEventView({ event, discussion, onClose }: ExpandedEventViewProps) {
     const { user } = useAuth();
-
-    const discussion = useMemo(() => discussions.find((d) => d.id === event.discussionId), [event.discussionId, discussions]);
+    const { updateDiscussion } = useContent();
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isAttending, setIsAttending] = useState(false);
 
     const isCreator = useMemo(() => {
         if (!user || !discussion) return false;
-        return (user.uid || "demo-user") === discussion.author.id;
+        return user.id === discussion.author.id;
     }, [user, discussion]);
 
+    const handleBookmark = () => setIsBookmarked(!isBookmarked);
+    const handleAttend = () => setIsAttending(!isAttending);
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: event.title,
+                text: event.description,
+                url: window.location.href,
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+        }
+    };
+
+    const handleReport = () => {
+        // Handle report logic
+        console.log('Report event:', event.id);
+    };
+
     const renderDiscussion = () => {
-        if (!event.discussionId) {
-            return (
-                 <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
-                    <div>
-                        <MessageSquare className="mx-auto h-12 w-12" />
-                        <h3 className="mt-4 text-lg font-semibold">No Discussion Available</h3>
-                        <p>There is no discussion thread associated with this event.</p>
-                    </div>
-                </div>
-            );
-        }
-
-        if (discussions.length > 0 && !discussion) {
-            return (
-                <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
-                    <div>
-                        <MessageSquare className="mx-auto h-12 w-12" />
-                        <h3 className="mt-4 text-lg font-semibold">Discussion Not Found</h3>
-                    </div>
-                </div>
-            );
-        }
-
-        if (!discussion) {
-            return (
-                <div className="flex items-center justify-center h-full">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            );
-        }
+        if (!discussion) return null;
 
         return (
-            <div className="space-y-6">
-                <DiscussionCard discussion={discussion} isCreator={isCreator} isExpanded={true}/>
-                <Separator />
-                <DiscussionThread discussion={discussion} />
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Discussion</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <div className="flex items-start space-x-3">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={discussion.author.avatarUrl} alt={discussion.author.name} />
+                                <AvatarFallback>{discussion.author.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                    <span className="font-medium text-sm">{discussion.author.name}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                        {discussion.timestamp}
+                                    </span>
+                                </div>
+                                <p className="text-sm leading-relaxed">{discussion.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         );
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-background overflow-hidden animate-in fade-in-25">
-            <div className="flex h-full flex-col md:flex-row">
-                <div className="w-full md:w-1/2 flex flex-col p-4 md:p-8 relative">
-                    <div className="absolute top-4 left-4 z-10">
-                        <Button variant="ghost" size="icon" onClick={onBack} className="bg-background/50 hover:bg-background/80 rounded-full h-10 w-10">
-                            <ArrowLeft className="h-5 w-5" />
-                            <span className="sr-only">Back to Discover</span>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="p-4 border-b flex items-center justify-between">
+                        <h2 className="text-xl font-semibold">Event Details</h2>
+                        <Button variant="ghost" size="sm" onClick={onClose}>
+                            ×
                         </Button>
                     </div>
-                    <div className="flex-grow flex flex-col bg-card rounded-lg p-4 border overflow-hidden">
-                        <div className="relative flex-grow">
-                             <Image src={event.imageUrl} alt={event.title} fill style={{objectFit: "cover"}} data-ai-hint={event.imageAiHint} />
-                        </div>
-                        <div className="mt-4 pt-4 border-t space-y-2">
-                            <h2 className="font-headline text-2xl font-semibold">{event.title}</h2>
-                            <p className="text-muted-foreground flex items-center gap-2"><Calendar className="h-4 w-4"/> {event.date}</p>
-                            <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4"/> {event.locationType}{event.locationType === 'In-person' && event.locationName && event.locationAddress && `: ${event.locationName}, ${event.locationAddress}`}</p>
-                            <p className="text-foreground/90 pt-2">{event.description}</p>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="hidden md:block w-full md:w-1/2 p-4 md:p-8 overflow-y-auto no-scrollbar space-y-4">
-                     <div className="flex items-center justify-between gap-4">
-                        <Link href={`/profile/${event.artist.id}`} className="flex items-center gap-3 group" onClick={(e) => e.stopPropagation()}>
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={event.artist.avatarUrl} alt={event.artist.name} data-ai-hint="artist portrait" />
-                                <AvatarFallback>{event.artist.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                        {/* Event Image */}
+                        <div className="relative h-64 rounded-lg overflow-hidden">
+                            <Image
+                                src={event.imageUrl}
+                                alt={event.imageAiHint}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+
+                        {/* Event Info */}
+                        <div className="space-y-4">
                             <div>
-                                <p className="font-bold text-lg group-hover:underline">{event.artist.name}</p>
-                                <p className="text-sm text-muted-foreground">{event.artist.handle}</p>
+                                <h3 className="text-2xl font-bold mb-2">{event.title}</h3>
+                                <div className="flex items-center space-x-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={event.artist.avatarUrl} alt={event.artist.name} />
+                                        <AvatarFallback>{event.artist.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-medium text-sm">{event.artist.name}</p>
+                                        <p className="text-xs text-muted-foreground">@{event.artist.handle}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </Link>
-                        <Button asChild variant="outline" size="sm">
-                           <Link href={`/profile/${event.artist.id}`} onClick={(e) => e.stopPropagation()}>View Profile</Link>
-                        </Button>
+
+                            {/* Event Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">{event.date}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Clock className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">{event.type}</span>
+                                </div>
+                                {event.locationName && (
+                                    <div className="flex items-center space-x-2">
+                                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm">{event.locationName}</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center space-x-2">
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">
+                                        {event.attendees?.length || 0} attending
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <h4 className="font-medium mb-2">Description</h4>
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                    {event.description}
+                                </p>
+                            </div>
+
+                            {/* Price */}
+                            {event.price && (
+                                <div className="p-4 bg-muted rounded-lg">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Price</p>
+                                            <p className="text-2xl font-bold">${event.price.toLocaleString()}</p>
+                                        </div>
+                                        <Button>Get Tickets</Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Discussion */}
+                            {renderDiscussion()}
+                        </div>
                     </div>
-                    <Separator />
-                    {renderDiscussion()}
+
+                    {/* Actions */}
+                    <div className="p-4 border-t">
+                        <div className="flex items-center justify-between">
+                            <div className="flex space-x-2">
+                                <Button
+                                    variant={isAttending ? "default" : "outline"}
+                                    onClick={handleAttend}
+                                >
+                                    {isAttending ? 'Attending' : 'Attend Event'}
+                                </Button>
+                                <Button variant="outline" onClick={handleShare}>
+                                    <Share2 className="h-4 w-4 mr-1" />
+                                    Share
+                                </Button>
+                            </div>
+                            <div className="flex space-x-1">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleBookmark}
+                                    className={isBookmarked ? 'text-yellow-500' : ''}
+                                >
+                                    <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={handleReport}>
+                                    <Flag className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

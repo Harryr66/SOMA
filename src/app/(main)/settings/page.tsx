@@ -1,369 +1,348 @@
+'use client';
 
-"use client";
-
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { deleteUser } from "firebase/auth";
-import { useState, useRef } from "react";
-import Image from "next/image";
-import { Loader2, FileText, Image as ImageIcon, UploadCloud, X, LogOut, Trash2 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import imageCompression from 'browser-image-compression';
-
-
-// New component for Profile Completion
-function ProfileCompletionCard() {
-  // Mocked data for demonstration. In a real app, this would come from user data.
-  const tasks = [
-    { id: 'picture', text: 'Upload a profile picture', completed: true, points: 25 },
-    { id: 'bio', text: 'Write a compelling bio', completed: true, points: 25 },
-    { id: 'upload', text: 'Share your first piece of content', completed: true, points: 25 },
-    { id: 'follow', text: 'Follow another artist', completed: false, points: 25 },
-  ];
-
-  const progress = tasks.reduce((acc, task) => acc + (task.completed ? task.points : 0), 0);
-  const remainingTasks = tasks.filter(task => !task.completed);
-
-  const getRank = (p: number) => {
-    if (p < 50) return { name: 'Amateur', nextRank: 'Semi Pro' };
-    if (p < 75) return { name: 'Semi Pro', nextRank: 'Professional' };
-    if (p < 100) return { name: 'Professional', nextRank: 'Art Master' };
-    return { name: 'Art Master', nextRank: null };
-  };
-
-  const { name, nextRank } = getRank(progress);
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Profile Completion</CardTitle>
-        <CardDescription>Complete your profile to unlock new features and gain visibility.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="w-full space-y-3">
-          <div className="flex justify-between text-sm font-medium">
-            <span className="text-foreground font-semibold">{name}</span>
-            <span>{progress}%</span>
-          </div>
-          <Progress value={progress} className="h-2" indicatorClassName="bg-chart-2" />
-          {remainingTasks.length > 0 && (
-            <div className="pt-2 space-y-2">
-               <p className="text-xs text-muted-foreground">
-                {nextRank ? `Complete the next steps to become a ${nextRank}:` : "You are almost there!"}
-              </p>
-              <ul className="text-sm list-disc list-inside space-y-1 text-muted-foreground">
-                {remainingTasks.map(task => (
-                  <li key={task.id}>{task.text}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {remainingTasks.length === 0 && (
-             <p className="text-xs text-muted-foreground text-center pt-2">You have achieved the highest rank. Well done, Art Master!</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ReportBugDialog() {
-  // Mock user data for demo
-  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const isProfessional = false;
-  const loading = false;
-  const signOut = () => {};
-  const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const bugFormSchema = z.object({
-    description: z.string().min(10, "Please provide a detailed description of the bug."),
-  });
-
-  const form = useForm<z.infer<typeof bugFormSchema>>({
-    resolver: zodResolver(bugFormSchema),
-    defaultValues: { description: '' },
-  });
-
-  const resetDialog = () => {
-    form.reset();
-    setFile(null);
-    setPreviewUrl(null);
-    if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-        if (selectedFile.size > 10 * 1024 * 1024) { // 10MB limit
-            toast({ variant: 'destructive', title: 'File too large', description: 'Please select an image smaller than 10MB.' });
-            return;
-        }
-
-        const options = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
-            useWebWorker: true,
-        };
-        try {
-            const compressedFile = await imageCompression(selectedFile, options);
-            setFile(compressedFile);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result as string);
-            };
-            reader.readAsDataURL(compressedFile);
-        } catch (error) {
-            console.error("Bug report image compression error:", error);
-            setFile(selectedFile); // Fallback
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result as string);
-            };
-            reader.readAsDataURL(selectedFile);
-        }
-    }
-  };
-  
-  async function onSubmit(data: z.infer<typeof bugFormSchema>) {
-    setIsSubmitting(true);
-    // In a real app, this would send the report to a backend service.
-    // For now, we simulate the submission.
-    console.log({
-      report: data,
-      user: user?.email,
-      file: file?.name,
-    });
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    toast({
-        title: "Bug Report Submitted!",
-        description: "Thank you for your feedback. Our team will look into it shortly.",
-    });
-
-    setIsSubmitting(false);
-    resetDialog();
-    setIsDialogOpen(false);
-  }
-
-  return (
-    <Dialog open={isDialogOpen} onOpenChange={(isOpen) => { if (!isOpen) resetDialog(); setIsDialogOpen(isOpen); }}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Report a Bug</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Report a Bug</DialogTitle>
-          <DialogDescription>
-            Help us improve SOMA by describing the issue you've encountered.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Bug Description</FormLabel>
-                            <FormControl>
-                                <Textarea placeholder="Please be as detailed as possible..." {...field} rows={5} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <div className="space-y-2">
-                  <FormLabel>Attach Screenshot (Optional)</FormLabel>
-                   <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-                   {previewUrl ? (
-                      <div className="relative w-full h-40 bg-muted rounded-lg flex items-center justify-center">
-                        <Image src={previewUrl} alt="Preview" fill={true} style={{objectFit: "contain"}} className="rounded-lg p-2" />
-                        <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-7 w-7 z-10"
-                            onClick={() => {
-                                setFile(null);
-                                setPreviewUrl(null);
-                                if (fileInputRef.current) fileInputRef.current.value = "";
-                            }}
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                  ) : (
-                      <div className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50"
-                          onClick={() => fileInputRef.current?.click()}
-                      >
-                          <UploadCloud className="h-8 w-8 text-muted-foreground" />
-                          <p className="mt-1 text-sm text-muted-foreground">Click to upload an image</p>
-                      </div>
-                  )}
-                </div>
-
-                <DialogFooter>
-                    <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} disabled={isSubmitting}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Submit Report
-                    </Button>
-                </DialogFooter>
-            </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { 
+  User, 
+  Bell, 
+  Shield, 
+  Palette, 
+  Database, 
+  Download,
+  Upload,
+  Trash2,
+  CheckCircle
+} from 'lucide-react';
 
 export default function SettingsPage() {
-  // Mock user data for demo
-  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const isProfessional = false;
-  const loading = false;
-  const signOut = () => {};
-  const { toast } = useToast();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [hasAgreed, setHasAgreed] = useState(false);
+  const [profileData, setProfileData] = useState({
+    username: 'artist123',
+    displayName: 'Artist Name',
+    bio: 'Digital artist passionate about creating unique pieces',
+    website: 'https://artistwebsite.com',
+    location: 'New York, NY'
+  });
 
-  const handleDeleteAccount = async () => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No user is signed in to delete.",
-      });
-      return;
-    }
+  const [notifications, setNotifications] = useState({
+    likes: true,
+    comments: true,
+    follows: true,
+    messages: true,
+    auctions: true
+  });
 
-    setIsDeleting(true);
-    try {
-      // For a real app, you would also need to delete user data from your database (e.g., Firestore)
-      // and files from storage. This example only covers Firebase Auth deletion.
-      // await deleteUser(user); // Commented out for demo mode
-      toast({
-        title: "Account Deleted",
-        description: "Your account and all associated data have been successfully deleted.",
-      });
-      await signOut();
-    } catch (error: any) {
-      console.error("Account deletion error", error);
-      let description = "An unexpected error occurred. Please try signing out and back in again before retrying.";
-      if (error.code === 'auth/requires-recent-login') {
-        description = "This is a sensitive operation and requires a recent login. Please sign out and log back in before deleting your account.";
-      }
-      toast({
-        variant: "destructive",
-        title: "Deletion Failed",
-        description: description,
-      });
-    } finally {
-        setIsDeleting(false);
-    }
+  const [privacy, setPrivacy] = useState({
+    showEmail: false,
+    showLocation: true,
+    allowMessages: true
+  });
+
+  const [progress, setProgress] = useState(75);
+  const [remainingTasks] = useState([
+    'Complete your profile',
+    'Upload your first artwork',
+    'Join a community',
+    'Follow 5 artists'
+  ]);
+
+  const handleSave = () => {
+    // Save settings logic here
+    console.log('Settings saved');
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <header className="mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl font-semibold mb-2">Settings</h1>
-        <p className="text-muted-foreground text-lg">Manage your account and app preferences.</p>
-      </header>
-      
-      <div className="space-y-8">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold">Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your account settings and preferences
+          </p>
+        </div>
+
+        {/* Profile Completion */}
         <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Display</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="theme-toggle" className="font-medium">Theme</Label>
-                    <ThemeToggle />
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CheckCircle className="h-5 w-5" />
+              <span>Profile Completion</span>
+            </CardTitle>
+            <CardDescription>
+              Complete your profile to get the most out of SOMA
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Profile Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+              {remainingTasks.length > 0 && (
+                <div className="pt-2 space-y-2">
+                   <p className="text-xs text-muted-foreground">
+                     Complete these tasks to improve your profile:
+                   </p>
+                   <ul className="space-y-1">
+                     {remainingTasks.map((task, index) => (
+                       <li key={index} className="text-xs text-muted-foreground flex items-center space-x-2">
+                         <div className="h-1 w-1 bg-muted-foreground rounded-full"></div>
+                         <span>{task}</span>
+                       </li>
+                     ))}
+                   </ul>
                 </div>
-            </CardContent>
+              )}
+            </div>
+          </CardContent>
         </Card>
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Account</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Button variant="outline" onClick={signOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log Out
-                </Button>
-                <p className="text-sm text-muted-foreground mt-2">You will be returned to the login page.</p>
-            </CardContent>
-        </Card>
+        {/* Settings Tabs */}
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="privacy">Privacy</TabsTrigger>
+            <TabsTrigger value="data">Data</TabsTrigger>
+          </TabsList>
 
-        <ProfileCompletionCard />
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Support</CardTitle>
-                <CardDescription>Need help? Report a bug or contact our support team.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ReportBugDialog />
-            </CardContent>
-        </Card>
-        
-        <Card className="border-destructive">
-             <CardHeader>
-                <CardTitle className="font-headline text-destructive">Delete Account</CardTitle>
-                <CardDescription className="text-foreground/90">It's okay, I get it...I understand sometimes you need to see other platforms. But be warned, this action is irreversible. When you delete your account, all associated data, including your profile, posts, and artwork, will be permanently removed. This cannot be undone. If you have any issues, please contact our support team before proceeding.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="delete-terms" checked={hasAgreed} onCheckedChange={(checked) => setHasAgreed(checked === true)} />
-                    <Label htmlFor="delete-terms" className="font-medium">I understand that this action is permanent and cannot be reversed.</Label>
+          <TabsContent value="profile" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="h-5 w-5" />
+                  <span>Profile Information</span>
+                </CardTitle>
+                <CardDescription>
+                  Update your public profile information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={profileData.username}
+                      onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                    />
                   </div>
-                  <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" disabled={!hasAgreed || isDeleting}>Delete My Account</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                          <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete your account,
-                                  remove your data from our servers, and delete all of your uploaded artwork and posts.
-                              </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                              <AlertDialogAction 
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  onClick={handleDeleteAccount} 
-                                  disabled={isDeleting}
-                              >
-                                  {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Yes, delete my account
-                              </AlertDialogAction>
-                          </AlertDialogFooter>
-                      </AlertDialogContent>
-                  </AlertDialog>
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName">Display Name</Label>
+                    <Input
+                      id="displayName"
+                      value={profileData.displayName}
+                      onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
+                    />
+                  </div>
                 </div>
-            </CardContent>
-        </Card>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Input
+                    id="bio"
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Website</Label>
+                    <Input
+                      id="website"
+                      value={profileData.website}
+                      onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={profileData.location}
+                      onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleSave}>Save Changes</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Bell className="h-5 w-5" />
+                  <span>Notification Preferences</span>
+                </CardTitle>
+                <CardDescription>
+                  Choose what notifications you want to receive
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="likes">Likes</Label>
+                    <p className="text-sm text-muted-foreground">Get notified when someone likes your posts</p>
+                  </div>
+                  <Switch
+                    id="likes"
+                    checked={notifications.likes}
+                    onCheckedChange={(checked) => setNotifications({ ...notifications, likes: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="comments">Comments</Label>
+                    <p className="text-sm text-muted-foreground">Get notified when someone comments on your posts</p>
+                  </div>
+                  <Switch
+                    id="comments"
+                    checked={notifications.comments}
+                    onCheckedChange={(checked) => setNotifications({ ...notifications, comments: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="follows">Follows</Label>
+                    <p className="text-sm text-muted-foreground">Get notified when someone follows you</p>
+                  </div>
+                  <Switch
+                    id="follows"
+                    checked={notifications.follows}
+                    onCheckedChange={(checked) => setNotifications({ ...notifications, follows: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="messages">Messages</Label>
+                    <p className="text-sm text-muted-foreground">Get notified when you receive new messages</p>
+                  </div>
+                  <Switch
+                    id="messages"
+                    checked={notifications.messages}
+                    onCheckedChange={(checked) => setNotifications({ ...notifications, messages: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="auctions">Auctions</Label>
+                    <p className="text-sm text-muted-foreground">Get notified about auction updates</p>
+                  </div>
+                  <Switch
+                    id="auctions"
+                    checked={notifications.auctions}
+                    onCheckedChange={(checked) => setNotifications({ ...notifications, auctions: checked })}
+                  />
+                </div>
+                <Button onClick={handleSave}>Save Preferences</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="privacy" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5" />
+                  <span>Privacy Settings</span>
+                </CardTitle>
+                <CardDescription>
+                  Control who can see your information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="showEmail">Show Email</Label>
+                    <p className="text-sm text-muted-foreground">Make your email visible to other users</p>
+                  </div>
+                  <Switch
+                    id="showEmail"
+                    checked={privacy.showEmail}
+                    onCheckedChange={(checked) => setPrivacy({ ...privacy, showEmail: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="showLocation">Show Location</Label>
+                    <p className="text-sm text-muted-foreground">Make your location visible to other users</p>
+                  </div>
+                  <Switch
+                    id="showLocation"
+                    checked={privacy.showLocation}
+                    onCheckedChange={(checked) => setPrivacy({ ...privacy, showLocation: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="allowMessages">Allow Messages</Label>
+                    <p className="text-sm text-muted-foreground">Allow other users to send you messages</p>
+                  </div>
+                  <Switch
+                    id="allowMessages"
+                    checked={privacy.allowMessages}
+                    onCheckedChange={(checked) => setPrivacy({ ...privacy, allowMessages: checked })}
+                  />
+                </div>
+                <Button onClick={handleSave}>Save Privacy Settings</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="data" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Database className="h-5 w-5" />
+                  <span>Data Management</span>
+                </CardTitle>
+                <CardDescription>
+                  Manage your data and account
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Download Your Data</h4>
+                    <p className="text-sm text-muted-foreground">Get a copy of all your data</p>
+                  </div>
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Upload Data</h4>
+                    <p className="text-sm text-muted-foreground">Import data from another platform</p>
+                  </div>
+                  <Button variant="outline">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg border-destructive">
+                  <div>
+                    <h4 className="font-medium text-destructive">Delete Account</h4>
+                    <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                  </div>
+                  <Button variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

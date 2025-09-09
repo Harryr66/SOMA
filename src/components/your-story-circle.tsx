@@ -1,82 +1,51 @@
-
 'use client';
 
-import { useAuth } from '@/providers/auth-provider';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { StoryUploader } from './story-uploader';
-import { StoryViewer } from './story-viewer';
-import { useState, useMemo } from 'react';
+import { StoryUploader } from '@/components/story-uploader';
+import { useAuth } from '@/providers/auth-provider';
 import { useContent } from '@/providers/content-provider';
-import { type Artist } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { Plus } from 'lucide-react';
 
 export function YourStoryCircle() {
-  const { user, avatarUrl, profileRingColor } = useAuth();
+  const { user, avatarUrl } = useAuth();
   const { storyItems } = useContent();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const hasActiveStory = useMemo(() => {
-    if (!user) return false;
-    return storyItems.some(item => item.artistId === user.uid || "demo-user");
-  }, [storyItems, user]);
+  if (!user) return null;
 
-
-  if (!user) {
-    return null;
-  }
-  
-  const currentUserArtist: Artist = {
-    id: user.uid || "demo-user",
-    name: user.displayName || 'Anonymous User',
-    handle: user.email?.split('@')[0] || 'anonymous',
-    avatarUrl: avatarUrl || undefined,
-  };
-
-  const ringStyle = !hasActiveStory && profileRingColor ? { borderColor: profileRingColor } : {};
-  const ringClassName = cn(
-    "p-0.5 rounded-full",
-    {
-      'story-gradient-border': hasActiveStory,
-      'border-2': !hasActiveStory && !!profileRingColor,
-      'border-2 border-border': !hasActiveStory && !profileRingColor
-    }
-  );
-
+  const userStories = storyItems.filter(story => story.artistId === user.id);
+  const hasActiveStory = userStories.length > 0;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <div className="flex flex-col items-center gap-2 flex-shrink-0 w-20 text-center cursor-pointer">
+        <div className="flex flex-col items-center space-y-2 cursor-pointer group">
           <div className="relative">
-             <div className={ringClassName} style={ringStyle}>
-                <div className="bg-background p-0.5 rounded-full">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={avatarUrl || undefined} alt={user.displayName || 'User'} data-ai-hint="artist portrait" />
-                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                  </Avatar>
-                </div>
-              </div>
-            {!hasActiveStory && (
-                <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-foreground rounded-full flex items-center justify-center border-2 border-background">
-                    <Plus className="h-4 w-4 text-background" />
-                </div>
+            <Avatar className="h-16 w-16 ring-2 ring-offset-2 ring-primary group-hover:ring-offset-4 transition-all">
+              <AvatarImage src={avatarUrl || undefined} alt={user.displayName} />
+              <AvatarFallback className="text-lg">
+                {user.displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            {hasActiveStory && (
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-green-500 border-2 border-background rounded-full"></div>
             )}
+            <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary border-2 border-background rounded-full flex items-center justify-center">
+              <Plus className="h-3 w-3 text-white" />
+            </div>
           </div>
-          <p className="text-xs font-medium truncate w-full">Your Story</p>
+          <div className="text-center">
+            <p className="text-xs font-medium">Your Story</p>
+            <p className="text-xs text-muted-foreground">
+              {hasActiveStory ? 'Add to story' : 'Add story'}
+            </p>
+          </div>
         </div>
       </DialogTrigger>
-       <DialogContent className={cn(
-          hasActiveStory 
-            ? "bg-transparent border-none p-0 w-screen h-screen max-w-full sm:max-w-full" 
-            : "max-h-[90vh] overflow-y-auto"
-        )}>
-        {hasActiveStory ? (
-           <StoryViewer artist={currentUserArtist} onClose={() => setIsDialogOpen(false)} />
-        ) : (
-           <StoryUploader onSuccess={() => setIsDialogOpen(false)} onClose={() => setIsDialogOpen(false)} />
-        )}
+      <DialogContent className="sm:max-w-md">
+        <StoryUploader onClose={() => setIsDialogOpen(false)} />
       </DialogContent>
     </Dialog>
   );

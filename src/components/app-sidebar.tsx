@@ -1,98 +1,87 @@
+'use client';
 
-"use client";
-
-import { usePathname } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import {
-  Home,
-  Eye,
-  User,
-  Settings,
-  Send,
-  Bell,
-  Upload,
-  Bookmark,
-  Search,
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
+import { 
+  Home, 
+  Search, 
+  Compass, 
+  MessageCircle, 
+  Heart, 
+  User, 
+  Settings, 
+  Bell,
+  Users,
+  Gavel,
+  ShoppingBag,
+  BarChart3
+} from 'lucide-react';
 
-const navItems = [
-  { href: '/feed', icon: Home, label: 'Home' },
-  { href: '/search', icon: Search, label: 'Search' },
-  { href: '/discover', icon: Eye, label: 'Discover' },
-  { href: '/upload', icon: Upload, label: 'Upload' },
-  { href: '/saved', icon: Bookmark, label: 'Saved' },
-  { href: '/messages', icon: Send, label: 'Share' },
-  { href: '/notifications', icon: Bell, label: 'Notifications' },
-  { href: '/profile', icon: User, label: 'Profile' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+const navigation = [
+  { name: 'Home', href: '/', icon: Home },
+  { name: 'Discover', href: '/discover', icon: Compass },
+  { name: 'Feed', href: '/feed', icon: Home },
+  { name: 'Search', href: '/search', icon: Search },
+  { name: 'Messages', href: '/messages', icon: MessageCircle },
+  { name: 'Community', href: '/community', icon: Users },
+  { name: 'Auctions', href: '/auctions', icon: Gavel },
+  { name: 'Shop', href: '/shop', icon: ShoppingBag },
+  { name: 'Saved', href: '/saved', icon: Heart },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  // Mock user data for demo
-  const user = { id: "demo-user", displayName: "Demo User", email: "demo@example.com" };
-  const avatarUrl = null;
-  const isProfessional = false;
-  const signOut = () => {};
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r bg-background shrink-0">
-      <div className="p-4 border-b h-16 flex items-center justify-center">
-        <Link href="/feed" className="flex items-center gap-2">
-          <h1 className="font-headline text-3xl font-bold tracking-wider">SOMA</h1>
-        </Link>
+    <div className="flex flex-col w-64 bg-card border-r h-full">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          SOMA
+        </h1>
+        <p className="text-sm text-muted-foreground">Art Social Platform</p>
       </div>
-
-      <nav className="flex-1 px-4 py-4 space-y-1">
-        {navItems.map((item) => {
-          if (item.href === '/upload' && !isProfessional) {
-            return null;
-          }
-
-          const isActive = item.href === '/profile' ? pathname.startsWith('/profile') : pathname === item.href;
-
-          return (
-            <Button
-              key={`${item.href}-${item.label}`}
-              variant="ghost"
-              className={cn(
-                "w-full justify-start gap-3 px-3 py-2 text-base font-semibold rounded-md border-2 border-transparent transition-all hover:gradient-border hover:text-foreground",
-                isActive && "gradient-border text-foreground"
-              )}
-              asChild
-            >
-              <Link
-                href={item.href}
-              >
-                {item.href === '/profile' ? (
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage src={avatarUrl || undefined} alt={user?.displayName || 'User'} data-ai-hint="artist portrait" />
-                    <AvatarFallback>
-                      <svg
-                          role="img"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-full w-full text-muted-foreground"
-                      >
-                          <path
-                          d="M12 2C9.243 2 7 4.243 7 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5zm0 10c-3.309 0-6 2.691-6 6v2h12v-2c0-3.309-2.691-6-6-6z"
-                          fill="currentColor"
-                          />
-                      </svg>
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
+      
+      <nav className="flex-1 px-4 pb-4">
+        <ul className="space-y-2">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <li key={item.name}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
                   <item.icon className="h-5 w-5" />
-                )}
-                <span>{item.label}</span>
-              </Link>
-            </Button>
-          );
-        })}
+                  <span>{item.name}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
-    </aside>
+      
+      <div className="p-4 border-t">
+        <div className="flex items-center space-x-3">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+            <span className="text-white text-sm font-medium">U</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">User Name</p>
+            <p className="text-xs text-muted-foreground truncate">@username</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

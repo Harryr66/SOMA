@@ -1,23 +1,22 @@
-
 'use client';
 
-import { useAuth } from '@/providers/auth-provider';
-import { useToast } from '@/hooks/use-toast';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
-import { type Discussion, type Reply, type Artist } from '@/lib/types';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ReplyCard } from './reply-card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Discussion, Reply } from '@/lib/types';
+import { useAuth } from '@/providers/auth-provider';
 import { useContent } from '@/providers/content-provider';
+import { formatDistanceToNow } from 'date-fns';
+import { ThumbsUp, ThumbsDown, Reply as ReplyIcon, Pin, Lock } from 'lucide-react';
 
 const replyFormSchema = z.object({
-  content: z.string().min(1, 'Reply cannot be empty.'),
+    content: z.string().min(1, 'Reply cannot be empty').max(1000, 'Reply is too long'),
 });
 
 interface DiscussionThreadProps {
@@ -26,158 +25,231 @@ interface DiscussionThreadProps {
 
 export function DiscussionThread({ discussion }: DiscussionThreadProps) {
     const { user } = useAuth();
-    const { toast } = useToast();
     const { updateDiscussion } = useContent();
+    const [showReplyForm, setShowReplyForm] = useState(false);
 
-    const isDiscussionCreator = user?.uid === discussion.author.id;
+    const isDiscussionCreator = user?.id === discussion.author.id;
 
     const form = useForm<z.infer<typeof replyFormSchema>>({
         resolver: zodResolver(replyFormSchema),
-        defaultValues: { content: '' },
+        defaultValues: {
+            content: '',
+        },
     });
 
-    const addReplyToTree = (replies: Reply[], parentId: string, newReply: Reply): Reply[] => {
-        return replies.map(reply => {
-            if (reply.id === parentId) {
-                const updatedNestedReplies = [...(reply.replies || []), newReply];
-                return {
-                    ...reply,
-                    replies: updatedNestedReplies,
-                };
-            }
-            if (reply.replies && reply.replies.length > 0) {
-                return { ...reply, replies: addReplyToTree(reply.replies, parentId, newReply) };
-            }
-            return reply;
-        });
-    };
-    
-    const countTotalReplies = (replies: Reply[]): number => {
-        let count = replies.length;
-        for (const reply of replies) {
-            if (reply.replies) {
-                count += countTotalReplies(reply.replies);
-            }
-        }
-        return count;
-    };
+    const onSubmit = async (data: z.infer<typeof replyFormSchema>) => {
+        if (!user) return;
 
-
-    const handleAddReply = (content: string, parentId?: string) => {
-        if (!user) {
-            toast({ variant: 'destructive', title: 'You must be logged in to reply.' });
-            return;
-        }
-
-        const currentUserArtist: Artist = {
-            id: user.uid || "demo-user",
-            name: user.displayName || 'Anonymous User',
-            handle: user.email?.split('@')[0] || 'anonymous',
-            avatarUrl: undefined,
-        };
-        
         const newReply: Reply = {
-            id: `r-${Date.now()}`,
-            author: currentUserArtist,
-            content: content,
-            timestamp: 'Just now',
+            id: `reply-${Date.now()}`,
+            author: {
+                id: user.id,
+                name: user.displayName,
+                handle: user.username,
+                avatarUrl: user.avatarUrl,
+                followerCount: user.followerCount,
+                followingCount: user.followingCount,
+                createdAt: user.createdAt
+            },
+            timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
+            content: data.content,
             upvotes: 0,
             downvotes: 0,
-            isPinned: false,
         };
 
-        const updatedDiscussion = { ...discussion };
+        const updatedDiscussion = {
+            ...discussion,
+            replies: [...(discussion.replies || []), newReply],
+            replyCount: (discussion.replyCount || 0) + 1,
+        };
 
-        if (parentId) {
-             updatedDiscussion.replies = addReplyToTree(updatedDiscussion.replies || [], parentId, newReply);
-        } else {
-            updatedDiscussion.replies = [newReply, ...(updatedDiscussion.replies || [])];
-        }
-        
-        updatedDiscussion.replyCount = countTotalReplies(updatedDiscussion.replies);
-
-        updateDiscussion(updatedDiscussion);
-        toast({ title: 'Reply posted!' });
+        await updateDiscussion(updatedDiscussion);
         form.reset();
+        setShowReplyForm(false);
     };
 
-    const handleTopLevelSubmit = (data: z.infer<typeof replyFormSchema>) => {
-        handleAddReply(data.content);
-    };
+    const handleVote = async (replyId: string, type: 'upvote' | 'downvote') => {
+        if (!user) return;
 
-    const handlePinReply = (replyId: string) => {
-        const updatedReplies = (discussion.replies || []).map(reply => 
-            reply.id === replyId ? { ...reply, isPinned: !reply.isPinned } : reply
-        );
-        
-        const newDiscussionState = { ...discussion, replies: updatedReplies };
-        updateDiscussion(newDiscussionState);
-
-        toast({
-            title: updatedReplies.find(r => r.id === replyId)?.isPinned ? 'Reply Pinned!' : 'Reply Unpinned',
-        });
-    };
-
-    const sortedReplies = useMemo(() => {
-        if (!discussion?.replies) return [];
-        return [...discussion.replies].sort((a, b) => {
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-            const scoreA = a.upvotes - a.downvotes;
-            const scoreB = b.upvotes - b.downvotes;
-            if (scoreB !== scoreA) {
-                return scoreB - scoreA;
+        const updatedReplies = discussion.replies?.map(reply => {
+            if (reply.id === replyId) {
+                return {
+                    ...reply,
+                    upvotes: type === 'upvote' ? reply.upvotes + 1 : reply.upvotes,
+                    downvotes: type === 'downvote' ? reply.downvotes + 1 : reply.downvotes,
+                };
             }
-            return 0; // Keep original order for same-score items
-        });
-    }, [discussion?.replies]);
+            return reply;
+        }) || [];
+
+        const updatedDiscussion = {
+            ...discussion,
+            replies: updatedReplies,
+        };
+
+        await updateDiscussion(updatedDiscussion);
+    };
 
     return (
-        <div className="space-y-8">
-            <h2 className="text-2xl font-headline mb-4">{discussion.replyCount} Replies</h2>
-            
-            <Alert className="mb-8">
-                <Info className="h-4 w-4" />
-                <AlertTitle>Community Guidelines</AlertTitle>
-                <AlertDescription>
-                    All discussions must adhere to the Soma platform rules, which prohibit rude or malicious commenting. Please treat all users with respect and approach any critiques politely and constructively.
-                </AlertDescription>
-            </Alert>
-
-            <div className="mb-8">
-                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleTopLevelSubmit)} className="space-y-4">
-                        <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="sr-only">Your Reply</FormLabel>
-                                <FormControl>
-                                    <Textarea placeholder="Add to the discussion..." {...field} rows={4}/>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <div className="flex justify-end">
-                            <Button variant="gradient" type="submit">Post Reply</Button>
+        <div className="space-y-6">
+            {/* Main Discussion */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={discussion.author.avatarUrl} alt={discussion.author.name} />
+                                <AvatarFallback>{discussion.author.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <CardTitle className="text-lg">{discussion.title}</CardTitle>
+                                <CardDescription className="flex items-center space-x-2">
+                                    <span>by {discussion.author.name}</span>
+                                    <span>•</span>
+                                    <span>{discussion.timestamp}</span>
+                                    {discussion.isPinned && (
+                                        <>
+                                            <span>•</span>
+                                            <Badge variant="outline" className="text-xs">
+                                                <Pin className="h-3 w-3 mr-1" />
+                                                Pinned
+                                            </Badge>
+                                        </>
+                                    )}
+                                    {discussion.isLocked && (
+                                        <>
+                                            <span>•</span>
+                                            <Badge variant="outline" className="text-xs">
+                                                <Lock className="h-3 w-3 mr-1" />
+                                                Locked
+                                            </Badge>
+                                        </>
+                                    )}
+                                </CardDescription>
+                            </div>
                         </div>
-                    </form>
-                </Form>
-            </div>
+                        {isDiscussionCreator && (
+                            <div className="flex space-x-2">
+                                <Button variant="outline" size="sm">
+                                    Edit
+                                </Button>
+                                <Button variant="outline" size="sm">
+                                    Pin
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm leading-relaxed">{discussion.content}</p>
+                    
+                    {/* Discussion Actions */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                        <div className="flex items-center space-x-4">
+                            <Button variant="ghost" size="sm">
+                                <ThumbsUp className="h-4 w-4 mr-1" />
+                                {discussion.upvotes}
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                                <ThumbsDown className="h-4 w-4 mr-1" />
+                                {discussion.downvotes}
+                            </Button>
+                            <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => setShowReplyForm(!showReplyForm)}
+                            >
+                                <ReplyIcon className="h-4 w-4 mr-1" />
+                                Reply
+                            </Button>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                            {discussion.replyCount} replies
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
-            <div className="space-y-8">
-                {sortedReplies.map(reply => (
-                    <ReplyCard 
-                        key={reply.id} 
-                        reply={reply}
-                        isDiscussionCreator={isDiscussionCreator}
-                        onPin={handlePinReply}
-                        onAddReply={handleAddReply}
-                    />
-                ))}
-            </div>
+            {/* Reply Form */}
+            {showReplyForm && user && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Add a Reply</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <Textarea
+                                placeholder="Write your reply..."
+                                {...form.register('content')}
+                                className="min-h-[100px]"
+                            />
+                            {form.formState.errors.content && (
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.content.message}
+                                </p>
+                            )}
+                            <div className="flex justify-end space-x-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowReplyForm(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit">
+                                    Post Reply
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Replies */}
+            {discussion.replies && discussion.replies.length > 0 && (
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Replies ({discussion.replies.length})</h3>
+                    {discussion.replies.map((reply) => (
+                        <Card key={reply.id}>
+                            <CardContent className="pt-4">
+                                <div className="flex items-start space-x-3">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={reply.author.avatarUrl} alt={reply.author.name} />
+                                        <AvatarFallback>{reply.author.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <span className="font-medium text-sm">{reply.author.name}</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {reply.timestamp}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm leading-relaxed mb-3">{reply.content}</p>
+                                        <div className="flex items-center space-x-2">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={() => handleVote(reply.id, 'upvote')}
+                                            >
+                                                <ThumbsUp className="h-3 w-3 mr-1" />
+                                                {reply.upvotes}
+                                            </Button>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm"
+                                                onClick={() => handleVote(reply.id, 'downvote')}
+                                            >
+                                                <ThumbsDown className="h-3 w-3 mr-1" />
+                                                {reply.downvotes}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -1,717 +1,336 @@
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, Pie, PieChart, Cell, XAxis, YAxis } from 'recharts';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DollarSign, Users, Activity, TrendingUp, Search, ShieldAlert, UserX, MoreHorizontal, Image as ImageIcon } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import Image from 'next/image';
-import { Label } from '@/components/ui/label';
-import { AdminLoginForm } from '@/components/admin/admin-login-form';
-import { type Report, type Post, type Artwork, type Discussion, type Reply } from '@/lib/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Users, 
+  TrendingUp, 
+  Eye, 
+  Heart, 
+  MessageCircle, 
+  AlertTriangle,
+  DollarSign,
+  ShoppingBag,
+  Gavel,
+  BarChart3
+} from 'lucide-react';
 
-
-
-const revenueData: { month: string, revenue: number }[] = [];
-const userGrowthData: { month: string, users: number }[] = [];
-const salesByRevenueData: { type: string, revenue: number, fill: string }[] = [];
-const topArtistsData: { id: string, name: string, avatarUrl: string, imageAiHint: string, totalSales: number }[] = [];
-const initialReportedBugsData: { id: string; description: string; reportedBy: string; hasAttachment: boolean; }[] = [];
-
-const platformChartConfig = {
-    revenue: {
-        label: "Revenue",
-        color: "hsl(var(--chart-1))",
-    },
-    users: {
-        label: "Users",
-        color: "hsl(var(--chart-2))",
-    },
-    digital: {
-        label: "Digital",
-        color: "hsl(var(--chart-1))"
-    },
-    physical: {
-        label: "Physical",
-        color: "hsl(var(--chart-2))"
-    },
-    auction: {
-        label: "Auction",
-        color: "hsl(var(--chart-3))"
-    }
-} satisfies ChartConfig;
-
-
-const mockReportedUsers = [
-    { id: 'artist-1', name: 'Elena Vance', handle: '@elena_art', avatarUrl: 'https://placehold.co/96x96.png', imageAiHint: "artist portrait", status: 'Active' },
-    { id: 'artist-2', name: 'Liam Kenji', handle: '@liam_kenji', avatarUrl: 'https://placehold.co/96x96.png', imageAiHint: "artist portrait", status: 'Active' },
-    { id: 'artist-3', name: 'Aria Chen', handle: '@aria_draws', avatarUrl: 'https://placehold.co/96x96.png', imageAiHint: "artist portrait", status: 'Active' },
-];
+// Mock data for dashboard
+const mockStats = {
+  totalUsers: 12543,
+  totalPosts: 89432,
+  totalRevenue: 45678,
+  activeAuctions: 23,
+  totalProducts: 1567,
+  reports: 12
+};
 
 const mockReports: Report[] = [
   { 
     id: 'report-1',
     contentId: 'art-9',
     contentType: 'Post',
-    content: 'Fading Memories',
-    reportedBy: '@liam_kenji',
-    offenderId: 'artist-2',
-    offenderHandle: '@aria_draws',
-    reason: 'Inappropriate Content',
-    details: 'The artwork contains imagery that violates the community guidelines regarding sensitive themes. It made me uncomfortable.',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    content: 'Inappropriate content',
+    reportedBy: 'user-123',
+    offenderId: 'user-456',
+    offenderHandle: '@artist456',
+    reason: 'Inappropriate content',
+    details: 'Contains offensive language',
+    timestamp: '2 hours ago',
+    status: 'pending'
   },
-  {
+  { 
     id: 'report-2',
-    contentId: 'discussion-2',
-    contentType: 'Discussion',
-    content: 'Discussion for \'City at Dusk\'',
-    reportedBy: '@elena_art',
-    offenderId: 'artist-1',
-    offenderHandle: '@liam_kenji',
-    reason: 'Spam or Misleading',
-    details: 'The user is promoting their own products in the discussion thread, which is not relevant to the topic.',
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    contentId: 'art-15',
+    contentType: 'Artwork',
+    content: 'Copyright violation',
+    reportedBy: 'user-789',
+    offenderId: 'user-101',
+    offenderHandle: '@artist101',
+    reason: 'Copyright violation',
+    details: 'Uses copyrighted material without permission',
+    timestamp: '5 hours ago',
+    status: 'reviewed'
   },
+  { 
+    id: 'report-3',
+    contentId: 'discussion-3',
+    contentType: 'Discussion',
+    content: 'Spam discussion',
+    reportedBy: 'user-555',
+    offenderId: 'user-777',
+    offenderHandle: '@spammer777',
+    reason: 'Spam',
+    details: 'Repeatedly posting promotional content',
+    timestamp: '1 day ago',
+    status: 'resolved'
+  }
 ];
 
+interface Report {
+  id: string;
+  contentId: string;
+  contentType: 'Artwork' | 'Discussion' | 'Reply' | 'Post' | 'User' | 'Community';
+  content: string;
+  reportedBy: string;
+  offenderId: string;
+  offenderHandle: string;
+  reason: string;
+  details: string;
+  timestamp: string;
+  status: 'pending' | 'reviewed' | 'resolved' | 'dismissed';
+}
 
 export default function DashboardPage() {
-    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-    const { toast } = useToast();
-    // Using mock data instead of useContent
-  const posts: any[] = [];
-  const artworks: any[] = [];
-  const discussions: any[] = []; // Mock data - replace with actual data if needed
-    
-    const [users, setUsers] = React.useState<{id: string, name: string, handle: string, avatarUrl: string, imageAiHint: string, status: string}[]>([]);
-    const [reportedContent, setReportedContent] = React.useState<Report[]>([]);
-    const [reportedBugs, setReportedBugs] = React.useState(initialReportedBugsData);
-    
-    const [selectedBug, setSelectedBug] = React.useState<(typeof initialReportedBugsData)[0] | null>(null);
-    const [isBugDetailOpen, setIsBugDetailOpen] = React.useState(false);
-    
-    const [selectedReport, setSelectedReport] = React.useState<Report | null>(null);
-    const [isTakeActionOpen, setIsTakeActionOpen] = React.useState(false);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            if (sessionStorage.getItem('isAdmin') === 'true') {
-                setIsAdminAuthenticated(true);
-            }
-
-            const storedUsers = localStorage.getItem('soma-reported-users');
-            setUsers(storedUsers ? JSON.parse(storedUsers) : mockReportedUsers);
-
-            const storedReports = localStorage.getItem('soma-reports');
-            setReportedContent(storedReports ? JSON.parse(storedReports) : mockReports);
-        }
-    }, []);
-
-    const updateUserStatus = (userId: string, status: string) => {
-        const updatedUsers = users.map(u => u.id === userId ? { ...u, status } : u);
-        setUsers(updatedUsers);
-        localStorage.setItem('soma-reported-users', JSON.stringify(updatedUsers));
-    };
-    
-    const removeReport = (reportId: string) => {
-        const updatedReports = reportedContent.filter(r => r.id !== reportId);
-        setReportedContent(updatedReports);
-        localStorage.setItem('soma-reports', JSON.stringify(updatedReports));
-    };
-
-    const handleSuspend = (userId: string, duration: string) => {
-        updateUserStatus(userId, 'Suspended');
-        toast({
-            title: "User Suspended",
-            description: `The user has been suspended for ${duration}.`
-        });
-        if(selectedReport) removeReport(selectedReport.id);
-        setIsTakeActionOpen(false);
-    };
-
-    const handleBan = (userId: string) => {
-        updateUserStatus(userId, 'Banned');
-        toast({
-            title: "User Banned",
-            description: "The user has been permanently banned.",
-            variant: 'destructive'
-        });
-        if(selectedReport) removeReport(selectedReport.id);
-        setIsTakeActionOpen(false);
-    };
-    
-     const handleIgnoreReport = (reportId: string) => {
-        removeReport(reportId);
-        toast({
-            title: "Report Ignored",
-            description: "The report has been removed from the queue."
-        });
-    };
-
-    const handleTakeAction = (reportId: string) => {
-        const report = reportedContent.find((r) => r.id === reportId);
-        if (report) {
-            setSelectedReport(report);
-            setIsTakeActionOpen(true);
-        }
-    };
-    
-    const handleRemoveContent = (reportId: string) => {
-        removeReport(reportId);
-        toast({
-            title: 'Content Removed',
-            description: 'The reported content has been successfully removed.',
-        });
-        setIsTakeActionOpen(false);
-    };
-
-    const handleResolveBug = (bugId: string) => {
-        setReportedBugs(reportedBugs.filter(bug => bug.id !== bugId));
-        toast({
-            title: "Bug Resolved",
-            description: "The bug has been marked as resolved and removed from the queue."
-        });
-    };
-    
-    const handleViewBugDetails = (bugId: string) => {
-        const bug = reportedBugs.find((b) => b.id === bugId);
-        if (bug) {
-            setSelectedBug(bug);
-            setIsBugDetailOpen(true);
-        }
-    };
-
-    const renderReportedContent = () => {
-        if (!selectedReport) return null;
-    
-        if (selectedReport.contentType === 'Post') {
-            const contentItem = posts.find(p => p.id === selectedReport.contentId);
-            if (!contentItem) return <div className="mt-1 border rounded-lg p-3 bg-muted text-center"><p className="text-sm text-muted-foreground">Content not found or has been deleted.</p></div>;
-            return (
-                <div className="mt-1 border rounded-lg p-3 space-y-2">
-                    <div className="relative aspect-square w-full rounded-md overflow-hidden bg-muted">
-                        <Image src={contentItem.imageUrl} alt={contentItem.caption} fill style={{objectFit: "contain"}} data-ai-hint={contentItem.imageAiHint || 'image'} />
-                    </div>
-                    <p className="font-semibold">{selectedReport.content}</p>
-                    <p className="text-sm text-muted-foreground">{contentItem.caption}</p>
-                </div>
-            );
-        }
-    
-        if (selectedReport.contentType === 'Artwork') {
-            const contentItem = artworks.find(a => a.id === selectedReport.contentId);
-            if (!contentItem) return <div className="mt-1 border rounded-lg p-3 bg-muted text-center"><p className="text-sm text-muted-foreground">Content not found or has been deleted.</p></div>;
-            return (
-                 <div className="mt-1 border rounded-lg p-3 space-y-2">
-                    <div className="relative aspect-square w-full rounded-md overflow-hidden bg-muted">
-                        <Image src={contentItem.imageUrl} alt={contentItem.title} fill style={{objectFit: "contain"}} data-ai-hint={contentItem.imageAiHint || 'image'} />
-                    </div>
-                    <p className="font-semibold">{contentItem.title}</p>
-                </div>
-            )
-        }
-    
-        if (selectedReport.contentType === 'Discussion') {
-            const contentItem = discussions.find(d => d.id === selectedReport.contentId);
-            if (!contentItem) return <div className="mt-1 border rounded-lg p-3 bg-muted text-center"><p className="text-sm text-muted-foreground">Content not found or has been deleted.</p></div>;
-            return (
-                <div className="mt-1 border rounded-lg p-3 space-y-2 bg-muted">
-                    <p className="font-semibold">{contentItem.title}</p>
-                    <p className="text-sm text-muted-foreground">{contentItem.content}</p>
-                </div>
-            );
-        }
-    
-        if (selectedReport.contentType === 'Reply') {
-            const findReplyInTree = (replies: Reply[], replyId: string): Reply | undefined => {
-                for (const reply of replies) {
-                    if (reply.id === replyId) return reply;
-                    if (reply.replies) {
-                        const found = findReplyInTree(reply.replies, replyId);
-                        if (found) return found;
-                    }
-                }
-                return undefined;
-            };
-    
-            let contentItem: Reply | undefined;
-            for (const discussion of discussions) {
-                if (discussion.replies) {
-                    contentItem = findReplyInTree(discussion.replies, selectedReport.contentId);
-                    if (contentItem) break;
-                }
-            }
-            if (!contentItem) return <div className="mt-1 border rounded-lg p-3 bg-muted text-center"><p className="text-sm text-muted-foreground">Content not found or has been deleted.</p></div>;
-            return (
-                <div className="mt-1 border rounded-lg p-3 space-y-2 bg-muted">
-                    <p className="text-sm text-muted-foreground">{contentItem.content}</p>
-                </div>
-            );
-        }
-        
-        return <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md mt-1">{selectedReport.content}</p>;
-    };
-
-  if (!isAdminAuthenticated) {
-    return <AdminLoginForm onSuccess={() => setIsAdminAuthenticated(true)} />;
-  }
+  const [selectedTab, setSelectedTab] = useState('overview');
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <header className="mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl font-semibold mb-2">Admin Dashboard</h1>
-        <p className="text-muted-foreground text-lg">Platform-wide analytics and performance metrics.</p>
-      </header>
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor and manage your SOMA platform
+          </p>
+        </div>
 
-       <Tabs defaultValue="moderation" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="moderation">Moderation</TabsTrigger>
-                <TabsTrigger value="analytics">Platform Analytics</TabsTrigger>
-            </TabsList>
-            <TabsContent value="moderation" className="mt-6">
-                 <div className="grid gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Reported Content Queue</CardTitle>
-                            <CardDescription>Review content reported by the community for guideline violations.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Offender</TableHead>
-                                        <TableHead>Content</TableHead>
-                                        <TableHead>Reason</TableHead>
-                                        <TableHead>Reported By</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {reportedContent.length > 0 ? (
-                                        reportedContent.map((report) => (
-                                            <TableRow key={report.id}>
-                                                <TableCell className="font-medium">{report.offenderHandle}</TableCell>
-                                                <TableCell className="font-medium truncate max-w-xs">{report.content}</TableCell>
-                                                <TableCell>{report.reason}</TableCell>
-                                                <TableCell>{report.reportedBy}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Button variant="outline" size="sm" onClick={() => handleIgnoreReport(report.id)}>Ignore</Button>
-                                                        <Button variant="secondary" size="sm" onClick={() => handleTakeAction(report.id)}>Review</Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={5} className="h-24 text-center">
-                                                No reported content. The queue is clear!
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockStats.totalUsers.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                +12% from last month
+              </p>
+            </CardContent>
+          </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>User Management</CardTitle>
-                            <CardDescription>Search for users to view their status or take moderation actions.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="mb-6">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input placeholder="Search by username or email..." className="pl-10" />
-                                </div>
-                            </div>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {users.length > 0 ? (
-                                        users.map((user) => (
-                                            <TableRow key={user.id}>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-3">
-                                                        <Avatar>
-                                                            <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint={user.imageAiHint} />
-                                                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p className="font-medium">{user.name}</p>
-                                                            <p className="text-sm text-muted-foreground">{user.handle}</p>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant={user.status === 'Active' ? 'secondary' : 'destructive'}>{user.status}</Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                                <span className="sr-only">User Actions</span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Manual Action</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            {user.status === 'Suspended' ? (
-                                                                <DropdownMenuItem onClick={() => updateUserStatus(user.id, 'Active')}>
-                                                                    Lift Suspension
-                                                                </DropdownMenuItem>
-                                                            ) : user.status === 'Active' ? (
-                                                                <>
-                                                                    <DropdownMenuItem onClick={() => handleSuspend(user.id, '1 week')}>Suspend for 1 week</DropdownMenuItem>
-                                                                </>
-                                                            ) : null}
-                                                            {user.status !== 'Banned' && (
-                                                                <DropdownMenuItem 
-                                                                    className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                                                    onClick={() => handleBan(user.id)}
-                                                                >
-                                                                    Ban Permanently
-                                                                </DropdownMenuItem>
-                                                            )}
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={3} className="h-24 text-center">
-                                                Search for a user to manage them.
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockStats.totalPosts.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                +8% from last month
+              </p>
+            </CardContent>
+          </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Reported Bugs</CardTitle>
-                            <CardDescription>Review bug reports submitted by users to improve platform stability.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Description</TableHead>
-                                        <TableHead>Reported By</TableHead>
-                                        <TableHead>Attachment</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {reportedBugs.length > 0 ? (
-                                        reportedBugs.map((bug) => (
-                                            <TableRow key={bug.id}>
-                                                <TableCell className="font-medium max-w-sm truncate">{bug.description}</TableCell>
-                                                <TableCell>{bug.reportedBy}</TableCell>
-                                                <TableCell>
-                                                    {bug.hasAttachment ? <ImageIcon className="h-5 w-5 text-muted-foreground" /> : '-'}
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Button variant="outline" size="sm" onClick={() => handleResolveBug(bug.id)}>Mark as Resolved</Button>
-                                                        <Button variant="secondary" size="sm" onClick={() => handleViewBugDetails(bug.id)}>View Details</Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
-                                                No reported bugs.
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${mockStats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                +23% from last month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Auctions</CardTitle>
+              <Gavel className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockStats.activeAuctions}</div>
+              <p className="text-xs text-muted-foreground">
+                {mockStats.activeAuctions} live auctions
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Products</CardTitle>
+              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockStats.totalProducts.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                Available for sale
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Reports</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mockStats.reports}</div>
+              <p className="text-xs text-muted-foreground">
+                Pending review
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>Latest platform activity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">New user registered</p>
+                        <p className="text-xs text-muted-foreground">2 minutes ago</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">New artwork uploaded</p>
+                        <p className="text-xs text-muted-foreground">5 minutes ago</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="h-2 w-2 bg-yellow-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Auction ended</p>
+                        <p className="text-xs text-muted-foreground">10 minutes ago</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Common administrative tasks</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Button className="w-full justify-start" variant="outline">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View All Reports
+                    </Button>
+                    <Button className="w-full justify-start" variant="outline">
+                      <Users className="h-4 w-4 mr-2" />
+                      Manage Users
+                    </Button>
+                    <Button className="w-full justify-start" variant="outline">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      View Analytics
+                    </Button>
+                    <Button className="w-full justify-start" variant="outline">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      System Settings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reports" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Reports</CardTitle>
+                <CardDescription>Reports requiring review</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {mockReports.map((report) => (
+                    <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-medium">{report.content}</h4>
+                          <Badge variant={
+                            report.status === 'pending' ? 'destructive' :
+                            report.status === 'reviewed' ? 'default' :
+                            report.status === 'resolved' ? 'secondary' : 'outline'
+                          }>
+                            {report.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {report.reason} • Reported by {report.reportedBy} • {report.timestamp}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Offender: {report.offenderHandle}
+                        </p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">
+                          Review
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          Dismiss
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-            </TabsContent>
-            <TabsContent value="analytics" className="mt-6">
-                <div className="grid gap-6">
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">$0.00</div>
-                                    <p className="text-xs text-muted-foreground">No sales yet</p>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Monthly Active Users</CardTitle>
-                                    <Users className="h-4 w-4 text-muted-foreground" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">0</div>
-                                    <p className="text-xs text-muted-foreground">No active users yet</p>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Avg. Daily Users</CardTitle>
-                                    <Activity className="h-4 w-4 text-muted-foreground" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">0</div>
-                                    <p className="text-xs text-muted-foreground">Not enough data</p>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Projected Growth</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold">--%</div>
-                                    <p className="text-xs text-muted-foreground">Not enough data</p>
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Revenue Over Time</CardTitle>
-                                    <CardDescription>Monthly revenue over the last 6 months.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {revenueData.length > 0 ? (
-                                        <ChartContainer config={platformChartConfig} className="h-[300px] w-full">
-                                            <BarChart data={revenueData} margin={{ top: 20, left: -20, right: 10 }}>
-                                                <CartesianGrid vertical={false} />
-                                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                                                <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `$${(value / 1000)}k`} />
-                                                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                                                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4}>
-                                                    <LabelList position="top" offset={10} className="fill-foreground" fontSize={12} formatter={(value: number) => `$${value.toLocaleString()}`} />
-                                                </Bar>
-                                            </BarChart>
-                                        </ChartContainer>
-                                    ) : (
-                                        <div className="flex h-[300px] w-full items-center justify-center rounded-lg border border-dashed">
-                                            <p className="text-sm text-muted-foreground">No revenue data available yet.</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>User Growth</CardTitle>
-                                    <CardDescription>Total users over the last 6 months.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {userGrowthData.length > 0 ? (
-                                        <ChartContainer config={platformChartConfig} className="h-[300px] w-full">
-                                            <LineChart data={userGrowthData} margin={{ left: -20, right: 20, top: 10, bottom: 10 }}>
-                                                <CartesianGrid vertical={false} />
-                                                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                                                <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => value.toLocaleString()} />
-                                                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                                                <ChartLegend content={<ChartLegendContent />} />
-                                                <Line dataKey="users" type="monotone" stroke="var(--color-users)" strokeWidth={2} dot={{ r: 4 }} />
-                                            </LineChart>
-                                        </ChartContainer>
-                                    ) : (
-                                        <div className="flex h-[300px] w-full items-center justify-center rounded-lg border border-dashed">
-                                            <p className="text-sm text-muted-foreground">No user growth data available yet.</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                            <Card className="lg:col-span-2">
-                                <CardHeader>
-                                    <CardTitle>Top Selling Artists</CardTitle>
-                                    <CardDescription>
-                                        Artists with the highest sales volume in the last 30 days.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className="w-[80px]">Artist</TableHead>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead className="text-right">Total Sales (USD)</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {topArtistsData.length > 0 ? (
-                                                topArtistsData.map((artist) => (
-                                                    <TableRow key={artist.id}>
-                                                        <TableCell>
-                                                            <Avatar>
-                                                                <AvatarImage src={artist.avatarUrl} alt={artist.name} data-ai-hint={artist.imageAiHint} />
-                                                                <AvatarFallback>{artist.name.charAt(0)}</AvatarFallback>
-                                                            </Avatar>
-                                                        </TableCell>
-                                                        <TableCell className="font-medium">{artist.name}</TableCell>
-                                                        <TableCell className="text-right">${artist.totalSales.toLocaleString()}</TableCell>
-                                                    </TableRow>
-                                                ))
-                                            ) : (
-                                                <TableRow>
-                                                    <TableCell colSpan={3} className="h-24 text-center">
-                                                        No top selling artists yet.
-                                                    </TableCell>
-                                                </TableRow>
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                            </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Revenue by Type</CardTitle>
-                                    <CardDescription>Breakdown of revenue by listing type.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-1 pb-0">
-                                    {salesByRevenueData.length > 0 ? (
-                                        <ChartContainer
-                                            config={platformChartConfig}
-                                            className="mx-auto aspect-square h-[250px]"
-                                        >
-                                            <PieChart>
-                                                <ChartTooltip content={<ChartTooltipContent nameKey="revenue" formatter={(value: any) => `$${Number(value).toLocaleString()}`} hideLabel />} />
-                                                <Pie
-                                                    data={salesByRevenueData}
-                                                    dataKey="revenue"
-                                                    nameKey="type"
-                                                    innerRadius={60}
-                                                    strokeWidth={5}
-                                                >
-                                                    {salesByRevenueData.map((entry) => (
-                                                        <Cell key={`cell-${entry.type}`} fill={entry.fill} />
-                                                    ))}
-                                                </Pie>
-                                                <ChartLegend
-                                                    content={<ChartLegendContent nameKey="type" />}
-                                                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/3 [&>*]:justify-center"
-                                                />
-                                            </PieChart>
-                                        </ChartContainer>
-                                    ) : (
-                                        <div className="flex h-[250px] w-full items-center justify-center rounded-lg border border-dashed">
-                                            <p className="text-sm text-muted-foreground text-center">No sales data available yet.</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                    </div>
+          <TabsContent value="analytics" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Analytics</CardTitle>
+                <CardDescription>Detailed analytics and insights</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Analytics Coming Soon</h3>
+                  <p className="text-muted-foreground">
+                    Detailed analytics and reporting features will be available soon.
+                  </p>
                 </div>
-            </TabsContent>
-       </Tabs>
-        
-        {/* Bug Details Dialog */}
-        {selectedBug && (
-            <Dialog open={isBugDetailOpen} onOpenChange={setIsBugDetailOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Bug Details</DialogTitle>
-                        <DialogDescription>Reported by: {selectedBug.reportedBy}</DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div>
-                            <Label className="font-semibold">Description</Label>
-                            <p className="text-sm text-muted-foreground mt-1">{selectedBug.description}</p>
-                        </div>
-                        {selectedBug.hasAttachment && (
-                            <div>
-                                <Label className="font-semibold">Attachment</Label>
-                                <div className="mt-2 rounded-lg border overflow-hidden">
-                                    <Image src="https://placehold.co/600x400.png" alt="Attachment" width={600} height={400} className="w-full object-cover" data-ai-hint="screenshot" />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                    <DialogFooter>
-                        <Button onClick={() => setIsBugDetailOpen(false)}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* Take Action Dialog */}
-        {selectedReport && (
-            <Dialog open={isTakeActionOpen} onOpenChange={setIsTakeActionOpen}>
-                <DialogContent className="sm:max-w-3xl">
-                    <DialogHeader>
-                        <DialogTitle>Review Report</DialogTitle>
-                        <DialogDescription>
-                            Reported by: {selectedReport.reportedBy} for "{selectedReport.reason}"
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid md:grid-cols-2 gap-6 py-4 max-h-[70vh] overflow-y-auto">
-                        <div className="space-y-2">
-                            <Label className="font-semibold">Reported Content Preview</Label>
-                            {renderReportedContent()}
-                        </div>
-                         <div className="space-y-4">
-                            <div>
-                                <Label className="font-semibold">Offending User</Label>
-                                <p className="text-sm text-muted-foreground">{selectedReport.offenderHandle}</p>
-                            </div>
-                            <div>
-                                <Label className="font-semibold">Reporter's Details</Label>
-                                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md mt-1">{selectedReport.details || 'No additional details provided.'}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between items-center">
-                        <Button variant="outline" onClick={() => setIsTakeActionOpen(false)}>Cancel</Button>
-                        <div className="flex gap-2">
-                            <Button variant="destructive" onClick={() => handleRemoveContent(selectedReport.id)}>Remove Content</Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="secondary">Take User Action</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Suspend User</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => handleSuspend(selectedReport.offenderId, '1 week')}>For 1 week</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSuspend(selectedReport.offenderId, '1 month')}>For 1 month</DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => handleBan(selectedReport.offenderId)}>
-                                        Ban Permanently
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        )}
+          <TabsContent value="users" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Manage platform users</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">User Management Coming Soon</h3>
+                  <p className="text-muted-foreground">
+                    Advanced user management features will be available soon.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

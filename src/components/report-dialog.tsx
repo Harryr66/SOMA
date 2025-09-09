@@ -1,155 +1,162 @@
-
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/providers/auth-provider';
-import type { Report } from '@/lib/types';
-
-const reportReasons = [
-  'Hate Speech or Symbols',
-  'Harassment or Bullying',
-  'Spam or Misleading',
-  'Nudity or Sexual Content',
-  'Violence or Dangerous Content',
-  'Intellectual Property Violation',
-  'Something Else',
-] as const;
-
-const reportFormSchema = z.object({
-  reason: z.enum(reportReasons, { required_error: 'You must select a reason for the report.' }),
-  details: z.string().optional(),
-});
+import { Report } from '@/lib/types';
+import { Flag, AlertTriangle } from 'lucide-react';
 
 interface ReportDialogProps {
   contentId: string;
-  contentType: Report['contentType'];
-  contentTitle: string;
+  contentType: 'Artwork' | 'Discussion' | 'Reply' | 'Post' | 'User' | 'Community';
+  content: string;
   offenderId: string;
   offenderHandle: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  children: React.ReactNode;
+  onReport: (report: Report) => void;
 }
 
-export function ReportDialog({
-  contentId,
-  contentType,
-  contentTitle,
-  offenderId,
-  offenderHandle,
-  open,
-  onOpenChange,
-  children
+const reportReasons = [
+  'Spam',
+  'Inappropriate content',
+  'Harassment',
+  'Hate speech',
+  'Violence',
+  'Copyright violation',
+  'Impersonation',
+  'Other'
+];
+
+export function ReportDialog({ 
+  contentId, 
+  contentType, 
+  content, 
+  offenderId, 
+  offenderHandle, 
+  onReport 
 }: ReportDialogProps) {
-  const { toast } = useToast();
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [details, setDetails] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof reportFormSchema>>({
-    resolver: zodResolver(reportFormSchema),
-  });
-
-  function onSubmit(data: z.infer<typeof reportFormSchema>) {
-    if (!user) {
-      toast({ variant: 'destructive', title: 'You must be logged in to report content.' });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reason || !user) {
       return;
     }
-    const reporterHandle = JSON.parse(localStorage.getItem(`userProfile-${user.uid || "demo-user"}`) || '{}').handle || user.email?.split('@')[0] || 'anonymous';
+    
+    const reporterHandle = user.username || user.email?.split('@')[0] || 'anonymous';
 
     const newReport: Report = {
       id: `report-${Date.now()}`,
       contentId,
       contentType,
-      content: contentTitle,
+      content,
       reportedBy: reporterHandle,
       offenderId,
       offenderHandle,
-      reason: data.reason,
-      details: data.details,
+      reason,
+      details: details.trim() || undefined,
       timestamp: new Date().toISOString(),
+      status: 'pending'
     };
 
-    const reports = JSON.parse(localStorage.getItem('soma-reports') || '[]');
-    reports.push(newReport);
-    localStorage.setItem('soma-reports', JSON.stringify(reports));
-
-    toast({
-      title: 'Report Submitted',
-      description: 'Thank you for your feedback. Our moderation team will review it shortly.',
-    });
-    onOpenChange(false);
-    form.reset();
-  }
+    setLoading(true);
+    try {
+      await onReport(newReport);
+      setOpen(false);
+      setReason('');
+      setDetails('');
+    } catch (error) {
+      console.error('Error submitting report:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children}
+        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+          <Flag className="h-4 w-4 mr-1" />
+          Report
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Report Content</DialogTitle>
+          <DialogTitle className="flex items-center space-x-2">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <span>Report Content</span>
+          </DialogTitle>
           <DialogDescription>
-            Help us understand the problem. What's going on with this {contentType.toLowerCase()}?
+            Help us keep the community safe by reporting content that violates our guidelines.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="reason"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Reason</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      {reportReasons.map(reason => (
-                         <FormItem key={reason} className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value={reason} />
-                            </FormControl>
-                            <FormLabel className="font-normal">{reason}</FormLabel>
-                          </FormItem>
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reason">Reason for reporting</Label>
+            <Select value={reason} onValueChange={setReason}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a reason" />
+              </SelectTrigger>
+              <SelectContent>
+                {reportReasons.map((reasonOption) => (
+                  <SelectItem key={reasonOption} value={reasonOption}>
+                    {reasonOption}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="details">Additional details (optional)</Label>
+            <Textarea
+              id="details"
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Provide any additional context that might help us understand the issue..."
+              rows={3}
             />
-            <FormField
-              control={form.control}
-              name="details"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Additional Details (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Provide any additional information that might be helpful."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                <Button type="submit">Submit Report</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          </div>
+          
+          <div className="p-3 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <strong>Content:</strong> {content}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              <strong>Type:</strong> {contentType}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              <strong>Reported by:</strong> {user?.username || 'Anonymous'}
+            </p>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={!reason || loading}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {loading ? 'Submitting...' : 'Submit Report'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

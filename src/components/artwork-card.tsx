@@ -1,292 +1,196 @@
+'use client';
 
-"use client";
-
-import Image from 'next/image';
-import { type Artwork } from '@/lib/types';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from './ui/button';
-import { Heart, MoreHorizontal, Edit, Trash2, Bookmark, Repeat, Send, Flag } from 'lucide-react';
-import { useState } from 'react';
-import { GradientHeart } from './gradient-heart';
-import { GradientRepeat } from './gradient-repeat';
-import { GradientSend } from './gradient-send';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
+import { Artwork } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
-import { useContent } from '@/providers/content-provider';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { connections } from '@/lib/data';
-import { GradientBookmark } from './gradient-bookmark';
+import Image from 'next/image';
 
 interface ArtworkCardProps {
   artwork: Artwork;
+  onLike?: (artworkId: string) => void;
+  onComment?: (artworkId: string) => void;
+  onShare?: (artworkId: string) => void;
+  onMore?: (artworkId: string) => void;
   onClick?: () => void;
-  displayMode?: 'full' | 'tile';
 }
 
-export function ArtworkCard({ artwork, onClick, displayMode = 'full' }: ArtworkCardProps) {
-  if (displayMode === 'tile') {
-    return (
-      <Card
-        className="overflow-hidden group cursor-pointer rounded-none"
-        onClick={onClick}
-      >
-        <div className="relative aspect-square">
-          <Image
-            src={artwork.imageUrl}
-            alt={artwork.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            data-ai-hint={artwork.imageAiHint}
-          />
-        </div>
-      </Card>
-    );
-  }
-
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isReshared, setIsReshared] = useState(false);
+export function ArtworkCard({ 
+  artwork, 
+  onLike, 
+  onComment, 
+  onShare, 
+  onMore,
+  onClick
+}: ArtworkCardProps) {
   const { user } = useAuth();
-  const { deleteContentByArtworkId, updateArtworkTitle } = useContent();
-  const { toast } = useToast();
-  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(artwork.likes || 0);
 
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(artwork.title);
-  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
-
-
-  const isAuthor = user?.uid === artwork.artist.id;
+  const isAuthor = user?.id === artwork.artist.id;
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsLiked(!isLiked);
-  }
-
-  const handleSaveClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newSavedState = !isSaved;
-    setIsSaved(newSavedState);
-    toast({
-      title: newSavedState ? "Post Saved!" : "Post Unsaved",
-      description: newSavedState
-        ? `"${artwork.title}" was added to your saved posts.`
-        : `"${artwork.title}" was removed from your saved posts.`,
-    });
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    onLike?.(artwork.id);
   };
 
-  const handleDelete = () => {
-    deleteContentByArtworkId(artwork.id);
-    toast({
-        title: "Content Deleted",
-        description: "The content has been permanently removed.",
-    });
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onComment?.(artwork.id);
   };
 
-  const handleSaveEdit = () => {
-    updateArtworkTitle(artwork.id, editedTitle);
-    setIsEditDialogOpen(false);
-    toast({
-        title: "Title Updated",
-        description: "The artwork title has been successfully updated.",
-    });
-  };
-  
-  const handleReshare = (e: React.MouseEvent) => {
+  const handleShareClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newResharedState = !isReshared;
-    setIsReshared(newResharedState);
-    toast({
-      title: newResharedState ? "Post Reshared!" : "Reshare Removed",
-      description: newResharedState ? `You've reshared "${artwork.title}".` : `Your reshare has been removed.`
-    });
+    onShare?.(artwork.id);
   };
 
-  const handleSend = (e: React.MouseEvent, artistName: string) => {
+  const handleMoreClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSendDialogOpen(false);
-    toast({
-      title: "Artwork Shared!",
-      description: `You sent "${artwork.title}" to ${artistName}.`,
-    });
-  };
-  
-  const handleReport = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast({
-        title: "Content Reported",
-        description: "Thank you for your feedback. We will review this content."
-    });
+    onMore?.(artwork.id);
   };
 
   return (
-    <Card 
-      className={cn(
-        "overflow-hidden group flex flex-col h-full"
-      )}
-    >
-      <CardContent className="p-0 relative">
-        <div 
-          className={cn("aspect-square w-full overflow-hidden", onClick && "cursor-pointer")}
-          onClick={onClick}
-        >
-         <Image
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={onClick}>
+      <div className="relative overflow-hidden rounded-t-lg">
+        <div className="aspect-square relative">
+          <Image
             src={artwork.imageUrl}
-            alt={artwork.title}
-            width={400}
-            height={400}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            data-ai-hint={artwork.imageAiHint}
+            alt={artwork.imageAiHint}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
-      </CardContent>
-      <div className="p-4 flex-grow flex flex-col justify-between">
-        <div>
-            <h3 className="font-headline text-lg font-semibold leading-tight">{artwork.title}</h3>
+        
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div className="flex space-x-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleLikeClick}
+              className="bg-white/90 hover:bg-white text-black"
+            >
+              <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+              {likeCount}
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleCommentClick}
+              className="bg-white/90 hover:bg-white text-black"
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Comment
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleShareClick}
+              className="bg-white/90 hover:bg-white text-black"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center w-full mt-2">
-            <div className="flex items-center space-x-0">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground hover:text-foreground no-focus-outline" onClick={handleLikeClick}>
-                    {isLiked ? <GradientHeart className="w-5 h-5" /> : <Heart className="w-5 h-5 text-foreground"/>}
-                </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground hover:text-foreground no-focus-outline" onClick={handleReshare}>
-                    {isReshared ? <GradientRepeat className="w-5 h-5" /> : <Repeat className="w-5 h-5 text-foreground"/>}
-                </Button>
-                <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-9 w-9 text-foreground hover:text-foreground no-focus-outline"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {isSendDialogOpen ? <GradientSend className="w-5 h-5" /> : <Send className="w-5 h-5 text-foreground" />}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent onClick={(e) => e.stopPropagation()}>
-                        <DialogHeader>
-                        <DialogTitle>Share Post</DialogTitle>
-                        <DialogDescription>
-                            Send this artwork to one of your connections.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <div className="py-2 space-y-2 max-h-[40vh] overflow-y-auto">
-                        {connections.map((artist) => (
-                            <div key={artist.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted">
-                            <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10">
-                                <AvatarImage src={artist.avatarUrl || 'https://placehold.co/40x40.png'} alt={artist.name} data-ai-hint="artist portrait" />
-                                <AvatarFallback>{artist.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                <p className="font-semibold text-sm">{artist.name}</p>
-                                <p className="text-xs text-muted-foreground">{artist.handle}</p>
-                                </div>
-                            </div>
-                            <Button variant="outline" size="sm" onClick={(e) => handleSend(e, artist.name)}>
-                                <Send className="mr-2 h-4 w-4" />
-                                Send
-                            </Button>
-                            </div>
-                        ))}
-                        </div>
-                    </DialogContent>
-                </Dialog>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground hover:text-foreground no-focus-outline" onClick={handleSaveClick}>
-                    {isSaved ? <GradientBookmark className="w-5 h-5" /> : <Bookmark className="w-5 h-5 text-foreground" />}
-                </Button>
-            </div>
-            <div className="flex-1" />
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-foreground hover:text-foreground no-focus-outline" onClick={(e) => e.stopPropagation()}>
-                    <MoreHorizontal className="h-5 w-5" />
-                </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                {isAuthor && (
-                    <>
-                        <DropdownMenuItem onClick={() => { setIsEditDialogOpen(true); setEditedTitle(artwork.title); }}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>Edit Title</span>
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                                onSelect={(e) => e.preventDefault()}
-                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete Post</span>
-                            </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure you want to delete this post?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                This action cannot be undone. This will permanently remove the post from your profile and the feed.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                                Delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                        <DropdownMenuSeparator />
-                    </>
-                )}
-                 <DropdownMenuItem
-                    className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                    onClick={handleReport}
-                  >
-                    <Flag className="mr-2 h-4 w-4" />
-                    <span>Report Content</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+
+        {/* Price badge */}
+        {artwork.isForSale && artwork.price && (
+          <div className="absolute top-4 right-4">
+            <Badge className="bg-green-600 hover:bg-green-700">
+              ${artwork.price.toLocaleString()}
+            </Badge>
+          </div>
+        )}
+
+        {/* AI badge */}
+        {artwork.isAI && (
+          <div className="absolute top-4 left-4">
+            <Badge variant="secondary">
+              AI {artwork.aiAssistance}
+            </Badge>
+          </div>
+        )}
       </div>
-      
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent onClick={(e) => e.stopPropagation()}>
-            <DialogHeader>
-            <DialogTitle>Edit Artwork Title</DialogTitle>
-            <DialogDescription>
-                Make changes to your artwork's title here. Click save when you're done.
-            </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="title" className="text-right">
-                        Title
-                    </Label>
-                    <Input
-                        id="title"
-                        value={editedTitle}
-                        onChange={(e) => setEditedTitle(e.target.value)}
-                        className="col-span-3"
-                    />
-                </div>
-            </div>
-            <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" onClick={handleSaveEdit}>Save changes</Button>
-            </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg line-clamp-1">{artwork.title}</CardTitle>
+            <CardDescription className="flex items-center space-x-2 mt-1">
+              <span>by {artwork.artist.name}</span>
+              {artwork.artist.isVerified && (
+                <Badge variant="outline" className="text-xs">
+                  Verified
+                </Badge>
+              )}
+            </CardDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleMoreClick}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-0">
+        {artwork.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+            {artwork.description}
+          </p>
+        )}
+
+        {/* Tags */}
+        {artwork.tags && artwork.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {artwork.tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                #{tag}
+              </Badge>
+            ))}
+            {artwork.tags.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{artwork.tags.length - 3} more
+              </Badge>
+            )}
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center space-x-4">
+            <span>{artwork.views || 0} views</span>
+            <span>{likeCount} likes</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            {artwork.category && (
+              <Badge variant="secondary" className="text-xs">
+                {artwork.category}
+              </Badge>
+            )}
+            {artwork.medium && (
+              <Badge variant="outline" className="text-xs">
+                {artwork.medium}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Dimensions */}
+        {artwork.dimensions && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            {artwork.dimensions.width} × {artwork.dimensions.height} {artwork.dimensions.unit}
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }
-
-    
