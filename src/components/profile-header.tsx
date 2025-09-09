@@ -16,8 +16,8 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 interface ProfileHeaderProps {
   user: {
     id: string;
-    name: string;
-    handle: string;
+    displayName: string;
+    username: string;
     avatarUrl?: string;
     bio?: string;
     website?: string;
@@ -84,9 +84,9 @@ export function ProfileHeader({
                   style={getAvatarBorderStyle()}
                 >
                   <Avatar className="h-32 w-32">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarImage src={user.avatarUrl} alt={user.displayName} />
                     <AvatarFallback className="text-2xl">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.displayName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -110,9 +110,9 @@ export function ProfileHeader({
           <div className="flex-1 space-y-4">
             <div>
               <h1 className="text-3xl font-headline font-bold text-foreground">
-                {user.name}
+                {user.displayName}
               </h1>
-              <p className="text-muted-foreground text-lg">@{user.handle}</p>
+              <p className="text-muted-foreground text-lg">@{user.username}</p>
               
               {user.isProfessional && (
                 <Badge variant="secondary" className="mt-2">
@@ -196,7 +196,7 @@ export function ProfileHeader({
       {showTipDialog && (
         <TipDialog 
           artistId={user.id}
-          artistName={user.name}
+          artistName={user.displayName}
           onClose={() => setShowTipDialog(false)} 
         />
       )}
