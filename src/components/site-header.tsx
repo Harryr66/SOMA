@@ -41,7 +41,7 @@ export function SiteHeader() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="text-2xl font-headline font-bold">SOMA</span>
+            <span className="text-2xl font-headline font-bold dark:text-white">SOMA</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
@@ -79,7 +79,7 @@ export function SiteHeader() {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs">
                     <Link href="/" className="flex items-center space-x-2 mb-8">
-                        <span className="text-2xl font-headline font-bold">SOMA</span>
+                        <span className="text-2xl font-headline font-bold dark:text-white">SOMA</span>
                     </Link>
                     <nav className="flex flex-col space-y-6 text-lg font-medium">
                          <Link href="/discover" className="transition-colors hover:text-foreground/80 text-muted-foreground">Discover</Link>
