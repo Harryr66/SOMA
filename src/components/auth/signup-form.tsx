@@ -72,18 +72,16 @@ export function SignUpForm() {
       // Create user document in Firestore
       const userData: Artist = {
         id: user.uid,
-        displayName: values.name,
+        name: values.name,
         handle: values.handle,
-        email: values.email,
         avatarUrl: user.photoURL || undefined,
         bio: "",
         location: "",
         website: "",
+        followerCount: 0,
+        followingCount: 0,
         isProfessional: false,
-        followers: [],
-        following: [],
         createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
       await setDoc(doc(db, 'users', values.handle), userData);
@@ -149,18 +147,16 @@ export function SignUpForm() {
         // Create user document in Firestore
         const userData: Artist = {
           id: user.uid,
-          displayName: user.displayName || 'User',
+          name: user.displayName || 'User',
           handle: handle,
-          email: user.email || '',
           avatarUrl: user.photoURL || undefined,
           bio: "",
           location: "",
           website: "",
+          followerCount: 0,
+          followingCount: 0,
           isProfessional: false,
-          followers: [],
-          following: [],
           createdAt: new Date(),
-          updatedAt: new Date(),
         };
 
         await setDoc(doc(db, 'users', handle), userData);
