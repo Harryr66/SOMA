@@ -15,7 +15,7 @@
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215 20.2% 65.1%;
     --accent: 210 40% 96%;
     --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
@@ -116,6 +116,15 @@
   
   .hover\:gradient-border:hover {
     @apply gradient-border;
+  }
+
+  .story-gradient-border {
+    border: 4px solid transparent !important;
+    background:
+      linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+      var(--gradient-border) border-box !important;
+    background-clip: padding-box, border-box !important;
+    border-radius: 50% !important;
   }
 }
 

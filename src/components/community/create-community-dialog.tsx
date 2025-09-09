@@ -3,179 +3,265 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CommunityService } from '@/lib/database';
-import { Community } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
-import { Plus, Users } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Users, DollarSign, Crown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/providers/auth-provider';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { toast } from '@/hooks/use-toast';
 
 interface CreateCommunityDialogProps {
-  onCommunityCreated: (community: Community) => void;
+  onClose: () => void;
 }
 
-export function CreateCommunityDialog({ onCommunityCreated }: CreateCommunityDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+const COMMUNITY_TYPES = [
+  {
+    id: 'free',
+    name: 'Free Community',
+    description: 'Open to all followers',
+    icon: Users,
+    color: 'bg-green-500'
+  },
+  {
+    id: 'premium',
+    name: 'Premium Community',
+    description: 'Monthly subscription required',
+    icon: Crown,
+    color: 'bg-purple-500'
+  }
+];
+
+export function CreateCommunityDialog({ onClose }: CreateCommunityDialogProps) {
+  const { user } = useAuth();
+  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
-    tags: '',
-    isPublic: true
+    type: 'free' as 'free' | 'premium',
+    monthlyPrice: 0,
+    maxMembers: 1000
   });
-  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim() || !formData.description.trim()) return;
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-    setLoading(true);
+  const handleCreate = async () => {
+    if (!user || !formData.name.trim()) return;
+
+    setIsCreating(true);
     try {
-      const communityId = await CommunityService.createCommunity({
-        name: formData.name,
-        description: formData.description,
-        category: formData.category || undefined,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : undefined,
-        isPublic: formData.isPublic,
-        ownerId: 'current-user-id', // This should come from auth context
-        avatarUrl: undefined,
-        coverImageUrl: undefined,
-        memberCount: 0,
-        postCount: 0,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-
-      const newCommunity: Community = {
+      const communityId = `${user.id}_${Date.now()}`;
+      const communityData = {
         id: communityId,
-        name: formData.name,
-        description: formData.description,
-        category: formData.category,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : undefined,
-        isPublic: formData.isPublic,
-        ownerId: 'current-user-id',
-        avatarUrl: undefined,
-        coverImageUrl: undefined,
-        memberCount: 0,
-        postCount: 0,
-        isActive: true,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        type: formData.type,
+        monthlyPrice: formData.type === 'premium' ? formData.monthlyPrice : 0,
+        maxMembers: formData.maxMembers,
+        ownerId: user.id,
+        memberCount: 1,
         createdAt: new Date(),
-        updatedAt: new Date()
+        isActive: true,
+        rules: [],
+        tags: []
       };
 
-      onCommunityCreated(newCommunity);
-      setOpen(false);
-      setFormData({
-        name: '',
-        description: '',
-        category: '',
-        tags: '',
-        isPublic: true
+      // Create community document
+      await setDoc(doc(db, 'communities', communityId), communityData);
+
+      // Add owner as first member
+      await setDoc(doc(db, 'communities', communityId, 'members', user.id), {
+        userId: user.id,
+        role: 'owner',
+        joinedAt: new Date(),
+        isActive: true
       });
 
+      // Update user profile to reference community
+      await setDoc(doc(db, 'userProfiles', user.id), {
+        communityId: communityId
+      }, { merge: true });
+
       toast({
-        title: "Community Created!",
-        description: "Your community has been created successfully.",
+        title: "Community created",
+        description: `Your community "${formData.name}" has been created successfully.`,
       });
+
+      onClose();
     } catch (error) {
       console.error('Error creating community:', error);
       toast({
-        variant: 'destructive',
-        title: "Error",
-        description: "Failed to create community. Please try again.",
+        title: "Creation failed",
+        description: "There was an error creating your community. Please try again.",
+        variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsCreating(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Community
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
+          <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            <span>Create New Community</span>
+            Create Community
           </DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Community Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter community name"
-              required
-            />
+
+        <div className="space-y-6">
+          {/* Community Type Selection */}
+          <div className="space-y-3">
+            <Label>Community Type</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {COMMUNITY_TYPES.map((type) => {
+                const Icon = type.icon;
+                return (
+                  <Card
+                    key={type.id}
+                    className={cn(
+                      'cursor-pointer transition-all hover:shadow-md',
+                      formData.type === type.id
+                        ? 'ring-2 ring-primary'
+                        : 'hover:border-primary/50'
+                    )}
+                    onClick={() => handleInputChange('type', type.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={cn('p-2 rounded-lg text-white', type.color)}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium">{type.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {type.description}
+                          </p>
+                        </div>
+                        {formData.type === type.id && (
+                          <Badge variant="default">Selected</Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe your community"
-              rows={3}
-              required
-            />
+
+          {/* Community Details */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Community Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter community name"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Describe your community..."
+                rows={3}
+              />
+            </div>
+
+            {formData.type === 'premium' && (
+              <div className="space-y-2">
+                <Label htmlFor="price">Monthly Price (USD)</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.monthlyPrice}
+                    onChange={(e) => handleInputChange('monthlyPrice', parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="pl-8"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="maxMembers">Maximum Members</Label>
+              <Input
+                id="maxMembers"
+                type="number"
+                value={formData.maxMembers}
+                onChange={(e) => handleInputChange('maxMembers', parseInt(e.target.value) || 1000)}
+                placeholder="1000"
+                min="1"
+                max="10000"
+              />
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="category">Category (Optional)</Label>
-            <Input
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              placeholder="e.g., Art, Photography, Digital"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags (Optional)</Label>
-            <Input
-              id="tags"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="e.g., abstract, modern, digital (comma separated)"
-            />
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isPublic"
-              checked={formData.isPublic}
-              onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-              className="rounded"
-            />
-            <Label htmlFor="isPublic">Public community</Label>
-          </div>
-          
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
+
+          {/* Preview */}
+          <Card className="bg-muted/50">
+            <CardHeader>
+              <CardTitle className="text-lg">Preview</CardTitle>
+              <CardDescription>How your community will appear</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'w-12 h-12 rounded-lg flex items-center justify-center text-white',
+                  formData.type === 'free' ? 'bg-green-500' : 'bg-purple-500'
+                )}>
+                  <Users className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium">
+                    {formData.name || 'Community Name'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {formData.description || 'Community description'}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary">
+                      {formData.type === 'free' ? 'Free' : `$${formData.monthlyPrice}/month`}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      Max {formData.maxMembers} members
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Community'}
+            <Button
+              onClick={handleCreate}
+              disabled={!formData.name.trim() || isCreating}
+              className="flex-1"
+              variant="gradient"
+            >
+              {isCreating ? 'Creating...' : 'Create Community'}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
