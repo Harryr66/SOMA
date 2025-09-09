@@ -139,7 +139,7 @@ body:not(.dark) .story-gradient-border {
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
 }
 
-/* NUCLEAR APPROACH - DARK THEME GRADIENTS WITH MAXIMUM POSSIBLE SPECIFICITY */
+/* DARK THEME GRADIENTS - EXPLICIT COLORS - MAXIMUM SPECIFICITY */
 html[data-theme="dark"] body.dark .gradient-border,
 html body.dark .gradient-border,
 body.dark .gradient-border,
@@ -195,9 +195,4 @@ body.dark [data-radix-collection-item]:hover,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
 }
 
-/* DEBUGGING - Add a visible border to see if dark theme styles are being applied */
-.dark .gradient-border {
-  border: 3px solid red !important;
-}
-
-/* Cache bust - $(date) - Nuclear approach with maximum specificity */
+/* Cache bust - $(date) - Red debugging border removed, proper dark theme gradient applied */
