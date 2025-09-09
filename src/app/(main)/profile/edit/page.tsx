@@ -52,8 +52,8 @@ export default function ProfileEditPage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || '',
-        handle: user.handle || '',
+        name: user.displayName || '',
+        handle: user.username || '',
         bio: user.bio || '',
         website: user.website || '',
         artistType: user.artistType || '',
@@ -71,7 +71,7 @@ export default function ProfileEditPage() {
   }, [user]);
 
   const checkHandleAvailability = async (handle: string) => {
-    if (!handle || handle === user?.handle) {
+    if (!handle || handle === user?.username) {
       setHandleAvailable(null);
       return;
     }
@@ -163,7 +163,7 @@ export default function ProfileEditPage() {
     
     if (!user) return;
     
-    if (formData.handle !== user.handle && handleAvailable !== true) {
+    if (formData.handle !== user.username && handleAvailable !== true) {
       toast({
         title: "Handle not available",
         description: "Please choose a different handle.",
@@ -207,10 +207,10 @@ export default function ProfileEditPage() {
       });
 
       // Update handle mapping if changed
-      if (formData.handle !== user.handle) {
+      if (formData.handle !== user.username) {
         // Remove old handle
-        if (user.handle) {
-          await updateDoc(doc(db, 'handles', user.handle), { userId: null });
+        if (user.username) {
+          await updateDoc(doc(db, 'handles', user.username), { userId: null });
         }
         // Add new handle
         await updateDoc(doc(db, 'handles', formData.handle), { userId: user.id });

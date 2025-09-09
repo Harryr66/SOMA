@@ -11,6 +11,7 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   loading: boolean;
   avatarUrl: string | null;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,13 +44,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               id: firebaseUser.uid,
               username: userData.handle || '',
               email: firebaseUser.email || '',
-              displayName: userData.displayName || firebaseUser.displayName || '',
+              displayName: userData.name || userData.displayName || firebaseUser.displayName || '',
               avatarUrl: userData.avatarUrl || firebaseUser.photoURL || undefined,
               bio: userData.bio || '',
               website: userData.website || '',
               location: userData.location || '',
-              followerCount: userData.followers?.length || 0,
-              followingCount: userData.following?.length || 0,
+              followerCount: userData.followerCount || userData.followers?.length || 0,
+              followingCount: userData.followingCount || userData.following?.length || 0,
               postCount: userData.postCount || 0,
               createdAt: userData.createdAt?.toDate() || new Date(),
               updatedAt: userData.updatedAt?.toDate() || new Date(),
@@ -130,11 +131,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  const refreshUser = async () => {
+    if (firebaseUser) {
+      try {
+        // Get user data from Firestore using userProfiles collection
+        const userDoc = await getDoc(doc(db, 'userProfiles', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const user: User = {
+            id: firebaseUser.uid,
+            username: userData.handle || '',
+            email: firebaseUser.email || '',
+            displayName: userData.name || userData.displayName || firebaseUser.displayName || '',
+            avatarUrl: userData.avatarUrl || firebaseUser.photoURL || undefined,
+            bio: userData.bio || '',
+            website: userData.website || '',
+            location: userData.location || '',
+            followerCount: userData.followerCount || userData.followers?.length || 0,
+            followingCount: userData.followingCount || userData.following?.length || 0,
+            postCount: userData.postCount || 0,
+            createdAt: userData.createdAt?.toDate() || new Date(),
+            updatedAt: userData.updatedAt?.toDate() || new Date(),
+            isVerified: userData.isVerified || false,
+            isProfessional: userData.isProfessional || false,
+            isActive: userData.isActive !== false,
+            lastSeen: userData.lastSeen?.toDate(),
+            socialLinks: userData.socialLinks || {},
+            preferences: userData.preferences || {
+              notifications: {
+                likes: true,
+                comments: true,
+                follows: true,
+                messages: true,
+                auctions: true
+              },
+              privacy: {
+                showEmail: false,
+                showLocation: false,
+                allowMessages: true
+              }
+            }
+          };
+          setUser(user);
+          setAvatarUrl(user.avatarUrl || null);
+        }
+      } catch (error) {
+        console.error('Error refreshing user data:', error);
+      }
+    }
+  };
+
   const value = {
     user,
     firebaseUser,
     loading,
-    avatarUrl
+    avatarUrl,
+    refreshUser
   };
 
   return (
