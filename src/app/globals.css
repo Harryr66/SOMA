@@ -139,33 +139,44 @@ body:not(.dark) .story-gradient-border {
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
 }
 
-/* DARK THEME GRADIENTS - EXPLICIT COLORS - MAXIMUM SPECIFICITY */
+/* NUCLEAR APPROACH - DARK THEME GRADIENTS WITH MAXIMUM POSSIBLE SPECIFICITY */
+html[data-theme="dark"] body.dark .gradient-border,
 html body.dark .gradient-border,
-body.dark .gradient-border {
+body.dark .gradient-border,
+.dark .gradient-border {
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
+  background-clip: padding-box, border-box !important;
 }
 
+html[data-theme="dark"] body.dark .hover\:gradient-border:hover,
 html body.dark .hover\:gradient-border:hover,
-body.dark .hover\:gradient-border:hover {
+body.dark .hover\:gradient-border:hover,
+.dark .hover\:gradient-border:hover {
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
+  background-clip: padding-box, border-box !important;
 }
 
+html[data-theme="dark"] body.dark .btn-gradient-outline,
 html body.dark .btn-gradient-outline,
-body.dark .btn-gradient-outline {
+body.dark .btn-gradient-outline,
+.dark .btn-gradient-outline {
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
 }
 
+html[data-theme="dark"] body.dark .story-gradient-border,
 html body.dark .story-gradient-border,
-body.dark .story-gradient-border {
+body.dark .story-gradient-border,
+.dark .story-gradient-border {
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
+  background-clip: padding-box, border-box !important;
 }
 
 /* Dropdown menu items */
@@ -175,11 +186,18 @@ body:not(.dark) [data-radix-collection-item]:hover {
     linear-gradient(135deg, #3d9071 0%, #1b4b39 8%, #7df3de 16%, #89f7f8 24%, #7df3c6 32%, #97c8bf 40%, #68ba9b 48%, #065042 56%, #056955 64%, #00755e 72%, #77aaff 80%, #99ccff 88%, #bbeeff 96%, #5588ff 100%) border-box !important;
 }
 
+html[data-theme="dark"] body.dark [data-radix-collection-item]:hover,
 html body.dark [data-radix-collection-item]:hover,
-body.dark [data-radix-collection-item]:hover {
+body.dark [data-radix-collection-item]:hover,
+.dark [data-radix-collection-item]:hover {
   background:
     linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
     linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
 }
 
-/* Cache bust - $(date) - Simplified approach with explicit colors */
+/* DEBUGGING - Add a visible border to see if dark theme styles are being applied */
+.dark .gradient-border {
+  border: 3px solid red !important;
+}
+
+/* Cache bust - $(date) - Nuclear approach with maximum specificity */
