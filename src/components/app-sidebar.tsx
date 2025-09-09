@@ -6,33 +6,16 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
   Home, 
-  Search, 
   Compass, 
-  MessageCircle, 
-  Heart, 
-  User, 
-  Settings, 
-  Bell,
-  Users,
-  Gavel,
-  ShoppingBag,
-  BarChart3
+  Upload, 
+  User
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Home', href: '/', icon: Home },
+  { name: 'Home', href: '/feed', icon: Home },
   { name: 'Discover', href: '/discover', icon: Compass },
-  { name: 'Feed', href: '/feed', icon: Home },
-  { name: 'Search', href: '/search', icon: Search },
-  { name: 'Messages', href: '/messages', icon: MessageCircle },
-  { name: 'Community', href: '/community', icon: Users },
-  { name: 'Auctions', href: '/auctions', icon: Gavel },
-  { name: 'Shop', href: '/shop', icon: ShoppingBag },
-  { name: 'Saved', href: '/saved', icon: Heart },
-  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Upload Profile', href: '/upload', icon: Upload },
   { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Settings', href: '/settings', icon: Settings },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 
 export function AppSidebar() {

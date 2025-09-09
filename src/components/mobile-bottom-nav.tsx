@@ -3,16 +3,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Eye, Upload, User, Bookmark, Search } from 'lucide-react';
+import { Home, Eye, Upload, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const mobileNavItems = [
   { href: '/feed', icon: Home, label: 'Home' },
   { href: '/discover', icon: Eye, label: 'Discover' },
-  { href: '/search', icon: Search, label: 'Search' },
-  { href: '/upload', icon: Upload, label: 'Upload' },
-  { href: '/saved', icon: Bookmark, label: 'Saved' },
+  { href: '/upload', icon: Upload, label: 'Upload Profile' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
@@ -28,9 +26,6 @@ export function MobileBottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:hidden">
       <div className="flex h-16 items-center justify-around">
         {mobileNavItems.map((item) => {
-          if (item.href === '/upload' && !isProfessional) {
-            return null;
-          }
           const isActive = item.href === '/profile' ? pathname.startsWith(item.href) : pathname === item.href;
           return (
             <Link
