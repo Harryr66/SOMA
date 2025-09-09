@@ -200,6 +200,9 @@ export interface User {
   isProfessional: boolean;
   isActive: boolean;
   lastSeen?: Date;
+  artistType?: string;
+  isTipJarEnabled?: boolean;
+  profileRingColor?: string;
   socialLinks?: {
     instagram?: string;
     twitter?: string;
