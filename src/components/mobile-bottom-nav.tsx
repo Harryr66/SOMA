@@ -3,13 +3,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Eye, Upload, User } from 'lucide-react';
+import { Home, Eye, Upload, User, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const mobileNavItems = [
   { href: '/feed', icon: Home, label: 'Home' },
   { href: '/discover', icon: Eye, label: 'Discover' },
+  { href: '/saved', icon: Heart, label: 'Saved' },
   { href: '/upload', icon: Upload, label: 'Upload Profile' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
