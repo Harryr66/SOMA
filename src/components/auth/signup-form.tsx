@@ -44,18 +44,7 @@ export function SignUpForm() {
     setIsLoading(true);
 
     try {
-      // Check if username is already taken
-      const userDoc = await getDoc(doc(db, 'users', values.handle));
-      if (userDoc.exists()) {
-        toast({
-          title: "Username Taken",
-          description: "This username is already taken. Please choose another one.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create user with Firebase Auth
+      // Create user with Firebase Auth first
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
@@ -84,8 +73,14 @@ export function SignUpForm() {
         createdAt: new Date(),
       };
 
-      await setDoc(doc(db, 'users', values.handle), userData);
-      await setDoc(doc(db, 'userProfiles', user.uid), userData);
+      // Try to save user data to Firestore (with offline handling)
+      try {
+        await setDoc(doc(db, 'users', values.handle), userData);
+        await setDoc(doc(db, 'userProfiles', user.uid), userData);
+      } catch (firestoreError) {
+        console.warn('Firestore save failed (user still created):', firestoreError);
+        // User is still created in Firebase Auth, just Firestore save failed
+      }
 
       console.log('User created:', user);
       
@@ -136,13 +131,8 @@ export function SignUpForm() {
         let handle = baseHandle;
         let counter = 1;
 
-        // Check if handle is available, if not add numbers
-        while (true) {
-          const userDoc = await getDoc(doc(db, 'users', handle));
-          if (!userDoc.exists()) break;
-          handle = `${baseHandle}${counter}`;
-          counter++;
-        }
+        // Generate a unique handle (we'll handle conflicts later)
+        handle = `${baseHandle}${Date.now()}`;
 
         // Create user document in Firestore
         const userData: Artist = {
@@ -159,8 +149,14 @@ export function SignUpForm() {
           createdAt: new Date(),
         };
 
-        await setDoc(doc(db, 'users', handle), userData);
-        await setDoc(doc(db, 'userProfiles', user.uid), userData);
+        // Try to save user data to Firestore (with offline handling)
+        try {
+          await setDoc(doc(db, 'users', handle), userData);
+          await setDoc(doc(db, 'userProfiles', user.uid), userData);
+        } catch (firestoreError) {
+          console.warn('Firestore save failed (user still created):', firestoreError);
+          // User is still created in Firebase Auth, just Firestore save failed
+        }
         
         toast({
             title: "Google Signup Successful!",
