@@ -114,38 +114,6 @@
   }
 }
 
-/* Force dark theme gradients with high specificity - ALWAYS for gradient-border */
-body.dark .gradient-border {
-  border: 2px solid transparent !important;
-  background:
-    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-    linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
-  background-clip: padding-box, border-box !important;
-}
-
-body.dark .hover\:gradient-border:hover {
-  border: 2px solid transparent !important;
-  background:
-    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-    linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
-  background-clip: padding-box, border-box !important;
-}
-
-body.dark .btn-gradient-outline {
-  border: 2px solid transparent !important;
-  background:
-    linear-gradient(var(--card), var(--card)) padding-box,
-    linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
-}
-
-body.dark .story-gradient-border {
-  border: 2px solid transparent !important;
-  background:
-    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-    linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
-  background-clip: padding-box, border-box !important;
-}
-
 /* Force light theme gradients with high specificity - ALWAYS for gradient-border */
 body:not(.dark) .gradient-border {
   border: 2px solid transparent !important;
@@ -178,6 +146,38 @@ body:not(.dark) .story-gradient-border {
   background-clip: padding-box, border-box !important;
 }
 
+/* Force dark theme gradients with high specificity - ALWAYS for gradient-border - COMES AFTER LIGHT THEME */
+body.dark .gradient-border {
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+    linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+body.dark .hover\:gradient-border:hover {
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+    linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+body.dark .btn-gradient-outline {
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
+}
+
+body.dark .story-gradient-border {
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
+    linear-gradient(135deg, #51C4D3 0%, #77ACF1 10%, #EF88AD 20%, #A53860 30%, #670D2F 40%, #E8988A 50%, #FFEAD8 60%, #BA487F 70%, #E1ACAC 80%, #51C4D3 90%, #77ACF1 100%) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
 /* Fix dropdown menu gradient borders for theme switching - HOVER ONLY */
 body:not(.dark) [data-radix-collection-item]:hover {
   border: 2px solid transparent !important;
@@ -195,4 +195,4 @@ body.dark [data-radix-collection-item]:hover {
   background-clip: padding-box, border-box !important;
 }
 
-/* Cache bust - $(date) - Create Account and Login always have gradients */
+/* Cache bust - $(date) - Dark theme selectors moved after light theme */
