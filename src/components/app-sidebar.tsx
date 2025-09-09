@@ -26,10 +26,9 @@ export function AppSidebar() {
   return (
     <div className="flex flex-col w-64 bg-card border-r h-full">
       <div className="p-6">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-white">
           SOMA
         </h1>
-        <p className="text-sm text-muted-foreground">Art Social Platform</p>
       </div>
       
       <nav className="flex-1 px-4 pb-4">
