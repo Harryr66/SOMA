@@ -196,6 +196,16 @@ export function ProfileHeader({
                       Tip
                     </Button>
                   )}
+                  
+                  {user.isProfessional && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {/* TODO: Add community creation logic */}}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Start Community
+                    </Button>
+                  )}
                 </>
               ) : (
                 <Button 
