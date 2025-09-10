@@ -43,12 +43,8 @@ export function ProfileHeader({
   const [showStoryUploader, setShowStoryUploader] = useState(false);
   const [showTipDialog, setShowTipDialog] = useState(false);
 
-  // Debug logging
-  console.log('ProfileHeader user:', user);
-  console.log('ProfileHeader isOwnProfile:', isOwnProfile);
-
   // Early return if user is not properly loaded
-  if (!user || !user.displayName) {
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">

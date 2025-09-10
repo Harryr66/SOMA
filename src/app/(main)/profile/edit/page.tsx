@@ -312,12 +312,6 @@ export default function ProfileEditPage() {
         <h1 className="text-3xl font-bold">Edit Profile</h1>
       </div>
 
-      {/* Offline Notice */}
-      <div className="mb-6 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
-        <p className="text-sm text-yellow-800 dark:text-yellow-200">
-          ⚠️ You're currently offline. Changes will be saved locally and synced when you're back online.
-        </p>
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Avatar Section */}
