@@ -287,10 +287,12 @@ export default function ArtworkThreadPage() {
                     <Palette className="h-4 w-4" />
                     <span>{artwork.medium}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Ruler className="h-4 w-4" />
-                    <span>{artwork.dimensions.width} × {artwork.dimensions.height} {artwork.dimensions.unit}</span>
-                  </div>
+                  {artwork.dimensions && (
+                    <div className="flex items-center space-x-1">
+                      <Ruler className="h-4 w-4" />
+                      <span>{artwork.dimensions.width} × {artwork.dimensions.height} {artwork.dimensions.unit}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
