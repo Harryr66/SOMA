@@ -33,11 +33,11 @@ export default function ProfileEditPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    handle: '',
+      name: '',
+      handle: '',
     bio: '',
-    website: '',
-    artistType: '',
+      website: '',
+      artistType: '',
     location: '',
     isProfessional: false,
     isTipJarEnabled: false,
@@ -51,29 +51,61 @@ export default function ProfileEditPage() {
 
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.displayName || '',
-        handle: user.username || '',
-        bio: user.bio || '',
-        website: user.website || '',
-        artistType: user.artistType || '',
-        location: user.location || '',
-        isProfessional: user.isProfessional || false,
-        isTipJarEnabled: user.isTipJarEnabled || false,
-        profileRingColor: user.profileRingColor || '#3b82f6',
-        socialLinks: {
-          instagram: user.socialLinks?.instagram || '',
-          twitter: user.socialLinks?.twitter || '',
-          website: user.socialLinks?.website || ''
+      // Check for offline changes first
+      const offlineChanges = localStorage.getItem(`profile_offline_changes_${user.id}`);
+      if (offlineChanges) {
+        try {
+          const changes = JSON.parse(offlineChanges);
+          setFormData({
+            name: changes.name || user.displayName || '',
+            handle: changes.handle || user.username || '',
+            bio: changes.bio || user.bio || '',
+            website: changes.website || user.website || '',
+            artistType: changes.artistType || user.artistType || '',
+            location: changes.location || user.location || '',
+            isProfessional: changes.isProfessional || user.isProfessional || false,
+            isTipJarEnabled: changes.isTipJarEnabled || user.isTipJarEnabled || false,
+            profileRingColor: changes.profileRingColor || user.profileRingColor || '#3b82f6',
+            socialLinks: {
+              instagram: changes.socialLinks?.instagram || user.socialLinks?.instagram || '',
+              twitter: changes.socialLinks?.twitter || user.socialLinks?.twitter || '',
+              website: changes.socialLinks?.website || user.socialLinks?.website || ''
+            }
+          });
+          
+          if (changes.avatarUrl && changes.avatarUrl !== user.avatarUrl) {
+            setPreviewImage(changes.avatarUrl);
+          }
+          
+          console.log('Applied offline changes to form');
+        } catch (error) {
+          console.error('Error applying offline changes:', error);
         }
-      });
+      } else {
+        setFormData({
+          name: user.displayName || '',
+          handle: user.username || '',
+          bio: user.bio || '',
+          website: user.website || '',
+          artistType: user.artistType || '',
+          location: user.location || '',
+          isProfessional: user.isProfessional || false,
+          isTipJarEnabled: user.isTipJarEnabled || false,
+          profileRingColor: user.profileRingColor || '#3b82f6',
+          socialLinks: {
+            instagram: user.socialLinks?.instagram || '',
+            twitter: user.socialLinks?.twitter || '',
+            website: user.socialLinks?.website || ''
+          }
+        });
+      }
     }
   }, [user]);
 
   const checkHandleAvailability = async (handle: string) => {
     if (!handle || handle === user?.username) {
       setHandleAvailable(null);
-      return;
+        return;
     }
 
     setIsCheckingHandle(true);
@@ -164,14 +196,14 @@ export default function ProfileEditPage() {
     if (!user) return;
     
     if (formData.handle !== user.username && handleAvailable !== true) {
-      toast({
+                toast({
         title: "Handle not available",
         description: "Please choose a different handle.",
         variant: "destructive"
-      });
-      return;
-    }
-
+                });
+                return;
+            }
+            
     setIsLoading(true);
     try {
       let avatarUrl = user.avatarUrl;
@@ -218,20 +250,46 @@ export default function ProfileEditPage() {
 
       await refreshUser();
       
-      toast({
+      // Clear offline changes after successful save
+      localStorage.removeItem(`profile_offline_changes_${user.id}`);
+
+        toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
-      });
+        });
 
       router.push(`/profile/${user.id}`);
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast({
-        title: "Update failed",
-        description: "There was an error updating your profile. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
+      
+      // Check if it's an offline error
+      if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
+        toast({
+          title: "Offline Mode",
+          description: "You're currently offline. Your changes will be saved when you're back online.",
+          variant: "destructive"
+        });
+        
+        // Store changes in localStorage for offline mode
+        try {
+          const offlineChanges = {
+            ...formData,
+            avatarUrl: previewImage || user.avatarUrl,
+            timestamp: new Date().toISOString()
+          };
+          localStorage.setItem(`profile_offline_changes_${user.id}`, JSON.stringify(offlineChanges));
+          console.log('Profile changes saved offline');
+        } catch (storageError) {
+          console.error('Error saving offline changes:', storageError);
+        }
+      } else {
+        toast({
+          title: "Update failed",
+          description: "There was an error updating your profile. Please try again.",
+          variant: "destructive"
+        });
+      }
+      } finally {
       setIsLoading(false);
     }
   };
@@ -240,7 +298,7 @@ export default function ProfileEditPage() {
     return <div>Loading...</div>;
   }
 
-  return (
+    return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center gap-4 mb-8">
         <Button
@@ -254,17 +312,24 @@ export default function ProfileEditPage() {
         <h1 className="text-3xl font-bold">Edit Profile</h1>
       </div>
 
+      {/* Offline Notice */}
+      <div className="mb-6 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          ⚠️ You're currently offline. Changes will be saved locally and synced when you're back online.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Avatar Section */}
         <Card>
-          <CardHeader>
+            <CardHeader>
             <CardTitle>Profile Picture</CardTitle>
             <CardDescription>
               Upload a new profile picture. Click to change or remove.
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
+            </CardHeader>
+            <CardContent>
+                   <div className="flex items-center gap-6">
               <div className="relative">
                 <Avatar className="h-24 w-24">
                   <AvatarImage 
@@ -273,8 +338,8 @@ export default function ProfileEditPage() {
                   />
                   <AvatarFallback className="text-xl">
                     {formData.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                        </AvatarFallback>
+                      </Avatar>
                 {previewImage && (
                   <Button
                     type="button"
@@ -284,9 +349,9 @@ export default function ProfileEditPage() {
                     onClick={removeImage}
                   >
                     <X className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
+                                </Button>
+                            )}
+                          </div>
               
               <div className="space-y-2">
                 <Label htmlFor="avatar-upload" className="cursor-pointer">
@@ -311,10 +376,10 @@ export default function ProfileEditPage() {
                     size="sm"
                     onClick={removeImage}
                   >
-                    Remove Picture
-                  </Button>
-                )}
-              </div>
+                                      Remove Picture
+                                  </Button>
+                              )}
+                            </div>
             </div>
           </CardContent>
         </Card>
@@ -334,7 +399,7 @@ export default function ProfileEditPage() {
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   required
                 />
-              </div>
+                            </div>
               
               <div className="space-y-2">
                 <Label htmlFor="handle">Handle *</Label>
@@ -373,7 +438,7 @@ export default function ProfileEditPage() {
                 placeholder="Tell us about yourself..."
                 rows={4}
               />
-            </div>
+                                    </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -384,7 +449,7 @@ export default function ProfileEditPage() {
                   onChange={(e) => handleInputChange('website', e.target.value)}
                   placeholder="https://yourwebsite.com"
                 />
-              </div>
+                            </div>
               
               <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
@@ -411,9 +476,9 @@ export default function ProfileEditPage() {
             <div className="flex flex-wrap gap-2">
               {PROFILE_RING_COLORS.map((color) => (
                 <button
-                  key={color}
-                  type="button"
-                  className={cn(
+                                    key={color}
+                                    type="button"
+                                    className={cn(
                     'w-8 h-8 rounded-full border-2 transition-all',
                     formData.profileRingColor === color
                       ? 'border-foreground scale-110'
@@ -422,8 +487,8 @@ export default function ProfileEditPage() {
                   style={{ backgroundColor: color }}
                   onClick={() => handleInputChange('profileRingColor', color)}
                 />
-              ))}
-            </div>
+                            ))}
+                        </div>
           </CardContent>
         </Card>
 
@@ -436,31 +501,31 @@ export default function ProfileEditPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label>Professional Artist Account</Label>
-                <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
                   Enable additional features like shop, community, and tip jar
-                </p>
-              </div>
-              <Switch
+                            </p>
+                        </div>
+                        <Switch
                 checked={formData.isProfessional}
                 onCheckedChange={(checked) => handleInputChange('isProfessional', checked)}
-              />
-            </div>
+                        />
+                </div>
 
             {formData.isProfessional && (
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label>Tip Jar</Label>
-                  <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground">
                     Allow followers to send you tips
-                  </p>
-                </div>
-                <Switch
+                                    </p>
+                                </div>
+                                <Switch 
                   checked={formData.isTipJarEnabled}
                   onCheckedChange={(checked) => handleInputChange('isTipJarEnabled', checked)}
-                />
-              </div>
-            )}
-          </CardContent>
+                                />
+                            </div>
+                )}
+            </CardContent>
         </Card>
 
         {/* Social Links */}
@@ -510,7 +575,7 @@ export default function ProfileEditPage() {
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
-      </form>
+            </form>
     </div>
   );
 }
