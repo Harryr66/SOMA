@@ -71,13 +71,17 @@ service cloud.firestore {
     // User profiles collection (main user data)
     match /userProfiles/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if isAuthenticated() && isOwner(userId);
     }
 
     // Handles collection (for username uniqueness)
     match /handles/{handle} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
     }
 
     // Usernames collection (for username uniqueness) - legacy
