@@ -128,7 +128,7 @@ function ConversationItem({ conversation, userId, onClick }: ConversationItemPro
       <div className="relative">
         <Avatar className="h-10 w-10">
           <AvatarImage src={otherUser.avatarUrl} alt={otherUser.displayName} />
-          <AvatarFallback>{otherUser.displayName.charAt(0)}</AvatarFallback>
+          <AvatarFallback>{otherUser.displayName?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
         </Avatar>
         {otherUser.isActive && (
           <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-background rounded-full"></div>

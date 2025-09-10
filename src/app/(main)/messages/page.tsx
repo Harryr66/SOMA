@@ -154,7 +154,7 @@ export default function MessagesPage() {
                     onClick={() => handleStartConversation(user.id)}
                   >
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-sm font-medium">{user.displayName.charAt(0)}</span>
+                      <span className="text-sm font-medium">{user.displayName?.charAt(0)?.toUpperCase() || 'U'}</span>
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">{user.displayName}</p>

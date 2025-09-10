@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "soma-social",
+    "somasocial": "soma-social"
+  },
+  "targets": {},
+  "etags": {}
+}

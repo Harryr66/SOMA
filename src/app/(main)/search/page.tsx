@@ -201,7 +201,7 @@ function UserCard({ user }: { user: User }) {
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-            <AvatarFallback>{user.displayName.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{user.displayName?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <h4 className="font-medium truncate">{user.displayName}</h4>
