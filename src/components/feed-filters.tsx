@@ -21,12 +21,12 @@ export function FeedFilters() {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full mb-6">
       <div className="flex justify-end items-center gap-2 mb-4">
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="h-8">
             <Camera />
             Share
         </Button>
         <CollapsibleTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="h-8">
             <Filter />
             Filters
             <ChevronsUpDown className="ml-2" />
