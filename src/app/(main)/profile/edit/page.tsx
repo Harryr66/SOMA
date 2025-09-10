@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Upload, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { toast } from '@/hooks/use-toast';
@@ -266,17 +266,17 @@ export default function ProfileEditPage() {
         updateData.avatarUrl = avatarUrl;
       }
 
-      // Update user profile with timeout
-      await withTimeout(updateDoc(userRef, updateData), 10000);
+      // Create or update user profile with timeout (setDoc with merge will create if doesn't exist)
+      await withTimeout(setDoc(userRef, updateData, { merge: true }), 10000);
 
       // Update handle mapping if changed
       if (formData.handle !== user.username) {
         // Remove old handle
         if (user.username) {
-          await withTimeout(updateDoc(doc(db, 'handles', user.username), { userId: null }), 5000);
+          await withTimeout(setDoc(doc(db, 'handles', user.username), { userId: null }, { merge: true }), 5000);
         }
         // Add new handle
-        await withTimeout(updateDoc(doc(db, 'handles', formData.handle), { userId: user.id }), 5000);
+        await withTimeout(setDoc(doc(db, 'handles', formData.handle), { userId: user.id }, { merge: true }), 5000);
       }
 
       await withTimeout(refreshUser(), 5000);
