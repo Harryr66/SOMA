@@ -127,7 +127,7 @@ export default function ArtworkThreadPage() {
         const currentVote = comment.userVote;
         let newUpvotes = comment.upvotes;
         let newDownvotes = comment.downvotes;
-        let newUserVote = vote;
+        let newUserVote: 'up' | 'down' | null = vote;
 
         // Handle vote changes
         if (currentVote === vote) {
