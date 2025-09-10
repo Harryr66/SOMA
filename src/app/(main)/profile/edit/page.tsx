@@ -103,7 +103,7 @@ export default function ProfileEditPage() {
   }, [user]);
 
   // Helper function to add timeout to Firestore operations
-  const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
+  const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
     return Promise.race([
       promise,
       new Promise<T>((_, reject) => 
@@ -320,13 +320,13 @@ export default function ProfileEditPage() {
           variant: "destructive"
         });
       } else if ((error as any)?.message?.includes('undefined')) {
-        toast({
+          toast({
           title: "Update failed",
           description: "There was an issue with the profile data. Please try again.",
           variant: "destructive"
-        });
+          });
       } else {
-        toast({
+          toast({
           title: "Update failed",
           description: `Unable to save changes: ${(error as any)?.message || 'Connection error'}`,
           variant: "destructive"
