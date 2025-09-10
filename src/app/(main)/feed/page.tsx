@@ -70,6 +70,195 @@ const mockPosts: Post[] = [
     timestamp: '6 hours ago',
     createdAt: Date.now() - 21600000,
     tags: ['ceramics', 'sculpture', 'art']
+  },
+  {
+    id: '4',
+    artworkId: '4',
+    artist: {
+      id: 'alex',
+      name: 'Alex Kim',
+      handle: 'alex_kim',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      followerCount: 3200,
+      followingCount: 180,
+      createdAt: new Date('2022-08-15')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    imageAiHint: 'Abstract digital art with geometric patterns',
+    caption: 'Exploring the intersection of technology and creativity. This piece represents the digital age we live in. #digitalart #geometric #modern',
+    likes: 89,
+    commentsCount: 15,
+    timestamp: '8 hours ago',
+    createdAt: Date.now() - 28800000,
+    tags: ['digital', 'geometric', 'modern']
+  },
+  {
+    id: '5',
+    artworkId: '5',
+    artist: {
+      id: 'maya',
+      name: 'Maya Patel',
+      handle: 'maya_art',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      followerCount: 1800,
+      followingCount: 95,
+      createdAt: new Date('2023-02-20')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop',
+    imageAiHint: 'Watercolor painting with soft pastels',
+    caption: 'Watercolor has always been my favorite medium. The way colors blend and flow is magical. #watercolor #pastels #painting',
+    likes: 156,
+    commentsCount: 23,
+    timestamp: '10 hours ago',
+    createdAt: Date.now() - 36000000,
+    tags: ['watercolor', 'pastels', 'painting']
+  },
+  {
+    id: '6',
+    artworkId: '6',
+    artist: {
+      id: 'david',
+      name: 'David Chen',
+      handle: 'david_chen',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      followerCount: 4200,
+      followingCount: 220,
+      createdAt: new Date('2022-05-10')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    imageAiHint: 'Oil painting with dramatic lighting',
+    caption: 'Working on a new series about urban landscapes. The contrast between light and shadow fascinates me. #oilpainting #urban #lighting',
+    likes: 203,
+    commentsCount: 31,
+    timestamp: '12 hours ago',
+    createdAt: Date.now() - 43200000,
+    tags: ['oil', 'urban', 'lighting']
+  },
+  {
+    id: '7',
+    artworkId: '7',
+    artist: {
+      id: 'luna',
+      name: 'Luna Rodriguez',
+      handle: 'luna_art',
+      avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      followerCount: 2100,
+      followingCount: 140,
+      createdAt: new Date('2023-01-05')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop',
+    imageAiHint: 'Mixed media collage with textures',
+    caption: 'Mixed media allows for such interesting textures and layers. This piece took weeks to complete. #mixedmedia #collage #texture',
+    likes: 78,
+    commentsCount: 12,
+    timestamp: '14 hours ago',
+    createdAt: Date.now() - 50400000,
+    tags: ['mixedmedia', 'collage', 'texture']
+  },
+  {
+    id: '8',
+    artworkId: '8',
+    artist: {
+      id: 'james',
+      name: 'James Wilson',
+      handle: 'james_wilson',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      followerCount: 3500,
+      followingCount: 195,
+      createdAt: new Date('2022-09-12')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    imageAiHint: 'Photography with dramatic composition',
+    caption: 'Street photography is all about capturing the moment. This shot took patience and perfect timing. #photography #street #composition',
+    likes: 134,
+    commentsCount: 18,
+    timestamp: '16 hours ago',
+    createdAt: Date.now() - 57600000,
+    tags: ['photography', 'street', 'composition']
+  },
+  {
+    id: '9',
+    artworkId: '9',
+    artist: {
+      id: 'zoe',
+      name: 'Zoe Anderson',
+      handle: 'zoe_art',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      followerCount: 2800,
+      followingCount: 160,
+      createdAt: new Date('2022-11-30')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop',
+    imageAiHint: 'Sculpture with organic forms',
+    caption: 'Sculpture is about working in three dimensions. This piece explores the relationship between form and space. #sculpture #organic #form',
+    likes: 167,
+    commentsCount: 25,
+    timestamp: '18 hours ago',
+    createdAt: Date.now() - 64800000,
+    tags: ['sculpture', 'organic', 'form']
+  },
+  {
+    id: '10',
+    artworkId: '10',
+    artist: {
+      id: 'ryan',
+      name: 'Ryan Taylor',
+      handle: 'ryan_taylor',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      followerCount: 1900,
+      followingCount: 110,
+      createdAt: new Date('2023-03-25')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    imageAiHint: 'Digital illustration with vibrant colors',
+    caption: 'Digital art opens up so many possibilities. The colors you can achieve are incredible. #digital #illustration #vibrant',
+    likes: 92,
+    commentsCount: 14,
+    timestamp: '20 hours ago',
+    createdAt: Date.now() - 72000000,
+    tags: ['digital', 'illustration', 'vibrant']
+  },
+  {
+    id: '11',
+    artworkId: '11',
+    artist: {
+      id: 'sophie',
+      name: 'Sophie Brown',
+      handle: 'sophie_brown',
+      avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      followerCount: 2400,
+      followingCount: 175,
+      createdAt: new Date('2022-12-08')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop',
+    imageAiHint: 'Abstract expressionist painting',
+    caption: 'Abstract art is about emotion and feeling. This piece came from a very personal place. #abstract #expressionist #emotion',
+    likes: 145,
+    commentsCount: 21,
+    timestamp: '22 hours ago',
+    createdAt: Date.now() - 79200000,
+    tags: ['abstract', 'expressionist', 'emotion']
+  },
+  {
+    id: '12',
+    artworkId: '12',
+    artist: {
+      id: 'mike',
+      name: 'Mike Johnson',
+      handle: 'mike_johnson',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      followerCount: 3100,
+      followingCount: 200,
+      createdAt: new Date('2022-07-18')
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    imageAiHint: 'Minimalist design with clean lines',
+    caption: 'Sometimes less is more. This minimalist piece focuses on clean lines and negative space. #minimalist #clean #design',
+    likes: 198,
+    commentsCount: 28,
+    timestamp: '1 day ago',
+    createdAt: Date.now() - 86400000,
+    tags: ['minimalist', 'clean', 'design']
   }
 ];
 
