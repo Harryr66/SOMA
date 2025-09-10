@@ -62,12 +62,12 @@ export function ArtworkCard({
         )}
       </div>
 
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 p-2 md:p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg line-clamp-1">{artwork.title}</CardTitle>
+            <CardTitle className="text-sm md:text-lg line-clamp-1">{artwork.title}</CardTitle>
             <CardDescription className="flex items-center space-x-2 mt-1">
-              <span>by {artwork.artist.name}</span>
+              <span className="text-xs md:text-sm">by {artwork.artist.name}</span>
               {artwork.artist.isVerified && (
                 <Badge variant="outline" className="text-xs">
                   Verified
@@ -86,16 +86,16 @@ export function ArtworkCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 p-2 md:p-6">
         {artwork.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+          <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2 md:mb-3">
             {artwork.description}
           </p>
         )}
 
-        {/* Tags */}
+        {/* Tags - Hidden on mobile to save space */}
         {artwork.tags && artwork.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="hidden md:flex flex-wrap gap-1 mb-3">
             {artwork.tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="outline" className="text-xs">
                 #{tag}
@@ -110,12 +110,12 @@ export function ArtworkCard({
         )}
 
         {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <span>{artwork.views || 0} views</span>
             <span>{likeCount} likes</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 md:space-x-2">
             {artwork.category && (
               <Badge variant="secondary" className="text-xs">
                 {artwork.category}
@@ -129,9 +129,9 @@ export function ArtworkCard({
           </div>
         </div>
 
-        {/* Dimensions */}
+        {/* Dimensions - Hidden on mobile to save space */}
         {artwork.dimensions && (
-          <div className="mt-2 text-xs text-muted-foreground">
+          <div className="hidden md:block mt-2 text-xs text-muted-foreground">
             {artwork.dimensions.width} × {artwork.dimensions.height} {artwork.dimensions.unit}
           </div>
         )}
