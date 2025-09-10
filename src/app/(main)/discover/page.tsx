@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArtworkCard } from '@/components/artwork-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,6 +127,7 @@ const sortOptions = [
 
 export default function DiscoverPage() {
   const router = useRouter();
+  const [allArtworks, setAllArtworks] = useState<Artwork[]>(mockArtworks);
   const [artworks, setArtworks] = useState<Artwork[]>(mockArtworks);
   const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>(mockArtworks);
   const [searchTerm, setSearchTerm] = useState('');
@@ -134,10 +135,96 @@ export default function DiscoverPage() {
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeArtFilter, setActiveArtFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Generate more artworks for infinite scroll
+  const generateMoreArtworks = useCallback(() => {
+    const newArtworks: Artwork[] = [];
+    const artists = ['Elena Vance', 'Marcus Chen', 'Sophia Rodriguez', 'Alex Rivera', 'Maya Patel', 'David Kim', 'Emma Wilson', 'James Brown'];
+    const titles = ['Abstract Harmony', 'Digital Dreams', 'Ceramic Contemplation', 'Urban Reflections', 'Nature\'s Symphony', 'Cosmic Journey', 'Emotional Landscapes', 'Minimalist Forms'];
+    const categories = ['Abstract', 'Digital Art', 'Photography', 'Sculpture', 'Painting', 'Mixed Media'];
+    const mediums = ['Oil on Canvas', 'Digital', 'Acrylic', 'Watercolor', 'Ceramic', 'Bronze', 'Mixed Media'];
+    
+    for (let i = 0; i < 9; i++) {
+      const randomArtist = artists[Math.floor(Math.random() * artists.length)];
+      const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+      const randomMedium = mediums[Math.floor(Math.random() * mediums.length)];
+      const randomPrice = Math.floor(Math.random() * 800) + 100;
+      const randomViews = Math.floor(Math.random() * 500) + 10;
+      const randomLikes = Math.floor(Math.random() * 100) + 5;
+      
+      newArtworks.push({
+        id: `artwork-${Date.now()}-${i}`,
+        artist: {
+          id: `artist-${i}`,
+          name: randomArtist,
+          handle: randomArtist.toLowerCase().replace(' ', '_'),
+          avatarUrl: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 1000000000}?w=150&h=150&fit=crop&crop=face`,
+          followerCount: Math.floor(Math.random() * 2000) + 100,
+          followingCount: Math.floor(Math.random() * 200) + 10,
+          createdAt: new Date('2023-01-01')
+        },
+        title: `${randomTitle} ${i + 1}`,
+        description: `A beautiful ${randomCategory.toLowerCase()} piece that explores themes of creativity and expression.`,
+        imageUrl: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 1000000000}?w=400&h=400&fit=crop`,
+        imageAiHint: `${randomCategory} artwork`,
+        discussionId: `discussion-${Date.now()}-${i}`,
+        tags: [randomCategory.toLowerCase(), 'art', 'creative'],
+        price: randomPrice,
+        currency: 'USD',
+        isForSale: true,
+        category: randomCategory,
+        medium: randomMedium,
+        dimensions: { width: 24, height: 30, unit: 'in' },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        views: randomViews,
+        likes: randomLikes,
+        isAI: Math.random() > 0.7,
+        aiAssistance: Math.random() > 0.7 ? 'assisted' : 'none'
+      });
+    }
+    
+    return newArtworks;
+  }, []);
+
+  const loadMoreArtworks = useCallback(async () => {
+    if (isLoading || !hasMore) return;
+    
+    setIsLoading(true);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newArtworks = generateMoreArtworks();
+    setAllArtworks(prev => [...prev, ...newArtworks]);
+    setArtworks(prev => [...prev, ...newArtworks]);
+    
+    // Simulate end of content after 5 pages (45 total artworks)
+    if (allArtworks.length + newArtworks.length >= 45) {
+      setHasMore(false);
+    }
+    
+    setIsLoading(false);
+  }, [isLoading, hasMore, allArtworks.length, generateMoreArtworks]);
 
   useEffect(() => {
     filterAndSortArtworks();
   }, [artworks, searchTerm, selectedCategory, sortBy]);
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        loadMoreArtworks();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMoreArtworks]);
 
   const filterAndSortArtworks = () => {
     let filtered = [...artworks];
@@ -330,10 +417,27 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {/* Load More */}
-        {filteredArtworks.length > 0 && (
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              <span className="text-muted-foreground">Loading more artworks...</span>
+            </div>
+          </div>
+        )}
+
+        {/* End of Content */}
+        {!hasMore && !isLoading && filteredArtworks.length > 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">You've reached the end of the discover feed!</p>
+          </div>
+        )}
+
+        {/* Manual Load More Button (fallback) */}
+        {hasMore && !isLoading && filteredArtworks.length > 0 && (
           <div className="flex justify-center">
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" onClick={loadMoreArtworks}>
               Load More Artworks
             </Button>
           </div>
