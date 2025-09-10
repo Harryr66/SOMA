@@ -67,7 +67,7 @@ export function ProfileHeader({
     if (user.hasActiveStory) {
       return 'story-gradient-border';
     } else if (user.profileRingColor) {
-      return 'border-4 rounded-full';
+      return 'profile-ring-border';
     }
     return 'border-4 border-muted rounded-full';
   };
@@ -93,23 +93,21 @@ export function ProfileHeader({
                 <button
                   onClick={handleAvatarClick}
                   className={cn(
-                    'relative rounded-full transition-all hover:scale-105 overflow-hidden',
+                    'relative h-32 w-32 rounded-full transition-all hover:scale-105 overflow-hidden flex items-center justify-center',
                     getAvatarBorderClass()
                   )}
                   style={getAvatarBorderStyle()}
                 >
-                  <div className="h-32 w-32 rounded-full overflow-hidden">
-                    <Avatar className="h-full w-full">
-                      <AvatarImage 
-                        src={user.avatarUrl} 
-                        alt={user.displayName}
-                        className="h-full w-full object-cover rounded-full"
-                      />
-                      <AvatarFallback className="text-2xl h-full w-full rounded-full">
-                        {user.displayName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
+                  <Avatar className="h-full w-full">
+                    <AvatarImage 
+                      src={user.avatarUrl} 
+                      alt={user.displayName}
+                      className="h-full w-full object-cover rounded-full"
+                    />
+                    <AvatarFallback className="text-2xl h-full w-full rounded-full">
+                      {user.displayName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                 </button>
               </DialogTrigger>
               <DialogContent className="max-w-md">

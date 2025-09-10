@@ -152,3 +152,9 @@ button[data-state],
 button[type="button"] {
   border-radius: 0.75rem !important;
 }
+
+.profile-ring-border {
+  border: 4px solid transparent !important;
+  border-radius: 50% !important;
+  background-clip: padding-box !important;
+}
