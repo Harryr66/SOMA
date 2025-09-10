@@ -254,7 +254,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
               Discover amazing art and follow artists to see their posts in your feed.
             </CardDescription>
             <Button asChild variant="gradient">
-              <a href="/discover">Discover Art</a>
+              <a href="/discover">Discover Artists</a>
             </Button>
           </CardContent>
         </Card>
@@ -276,7 +276,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
               Save artworks you love to your watchlist to view them later.
             </CardDescription>
             <Button asChild variant="gradient">
-              <a href="/discover">Discover Art</a>
+              <a href="/discover">Discover Artists</a>
             </Button>
           </CardContent>
         </Card>
