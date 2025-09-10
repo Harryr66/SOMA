@@ -51,7 +51,15 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
                 id: '1',
                 title: 'Sample Artwork',
                 imageUrl: '/placeholder-art.jpg',
-                artist: { name: 'Artist Name', handle: 'artist' },
+                imageAiHint: 'Sample artwork description',
+                artist: { 
+                  id: '1',
+                  name: 'Artist Name', 
+                  handle: 'artist',
+                  followerCount: 0,
+                  followingCount: 0,
+                  createdAt: new Date()
+                },
                 price: 299,
                 currency: 'USD',
                 isForSale: true,

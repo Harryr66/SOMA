@@ -69,11 +69,8 @@ export function StoryCircle({ artist, stories, isOwn = false, onAddStory }: Stor
       <DialogContent className="bg-transparent border-none p-0 w-screen h-screen max-w-full sm:max-w-full">
         {hasActiveStory && (
           <StoryViewer 
-            stories={stories}
-            currentIndex={currentIndex}
+            userId={artist.id}
             onClose={() => setIsOpen(false)}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
           />
         )}
       </DialogContent>
