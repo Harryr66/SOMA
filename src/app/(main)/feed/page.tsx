@@ -339,11 +339,11 @@ export default function FeedPage() {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    const newPosts = generateMorePosts(posts.length + 1, 12);
+    const newPosts = generateMorePosts(posts.length + 1, 9);
     setPosts(prevPosts => [...prevPosts, ...newPosts]);
     
-    // Simulate reaching end after 5 pages (60 posts total)
-    if (posts.length >= 48) {
+    // Simulate reaching end after 5 pages (45 posts total)
+    if (posts.length >= 36) {
       setHasMore(false);
     }
     
@@ -367,27 +367,27 @@ export default function FeedPage() {
       <div className="flex flex-col space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Art Feed</h1>
-            <p className="text-muted-foreground">
-              Discover amazing artworks from talented artists
-            </p>
-          </div>
-          
+        <div>
+          <h1 className="text-3xl font-bold">Art Feed</h1>
+          <p className="text-muted-foreground">
+            Discover amazing artworks from talented artists
+          </p>
+        </div>
+
           {/* Filters and View Selector */}
           <div className="flex items-center gap-3">
-            <FeedFilters />
+        <FeedFilters />
             <ViewSelector view={view} onViewChange={setView} />
           </div>
         </div>
 
         {/* Posts */}
         {view === 'list' ? (
-          <div className="space-y-6">
+        <div className="space-y-6">
             {posts.map((post) => (
-              <ArtPost key={post.id} post={post} />
-            ))}
-          </div>
+            <ArtPost key={post.id} post={post} />
+          ))}
+        </div>
         ) : (
           <ArtworkGrid posts={posts} />
         )}
@@ -411,14 +411,14 @@ export default function FeedPage() {
 
         {/* Manual Load More Button (fallback) */}
         {hasMore && !isLoading && (
-          <div className="flex justify-center">
+        <div className="flex justify-center">
             <button 
               onClick={loadMorePosts}
               className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
-              Load More Posts
-            </button>
-          </div>
+            Load More Posts
+          </button>
+        </div>
         )}
       </div>
     </div>

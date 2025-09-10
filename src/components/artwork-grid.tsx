@@ -16,7 +16,7 @@ interface ArtworkGridProps {
 
 export function ArtworkGrid({ posts, className }: ArtworkGridProps) {
   return (
-    <div className={cn('grid grid-cols-4 gap-4', className)}>
+    <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4', className)}>
       {posts.map((post) => (
         <Card key={post.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
           <div className="relative aspect-square overflow-hidden">
