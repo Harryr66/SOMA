@@ -16,14 +16,15 @@ interface ProfileTabsProps {
   userId: string;
   isOwnProfile: boolean;
   isProfessional: boolean;
+  onTabChange?: (tab: string) => void;
 }
 
-export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTabsProps) {
+export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange }: ProfileTabsProps) {
   const [showCreateCommunity, setShowCommunity] = useState(false);
 
   if (isProfessional) {
     return (
-      <Tabs defaultValue="portfolio" className="w-full">
+      <Tabs defaultValue="portfolio" className="w-full" onValueChange={onTabChange}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
           <TabsTrigger value="shop">Shop</TabsTrigger>
@@ -34,14 +35,6 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
         <TabsContent value="portfolio" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Artwork Portfolio</h3>
-            {isOwnProfile && (
-              <Button asChild variant="gradient">
-                <a href="/upload">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Artwork
-                </a>
-              </Button>
-            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -102,12 +95,6 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
             <TabsContent value="products" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Products for Sale</h3>
-                {isOwnProfile && (
-                  <Button variant="gradient">
-                    <Plus className="h-4 w-4 mr-2" />
-                    List an Item
-                  </Button>
-                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -151,12 +138,6 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
             <TabsContent value="events" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Hosted Events</h3>
-                {isOwnProfile && (
-                  <Button variant="gradient">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Event
-                  </Button>
-                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,15 +170,6 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
         <TabsContent value="community" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Community</h3>
-            {isOwnProfile && (
-              <Button 
-                variant="gradient"
-                onClick={() => setShowCommunity(true)}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Start Community
-              </Button>
-            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -232,7 +204,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
 
   // Regular user tabs
   return (
-    <Tabs defaultValue="feed" className="w-full">
+    <Tabs defaultValue="feed" className="w-full" onValueChange={onTabChange}>
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="feed">My Feed</TabsTrigger>
         <TabsTrigger value="watchlist">Watchlist</TabsTrigger>

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Heart, Users, UserPlus, Edit, Gift } from 'lucide-react';
+import { ExternalLink, Heart, Users, UserPlus, Edit, Gift, Upload, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StoryViewer } from './story-viewer';
 import { StoryUploader } from './story-uploader';
@@ -31,13 +31,15 @@ interface ProfileHeaderProps {
   isOwnProfile: boolean;
   isFollowing?: boolean;
   onFollowToggle?: () => void;
+  currentTab?: string;
 }
 
 export function ProfileHeader({ 
   user, 
   isOwnProfile, 
   isFollowing = false, 
-  onFollowToggle 
+  onFollowToggle,
+  currentTab
 }: ProfileHeaderProps) {
   const [showStoryViewer, setShowStoryViewer] = useState(false);
   const [showStoryUploader, setShowStoryUploader] = useState(false);
@@ -80,6 +82,41 @@ export function ProfileHeader({
       };
     }
     return { borderRadius: '50%' };
+  };
+
+  const getDynamicButton = () => {
+    if (!isOwnProfile || !user.isProfessional) return null;
+
+    switch (currentTab) {
+      case 'portfolio':
+        return (
+          <Button asChild variant="gradient">
+            <a href="/upload">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Artwork
+            </a>
+          </Button>
+        );
+      case 'shop':
+        return (
+          <Button variant="gradient">
+            <Plus className="h-4 w-4 mr-2" />
+            List an Item
+          </Button>
+        );
+      case 'community':
+        return (
+          <Button 
+            variant="gradient"
+            onClick={() => {/* TODO: Add community creation logic */}}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Start Community
+          </Button>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -197,15 +234,7 @@ export function ProfileHeader({
                     </Button>
                   )}
                   
-                  {user.isProfessional && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {/* TODO: Add community creation logic */}}
-                    >
-                      <Users className="h-4 w-4 mr-2" />
-                      Start Community
-                    </Button>
-                  )}
+                  {getDynamicButton()}
                 </>
               ) : (
                 <Button 

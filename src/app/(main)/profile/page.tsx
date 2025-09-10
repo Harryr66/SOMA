@@ -1,12 +1,14 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useAuth } from '@/providers/auth-provider';
 import { ProfileHeader } from '@/components/profile-header';
 import { ProfileTabs } from '@/components/profile-tabs';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
+  const [currentTab, setCurrentTab] = useState('portfolio');
 
   // Show loading only if auth is still loading and no user
   if (authLoading && !user) {
@@ -37,12 +39,14 @@ export default function ProfilePage() {
         <ProfileHeader
           user={user}
           isOwnProfile={true}
+          currentTab={currentTab}
         />
 
         <ProfileTabs
           userId={user.id}
           isOwnProfile={true}
           isProfessional={user.isProfessional || false}
+          onTabChange={setCurrentTab}
         />
       </div>
     </div>
