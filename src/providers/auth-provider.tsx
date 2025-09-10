@@ -35,25 +35,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setFirebaseUser(firebaseUser);
       
       if (firebaseUser) {
+        // Create immediate user object from Firebase Auth data for fast loading
+        const immediateUser: User = {
+          id: firebaseUser.uid,
+          username: firebaseUser.displayName?.toLowerCase().replace(/\s+/g, '') || 'user',
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'User',
+          avatarUrl: firebaseUser.photoURL || undefined,
+          bio: '',
+          website: '',
+          location: '',
+          followerCount: 0,
+          followingCount: 0,
+          postCount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isVerified: false,
+          isProfessional: false,
+          isActive: true,
+          lastSeen: new Date(),
+          artistType: '',
+          isTipJarEnabled: false,
+          profileRingColor: '#3b82f6',
+          socialLinks: {},
+          preferences: {
+            notifications: {
+              likes: true,
+              comments: true,
+              follows: true,
+              messages: true,
+              auctions: true
+            },
+            privacy: {
+              showEmail: false,
+              showLocation: false,
+              allowMessages: true
+            }
+          }
+        };
+        
+        // Set user immediately for fast loading
+        setUser(immediateUser);
+        setAvatarUrl(immediateUser.avatarUrl || null);
+        setLoading(false);
+        
+        // Then fetch detailed data from Firestore in background
         try {
-          // Get user data from Firestore using userProfiles collection
           const userDoc = await getDoc(doc(db, 'userProfiles', firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const user: User = {
+            const detailedUser: User = {
               id: firebaseUser.uid,
-              username: userData.handle || '',
+              username: userData.handle || immediateUser.username,
               email: firebaseUser.email || '',
-              displayName: userData.name || userData.displayName || firebaseUser.displayName || '',
-              avatarUrl: userData.avatarUrl || firebaseUser.photoURL || undefined,
+              displayName: userData.name || userData.displayName || immediateUser.displayName,
+              avatarUrl: userData.avatarUrl || immediateUser.avatarUrl,
               bio: userData.bio || '',
               website: userData.website || '',
               location: userData.location || '',
               followerCount: userData.followerCount || userData.followers?.length || 0,
               followingCount: userData.followingCount || userData.following?.length || 0,
               postCount: userData.postCount || 0,
-              createdAt: userData.createdAt?.toDate() || new Date(),
-              updatedAt: userData.updatedAt?.toDate() || new Date(),
+              createdAt: userData.createdAt?.toDate() || immediateUser.createdAt,
+              updatedAt: userData.updatedAt?.toDate() || immediateUser.updatedAt,
               isVerified: userData.isVerified || false,
               isProfessional: userData.isProfessional || false,
               isActive: userData.isActive !== false,
@@ -62,120 +106,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isTipJarEnabled: userData.isTipJarEnabled || false,
               profileRingColor: userData.profileRingColor || '#3b82f6',
               socialLinks: userData.socialLinks || {},
-              preferences: userData.preferences || {
-                notifications: {
-                  likes: true,
-                  comments: true,
-                  follows: true,
-                  messages: true,
-                  auctions: true
-                },
-                privacy: {
-                  showEmail: false,
-                  showLocation: false,
-                  allowMessages: true
-                }
-              }
+              preferences: userData.preferences || immediateUser.preferences
             };
-            setUser(user);
-            setAvatarUrl(user.avatarUrl || null);
-          } else {
-            // User document doesn't exist, create a basic user object
-            const user: User = {
-              id: firebaseUser.uid,
-              username: firebaseUser.displayName?.toLowerCase().replace(/\s+/g, '') || '',
-              email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || '',
-              avatarUrl: firebaseUser.photoURL || undefined,
-              bio: '',
-              website: '',
-              location: '',
-              followerCount: 0,
-              followingCount: 0,
-              postCount: 0,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              isVerified: false,
-              isProfessional: false,
-              isActive: true,
-              lastSeen: new Date(),
-              artistType: '',
-              isTipJarEnabled: false,
-              profileRingColor: '#3b82f6',
-              socialLinks: {},
-              preferences: {
-                notifications: {
-                  likes: true,
-                  comments: true,
-                  follows: true,
-                  messages: true,
-                  auctions: true
-                },
-                privacy: {
-                  showEmail: false,
-                  showLocation: false,
-                  allowMessages: true
-                }
-              }
-            };
-            setUser(user);
-            setAvatarUrl(user.avatarUrl || null);
+            setUser(detailedUser);
+            setAvatarUrl(detailedUser.avatarUrl || null);
           }
         } catch (error) {
-          console.error('Error fetching user data:', error);
-          // If Firestore is offline, create a basic user object from Firebase Auth data
-          if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
-            console.log('Firestore offline, creating basic user from Firebase Auth data');
-            const basicUser: User = {
-              id: firebaseUser.uid,
-              username: firebaseUser.displayName?.toLowerCase().replace(/\s+/g, '') || 'user',
-              email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || 'User',
-              avatarUrl: firebaseUser.photoURL || undefined,
-              bio: '',
-              website: '',
-              location: '',
-              followerCount: 0,
-              followingCount: 0,
-              postCount: 0,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              isVerified: false,
-              isProfessional: false,
-              isActive: true,
-              lastSeen: new Date(),
-              artistType: '',
-              isTipJarEnabled: false,
-              profileRingColor: '#3b82f6',
-              socialLinks: {},
-              preferences: {
-                notifications: {
-                  likes: true,
-                  comments: true,
-                  follows: true,
-                  messages: true,
-                  auctions: true
-                },
-                privacy: {
-                  showEmail: false,
-                  showLocation: false,
-                  allowMessages: true
-                }
-              }
-            };
-            setUser(basicUser);
-            setAvatarUrl(basicUser.avatarUrl || null);
-          } else {
-            setUser(null);
-            setAvatarUrl(null);
-          }
+          console.error('Error fetching detailed user data:', error);
+          // Keep the immediate user data if Firestore fails
         }
       } else {
         setUser(null);
         setAvatarUrl(null);
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => unsubscribe();

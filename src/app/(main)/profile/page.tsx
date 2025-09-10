@@ -4,19 +4,12 @@
 import { useAuth } from '@/providers/auth-provider';
 import { ProfileHeader } from '@/components/profile-header';
 import { ProfileTabs } from '@/components/profile-tabs';
-import { useEffect, useState } from 'react';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user || authLoading === false) {
-      setLoading(false);
-    }
-  }, [user, authLoading]);
-
-  if (loading) {
+  // Show loading only if auth is still loading and no user
+  if (authLoading && !user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-4">
@@ -33,9 +26,6 @@ export default function ProfilePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Please log in to view your profile</h1>
           <p className="text-muted-foreground">You need to be logged in to access this page.</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Auth loading: {authLoading ? 'true' : 'false'}
-          </p>
         </div>
       </div>
     );
