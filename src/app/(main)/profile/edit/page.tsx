@@ -221,9 +221,9 @@ export default function ProfileEditPage() {
         }
       }
 
-      // Update user profile
+      // Update user profile - filter out undefined values
       const userRef = doc(db, 'userProfiles', user.id);
-      await updateDoc(userRef, {
+      const updateData: any = {
         name: formData.name,
         handle: formData.handle,
         bio: formData.bio,
@@ -234,9 +234,15 @@ export default function ProfileEditPage() {
         isTipJarEnabled: formData.isTipJarEnabled,
         profileRingColor: formData.profileRingColor,
         socialLinks: formData.socialLinks,
-        avatarUrl,
         updatedAt: new Date()
-      });
+      };
+
+      // Only include avatarUrl if it's not undefined
+      if (avatarUrl !== undefined) {
+        updateData.avatarUrl = avatarUrl;
+      }
+
+      await updateDoc(userRef, updateData);
 
       // Update handle mapping if changed
       if (formData.handle !== user.username) {
@@ -262,7 +268,7 @@ export default function ProfileEditPage() {
     } catch (error) {
       console.error('Error updating profile:', error);
       
-      // Check if it's an offline error
+      // Check for specific Firebase errors
       if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
         toast({
           title: "Offline Mode",
@@ -282,14 +288,20 @@ export default function ProfileEditPage() {
         } catch (storageError) {
           console.error('Error saving offline changes:', storageError);
         }
+      } else if ((error as any)?.message?.includes('undefined')) {
+        toast({
+          title: "Update failed",
+          description: "There was an issue with the profile data. Please try again.",
+          variant: "destructive"
+        });
       } else {
         toast({
           title: "Update failed",
-          description: "There was an error updating your profile. Please try again.",
+          description: `There was an error updating your profile: ${(error as any)?.message || 'Unknown error'}`,
           variant: "destructive"
         });
       }
-      } finally {
+    } finally {
       setIsLoading(false);
     }
   };
