@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ArtPost } from '@/components/art-post';
 import { FeedFilters } from '@/components/feed-filters';
+import { ViewSelector } from '@/components/view-selector';
+import { ArtworkGrid } from '@/components/artwork-grid';
 import { Post } from '@/lib/types';
 
 const mockPosts: Post[] = [
@@ -72,6 +74,8 @@ const mockPosts: Post[] = [
 ];
 
 export default function FeedPage() {
+  const [view, setView] = useState<'grid' | 'list'>('list');
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col space-y-6">
@@ -83,15 +87,22 @@ export default function FeedPage() {
           </p>
         </div>
 
-        {/* Filters */}
-        <FeedFilters />
+        {/* Filters and View Selector */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <FeedFilters />
+          <ViewSelector view={view} onViewChange={setView} />
+        </div>
 
         {/* Posts */}
-        <div className="space-y-6">
-          {mockPosts.map((post) => (
-            <ArtPost key={post.id} post={post} />
-          ))}
-        </div>
+        {view === 'list' ? (
+          <div className="space-y-6">
+            {mockPosts.map((post) => (
+              <ArtPost key={post.id} post={post} />
+            ))}
+          </div>
+        ) : (
+          <ArtworkGrid posts={mockPosts} />
+        )}
 
         {/* Load More */}
         <div className="flex justify-center">
