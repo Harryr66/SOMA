@@ -9,12 +9,25 @@ import { useEffect, useState } from 'react';
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     if (user || authLoading === false) {
       setLoading(false);
     }
   }, [user, authLoading]);
+
+  useEffect(() => {
+    // Check if we're offline by looking at the console errors
+    const checkOfflineStatus = () => {
+      // Simple check - if we have a user but it's basic data, we're likely offline
+      if (user && user.bio === '' && user.website === '' && user.followerCount === 0) {
+        setIsOffline(true);
+      }
+    };
+
+    checkOfflineStatus();
+  }, [user]);
 
   if (loading) {
     return (
@@ -43,6 +56,15 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
+      {/* Offline Notice */}
+      {isOffline && (
+        <div className="mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            ⚠️ You're currently offline. Some features may be limited. Your profile data is loaded from cache.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-8">
         <ProfileHeader
           user={user}

@@ -123,8 +123,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
-          setUser(null);
-          setAvatarUrl(null);
+          // If Firestore is offline, create a basic user object from Firebase Auth data
+          if (error.code === 'unavailable' || error.message?.includes('offline')) {
+            console.log('Firestore offline, creating basic user from Firebase Auth data');
+            const basicUser: User = {
+              id: firebaseUser.uid,
+              username: firebaseUser.displayName?.toLowerCase().replace(/\s+/g, '') || 'user',
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || 'User',
+              avatarUrl: firebaseUser.photoURL || undefined,
+              bio: '',
+              website: '',
+              location: '',
+              followerCount: 0,
+              followingCount: 0,
+              postCount: 0,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              isVerified: false,
+              isProfessional: false,
+              isActive: true,
+              lastSeen: new Date(),
+              artistType: '',
+              isTipJarEnabled: false,
+              profileRingColor: '#3b82f6',
+              socialLinks: {},
+              preferences: {
+                notifications: {
+                  likes: true,
+                  comments: true,
+                  follows: true,
+                  messages: true,
+                  auctions: true
+                },
+                privacy: {
+                  showEmail: false,
+                  showLocation: false,
+                  allowMessages: true
+                }
+              }
+            };
+            setUser(basicUser);
+            setAvatarUrl(basicUser.avatarUrl || null);
+          } else {
+            setUser(null);
+            setAvatarUrl(null);
+          }
         }
       } else {
         setUser(null);
@@ -186,6 +230,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (error) {
         console.error('Error refreshing user data:', error);
+        // If Firestore is offline, keep the existing user data
+        if (error.code === 'unavailable' || error.message?.includes('offline')) {
+          console.log('Firestore offline during refresh, keeping existing user data');
+        }
       }
     }
   };
