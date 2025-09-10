@@ -26,7 +26,7 @@ export function YourStoryCircle() {
             <Avatar className="h-16 w-16 ring-2 ring-offset-2 ring-primary group-hover:ring-offset-4 transition-all">
               <AvatarImage src={avatarUrl || undefined} alt={user.displayName} />
               <AvatarFallback className="text-lg">
-                {user.displayName.charAt(0).toUpperCase()}
+                {user.displayName?.charAt(0)?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             {hasActiveStory && (

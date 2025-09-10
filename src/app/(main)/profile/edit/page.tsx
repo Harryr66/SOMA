@@ -376,7 +376,7 @@ export default function ProfileEditPage() {
                     alt={formData.name} 
                   />
                   <AvatarFallback className="text-xl">
-                    {formData.name.charAt(0).toUpperCase()}
+                    {formData.name?.charAt(0)?.toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                 {previewImage && (

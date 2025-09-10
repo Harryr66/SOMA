@@ -101,11 +101,11 @@ export function ProfileHeader({
                   <Avatar className="h-full w-full">
                     <AvatarImage 
                       src={user.avatarUrl} 
-                      alt={user.displayName}
+                      alt={user.displayName || 'User'}
                       className="h-full w-full object-cover rounded-full"
                     />
                     <AvatarFallback className="text-2xl h-full w-full rounded-full">
-                      {user.displayName.charAt(0).toUpperCase()}
+                      {user.displayName?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -129,7 +129,7 @@ export function ProfileHeader({
           <div className="flex-1 space-y-4">
             <div>
               <h1 className="text-3xl font-headline font-bold text-foreground">
-                {user.displayName}
+                {user.displayName || 'User'}
               </h1>
               <p className="text-muted-foreground text-lg">@{user.username}</p>
               
@@ -215,7 +215,7 @@ export function ProfileHeader({
       {showTipDialog && (
         <TipDialog 
           artistId={user.id}
-          artistName={user.displayName}
+          artistName={user.displayName || 'User'}
           onClose={() => setShowTipDialog(false)} 
         />
       )}
