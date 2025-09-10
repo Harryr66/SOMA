@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
   Home, 
-  Compass, 
+  Eye, 
   Upload, 
   User,
   Heart
@@ -14,7 +14,7 @@ import {
 
 const navigation = [
   { name: 'Home', href: '/feed', icon: Home },
-  { name: 'Discover', href: '/discover', icon: Compass },
+  { name: 'Discover', href: '/discover', icon: Eye },
   { name: 'Saved', href: '/saved', icon: Heart },
   { name: 'Upload Profile', href: '/upload', icon: Upload },
   { name: 'Profile', href: '/profile', icon: User },
