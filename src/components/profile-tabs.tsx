@@ -19,7 +19,7 @@ interface ProfileTabsProps {
 }
 
 export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTabsProps) {
-  const [showCreateCommunity, setShowCreateCommunity] = useState(false);
+  const [showCreateCommunity, setShowCommunity] = useState(false);
 
   if (isProfessional) {
     return (
