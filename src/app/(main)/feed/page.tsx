@@ -74,23 +74,25 @@ const mockPosts: Post[] = [
 ];
 
 export default function FeedPage() {
-  const [view, setView] = useState<'grid' | 'list'>('list');
+  const [view, setView] = useState<'grid' | 'list'>('grid');
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Art Feed</h1>
-          <p className="text-muted-foreground">
-            Discover amazing artworks from talented artists
-          </p>
-        </div>
-
-        {/* Filters and View Selector */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <FeedFilters />
-          <ViewSelector view={view} onViewChange={setView} />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Art Feed</h1>
+            <p className="text-muted-foreground">
+              Discover amazing artworks from talented artists
+            </p>
+          </div>
+          
+          {/* Filters and View Selector */}
+          <div className="flex items-center gap-3">
+            <FeedFilters />
+            <ViewSelector view={view} onViewChange={setView} />
+          </div>
         </div>
 
         {/* Posts */}
