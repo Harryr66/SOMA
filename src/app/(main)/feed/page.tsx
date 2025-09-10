@@ -375,9 +375,11 @@ export default function FeedPage() {
         </div>
 
           {/* Filters and View Selector */}
-          <div className="flex items-center gap-3">
-        <FeedFilters />
-            <ViewSelector view={view} onViewChange={setView} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FeedFilters />
+              <ViewSelector view={view} onViewChange={setView} />
+            </div>
           </div>
         </div>
 

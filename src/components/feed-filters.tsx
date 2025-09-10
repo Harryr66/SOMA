@@ -19,8 +19,8 @@ export function FeedFilters() {
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full mb-6">
-      <div className="flex justify-end items-center gap-2 mb-4">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+      <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" className="h-8">
             <Camera />
             Share
@@ -33,7 +33,7 @@ export function FeedFilters() {
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className="space-y-4 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+      <CollapsibleContent className="space-y-4 mt-4 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
         <div className="flex flex-wrap gap-2">
             <Button size="sm" variant={activeFilter === 'Your Following' ? 'secondary' : 'outline'} onClick={() => handleFilterClick('Your Following')}>
               Your Following
