@@ -203,6 +203,8 @@ export default function ProfileEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🚀 Profile edit form submitted - using setDoc with merge');
+    
     if (!user) return;
     
     if (formData.handle !== user.username && handleAvailable !== true) {
