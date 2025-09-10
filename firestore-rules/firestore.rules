@@ -68,7 +68,19 @@ service cloud.firestore {
       }
     }
 
-    // Usernames collection (for username uniqueness)
+    // User profiles collection (main user data)
+    match /userProfiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // Handles collection (for username uniqueness)
+    match /handles/{handle} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Usernames collection (for username uniqueness) - legacy
     match /usernames/{username} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isOwner(resource.data.uid);
