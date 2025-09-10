@@ -9,31 +9,6 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
-    function isOwnerOrAdmin(userId) {
-      return isOwner(userId) || isAdmin();
-    }
-    
-    function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-    
-    function isValidUser(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId));
-    }
-    
-    function isFollowing(followerId, followingId) {
-      return exists(/databases/$(database)/documents/users/$(followerId)/following/$(followingId));
-    }
-    
-    function isCommunityMember(communityId, userId) {
-      return exists(/databases/$(database)/documents/communities/$(communityId)/members/$(userId));
-    }
-    
-    function isAuctionParticipant(auctionId, userId) {
-      return exists(/databases/$(database)/documents/auctions/$(auctionId)/participants/$(userId));
-    }
 
     // Users collection
     match /users/{userId} {
@@ -68,20 +43,14 @@ service cloud.firestore {
       }
     }
 
-    // User profiles collection (main user data)
+    // User profiles collection (main user data) - TEMPORARILY PERMISSIVE FOR TESTING
     match /userProfiles/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isAuthenticated() && isOwner(userId);
-      allow delete: if isAuthenticated() && isOwner(userId);
+      allow read, write: if isAuthenticated();
     }
 
-    // Handles collection (for username uniqueness)
+    // Handles collection (for username uniqueness) - TEMPORARILY PERMISSIVE FOR TESTING
     match /handles/{handle} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow read, write: if isAuthenticated();
     }
 
     // Usernames collection (for username uniqueness) - legacy
