@@ -71,16 +71,19 @@ export function ProfileHeader({
     if (user.hasActiveStory) {
       return 'story-gradient-border';
     } else if (user.profileRingColor) {
-      return 'border-4';
+      return 'border-4 rounded-full';
     }
-    return 'border-4 border-muted';
+    return 'border-4 border-muted rounded-full';
   };
 
   const getAvatarBorderStyle = () => {
     if (user.profileRingColor && !user.hasActiveStory) {
-      return { borderColor: user.profileRingColor };
+      return { 
+        borderColor: user.profileRingColor,
+        borderRadius: '50%'
+      };
     }
-    return {};
+    return { borderRadius: '50%' };
   };
 
   return (
@@ -94,17 +97,23 @@ export function ProfileHeader({
                 <button
                   onClick={handleAvatarClick}
                   className={cn(
-                    'relative rounded-full transition-all hover:scale-105',
+                    'relative rounded-full transition-all hover:scale-105 overflow-hidden',
                     getAvatarBorderClass()
                   )}
                   style={getAvatarBorderStyle()}
                 >
-                  <Avatar className="h-32 w-32">
-                    <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-                    <AvatarFallback className="text-2xl">
-                      {user.displayName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-32 w-32 rounded-full overflow-hidden">
+                    <Avatar className="h-full w-full">
+                      <AvatarImage 
+                        src={user.avatarUrl} 
+                        alt={user.displayName}
+                        className="h-full w-full object-cover rounded-full"
+                      />
+                      <AvatarFallback className="text-2xl h-full w-full rounded-full">
+                        {user.displayName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
                 </button>
               </DialogTrigger>
               <DialogContent className="max-w-md">

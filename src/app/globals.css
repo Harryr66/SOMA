@@ -95,12 +95,12 @@
   }
 
   .story-gradient-border {
-    border: 2px solid transparent;
+    border: 4px solid transparent !important;
     background:
       linear-gradient(hsl(var(--background)), hsl(var(--background))) padding-box,
-      var(--gradient-border) border-box;
-    background-clip: padding-box, border-box;
-    border-radius: 0.75rem;
+      var(--gradient-border) border-box !important;
+    background-clip: padding-box, border-box !important;
+    border-radius: 50% !important;
   }
 }
 
