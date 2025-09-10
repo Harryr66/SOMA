@@ -268,9 +268,7 @@ export default function DiscoverPage() {
   };
 
   const handleArtworkClick = (artwork: Artwork) => {
-    if (artwork.discussionId) {
-      router.push(`/discussion/${artwork.discussionId}`);
-    }
+    router.push(`/artwork/${artwork.id}`);
   };
 
   return (

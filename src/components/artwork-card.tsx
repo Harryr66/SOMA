@@ -4,50 +4,26 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { Artwork } from '@/lib/types';
 import { useAuth } from '@/providers/auth-provider';
 import Image from 'next/image';
 
 interface ArtworkCardProps {
   artwork: Artwork;
-  onLike?: (artworkId: string) => void;
-  onComment?: (artworkId: string) => void;
-  onShare?: (artworkId: string) => void;
   onMore?: (artworkId: string) => void;
   onClick?: () => void;
 }
 
 export function ArtworkCard({ 
   artwork, 
-  onLike, 
-  onComment, 
-  onShare, 
   onMore,
   onClick
 }: ArtworkCardProps) {
   const { user } = useAuth();
-  const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(artwork.likes || 0);
 
   const isAuthor = user?.id === artwork.artist.id;
-
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-    onLike?.(artwork.id);
-  };
-
-  const handleCommentClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onComment?.(artwork.id);
-  };
-
-  const handleShareClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onShare?.(artwork.id);
-  };
 
   const handleMoreClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,37 +42,6 @@ export function ArtworkCard({
           />
         </div>
         
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <div className="flex space-x-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleLikeClick}
-              className="bg-white/90 hover:bg-white text-black"
-            >
-              <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-              {likeCount}
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleCommentClick}
-              className="bg-white/90 hover:bg-white text-black"
-            >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Comment
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleShareClick}
-              className="bg-white/90 hover:bg-white text-black"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
 
         {/* Price badge */}
         {artwork.isForSale && artwork.price && (

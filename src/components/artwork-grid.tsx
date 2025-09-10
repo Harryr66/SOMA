@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -15,10 +16,20 @@ interface ArtworkGridProps {
 }
 
 export function ArtworkGrid({ posts, className }: ArtworkGridProps) {
+  const router = useRouter();
+
+  const handleCardClick = (postId: string) => {
+    router.push(`/artwork/${postId}`);
+  };
+
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4', className)}>
       {posts.map((post) => (
-        <Card key={post.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
+        <Card 
+          key={post.id} 
+          className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+          onClick={() => handleCardClick(post.id)}
+        >
           <div className="relative aspect-square overflow-hidden">
             <img
               src={post.imageUrl}
