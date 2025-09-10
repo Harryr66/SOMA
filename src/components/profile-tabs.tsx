@@ -192,7 +192,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
             {isOwnProfile && (
               <Button 
                 variant="gradient"
-                onClick={() => setShowCreateCommunity(true)}
+                onClick={() => setShowCommunity(true)}
               >
                 <Users className="h-4 w-4 mr-2" />
                 Start Community
@@ -217,7 +217,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
               {isOwnProfile && (
                 <Button 
                   variant="gradient"
-                  onClick={() => setShowCreateCommunity(true)}
+                  onClick={() => setShowCommunity(true)}
                 >
                   <Users className="h-4 w-4 mr-2" />
                   Start Community
@@ -285,7 +285,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional }: ProfileTab
       {/* Create Community Dialog */}
       {showCreateCommunity && (
         <CreateCommunityDialog 
-          onClose={() => setShowCreateCommunity(false)} 
+          onClose={() => setShowCommunity(false)} 
         />
       )}
     </Tabs>
