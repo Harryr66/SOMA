@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArtPost } from '@/components/art-post';
 import { FeedFilters } from '@/components/feed-filters';
 import { ViewSelector } from '@/components/view-selector';
@@ -262,8 +262,105 @@ const mockPosts: Post[] = [
   }
 ];
 
+// Function to generate more mock posts
+const generateMorePosts = (startId: number, count: number): Post[] => {
+  const artists = [
+    { name: 'Emma Wilson', handle: 'emma_wilson', avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face' },
+    { name: 'Liam Davis', handle: 'liam_davis', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' },
+    { name: 'Olivia Martinez', handle: 'olivia_martinez', avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' },
+    { name: 'Noah Anderson', handle: 'noah_anderson', avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' },
+    { name: 'Ava Thompson', handle: 'ava_thompson', avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face' },
+    { name: 'William Garcia', handle: 'william_garcia', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' },
+    { name: 'Sophia Lee', handle: 'sophia_lee', avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' },
+    { name: 'James Wilson', handle: 'james_wilson', avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' }
+  ];
+
+  const artworks = [
+    'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop'
+  ];
+
+  const captions = [
+    'Just finished this piece! The colors really came together beautifully. What do you think? #abstract #art #painting',
+    'Working on a new digital series. This is the first piece - exploring themes of urban isolation and connection. #digitalart #cityscape #futuristic',
+    'My latest ceramic piece is finally fired and glazed! The process took weeks but I\'m so happy with how it turned out. #ceramics #sculpture #art',
+    'Exploring the intersection of technology and creativity. This piece represents the digital age we live in. #digitalart #geometric #modern',
+    'Watercolor has always been my favorite medium. The way colors blend and flow is magical. #watercolor #pastels #painting',
+    'Working on a new series about urban landscapes. The contrast between light and shadow fascinates me. #oilpainting #urban #lighting',
+    'Mixed media allows for such interesting textures and layers. This piece took weeks to complete. #mixedmedia #collage #texture',
+    'Street photography is all about capturing the moment. This shot took patience and perfect timing. #photography #street #composition'
+  ];
+
+  return Array.from({ length: count }, (_, index) => {
+    const id = startId + index;
+    const artist = artists[id % artists.length];
+    const artwork = artworks[id % artworks.length];
+    const caption = captions[id % captions.length];
+    const hoursAgo = Math.floor(Math.random() * 48) + 1;
+    
+    return {
+      id: id.toString(),
+      artworkId: id.toString(),
+      artist: {
+        id: artist.handle,
+        name: artist.name,
+        handle: artist.handle,
+        avatarUrl: artist.avatarUrl,
+        followerCount: Math.floor(Math.random() * 5000) + 500,
+        followingCount: Math.floor(Math.random() * 500) + 50,
+        createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)
+      },
+      imageUrl: artwork,
+      imageAiHint: 'Artwork image',
+      caption: caption,
+      likes: Math.floor(Math.random() * 500) + 10,
+      commentsCount: Math.floor(Math.random() * 100) + 1,
+      timestamp: hoursAgo === 1 ? '1 hour ago' : `${hoursAgo} hours ago`,
+      createdAt: Date.now() - (hoursAgo * 60 * 60 * 1000),
+      tags: ['art', 'creative', 'inspiration']
+    };
+  });
+};
+
 export default function FeedPage() {
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [posts, setPosts] = useState<Post[]>(mockPosts);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Load more posts function
+  const loadMorePosts = useCallback(async () => {
+    if (isLoading || !hasMore) return;
+    
+    setIsLoading(true);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newPosts = generateMorePosts(posts.length + 1, 12);
+    setPosts(prevPosts => [...prevPosts, ...newPosts]);
+    
+    // Simulate reaching end after 5 pages (60 posts total)
+    if (posts.length >= 48) {
+      setHasMore(false);
+    }
+    
+    setIsLoading(false);
+  }, [isLoading, hasMore, posts.length]);
+
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        loadMorePosts();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMorePosts]);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -287,20 +384,42 @@ export default function FeedPage() {
         {/* Posts */}
         {view === 'list' ? (
           <div className="space-y-6">
-            {mockPosts.map((post) => (
+            {posts.map((post) => (
               <ArtPost key={post.id} post={post} />
             ))}
           </div>
         ) : (
-          <ArtworkGrid posts={mockPosts} />
+          <ArtworkGrid posts={posts} />
         )}
 
-        {/* Load More */}
-        <div className="flex justify-center">
-          <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-            Load More Posts
-          </button>
-        </div>
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              <span className="text-muted-foreground">Loading more posts...</span>
+            </div>
+          </div>
+        )}
+
+        {/* End of Content */}
+        {!hasMore && !isLoading && (
+          <div className="flex justify-center py-8">
+            <span className="text-muted-foreground">You've reached the end of the feed</span>
+          </div>
+        )}
+
+        {/* Manual Load More Button (fallback) */}
+        {hasMore && !isLoading && (
+          <div className="flex justify-center">
+            <button 
+              onClick={loadMorePosts}
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Load More Posts
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
