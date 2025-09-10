@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronsUpDown, Filter, Camera } from 'lucide-react';
+import { ChevronsUpDown, Filter } from 'lucide-react';
 
 const filterGroups = {
   Mediums: ["Oil Painting", "Watercolor", "Acrylic", "Charcoal", "Pencil Drawing", "Pottery", "Ceramics", "Sculpture"],
@@ -21,10 +21,6 @@ export function FeedFilters() {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="h-8">
-            <Camera />
-            Share
-        </Button>
         <CollapsibleTrigger asChild>
           <Button variant="outline" size="sm" className="h-8">
             <Filter />
