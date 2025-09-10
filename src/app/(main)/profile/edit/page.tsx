@@ -102,6 +102,16 @@ export default function ProfileEditPage() {
     }
   }, [user]);
 
+  // Helper function to add timeout to Firestore operations
+  const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 10000): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => 
+        setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+      )
+    ]);
+  };
+
   const checkHandleAvailability = async (handle: string) => {
     if (!handle || handle === user?.username) {
       setHandleAvailable(null);
@@ -110,7 +120,7 @@ export default function ProfileEditPage() {
 
     setIsCheckingHandle(true);
     try {
-      const handleDoc = await getDoc(doc(db, 'handles', handle));
+      const handleDoc = await withTimeout(getDoc(doc(db, 'handles', handle)), 5000);
       setHandleAvailable(!handleDoc.exists());
     } catch (error) {
       console.error('Error checking handle:', error);
@@ -205,6 +215,20 @@ export default function ProfileEditPage() {
             }
             
     setIsLoading(true);
+    
+    // Test connection before attempting save
+    try {
+      await withTimeout(getDoc(doc(db, 'userProfiles', user.id)), 3000);
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to the server. Please check your internet connection and try again.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
     try {
       let avatarUrl = user.avatarUrl;
 
@@ -242,19 +266,20 @@ export default function ProfileEditPage() {
         updateData.avatarUrl = avatarUrl;
       }
 
-      await updateDoc(userRef, updateData);
+      // Update user profile with timeout
+      await withTimeout(updateDoc(userRef, updateData), 10000);
 
       // Update handle mapping if changed
       if (formData.handle !== user.username) {
         // Remove old handle
         if (user.username) {
-          await updateDoc(doc(db, 'handles', user.username), { userId: null });
+          await withTimeout(updateDoc(doc(db, 'handles', user.username), { userId: null }), 5000);
         }
         // Add new handle
-        await updateDoc(doc(db, 'handles', formData.handle), { userId: user.id });
+        await withTimeout(updateDoc(doc(db, 'handles', formData.handle), { userId: user.id }), 5000);
       }
 
-      await refreshUser();
+      await withTimeout(refreshUser(), 5000);
       
       // Clear offline changes after successful save
       localStorage.removeItem(`profile_offline_changes_${user.id}`);
@@ -271,8 +296,8 @@ export default function ProfileEditPage() {
       // Check for specific Firebase errors
       if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
         toast({
-          title: "Offline Mode",
-          description: "You're currently offline. Your changes will be saved when you're back online.",
+          title: "Connection Error",
+          description: "Unable to connect to the server. Your changes will be saved locally and synced when connection is restored.",
           variant: "destructive"
         });
         
@@ -288,6 +313,12 @@ export default function ProfileEditPage() {
         } catch (storageError) {
           console.error('Error saving offline changes:', storageError);
         }
+      } else if ((error as any)?.message?.includes('timed out') || (error as any)?.message?.includes('timeout')) {
+        toast({
+          title: "Request Timeout",
+          description: "The server is taking too long to respond. Please check your connection and try again.",
+          variant: "destructive"
+        });
       } else if ((error as any)?.message?.includes('undefined')) {
         toast({
           title: "Update failed",
@@ -297,7 +328,7 @@ export default function ProfileEditPage() {
       } else {
         toast({
           title: "Update failed",
-          description: `There was an error updating your profile: ${(error as any)?.message || 'Unknown error'}`,
+          description: `Unable to save changes: ${(error as any)?.message || 'Connection error'}`,
           variant: "destructive"
         });
       }
