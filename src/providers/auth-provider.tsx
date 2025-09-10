@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           console.error('Error fetching user data:', error);
           // If Firestore is offline, create a basic user object from Firebase Auth data
-          if (error.code === 'unavailable' || error.message?.includes('offline')) {
+          if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
             console.log('Firestore offline, creating basic user from Firebase Auth data');
             const basicUser: User = {
               id: firebaseUser.uid,
@@ -231,7 +231,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error('Error refreshing user data:', error);
         // If Firestore is offline, keep the existing user data
-        if (error.code === 'unavailable' || error.message?.includes('offline')) {
+        if ((error as any)?.code === 'unavailable' || (error as any)?.message?.includes('offline')) {
           console.log('Firestore offline during refresh, keeping existing user data');
         }
       }
