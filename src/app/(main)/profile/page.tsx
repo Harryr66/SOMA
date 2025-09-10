@@ -7,14 +7,14 @@ import { ProfileTabs } from '@/components/profile-tabs';
 import { useEffect, useState } from 'react';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user || authLoading === false) {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   if (loading) {
     return (
@@ -33,6 +33,9 @@ export default function ProfilePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Please log in to view your profile</h1>
           <p className="text-muted-foreground">You need to be logged in to access this page.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Auth loading: {authLoading ? 'true' : 'false'}
+          </p>
         </div>
       </div>
     );

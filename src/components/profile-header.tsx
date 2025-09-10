@@ -43,6 +43,22 @@ export function ProfileHeader({
   const [showStoryUploader, setShowStoryUploader] = useState(false);
   const [showTipDialog, setShowTipDialog] = useState(false);
 
+  // Debug logging
+  console.log('ProfileHeader user:', user);
+  console.log('ProfileHeader isOwnProfile:', isOwnProfile);
+
+  // Early return if user is not properly loaded
+  if (!user || !user.displayName) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading profile...</h1>
+          <p className="text-muted-foreground">Please wait while we load your profile data.</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleAvatarClick = () => {
     if (user.hasActiveStory) {
       setShowStoryViewer(true);
