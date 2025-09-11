@@ -8,9 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Separator } from "../ui/separator";
 import { auth, db } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +27,6 @@ export function SignUpForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -115,79 +113,6 @@ export function SignUpForm() {
     }
   }
 
-  async function handleGoogleSignIn() {
-    setIsGoogleLoading(true);
-    try {
-        // Real Google authentication
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        
-        const user = result.user;
-        console.log('User signed up with Google:', user);
-
-        // Generate a unique handle from email
-        const emailPrefix = user.email?.split('@')[0] || 'user';
-        const baseHandle = emailPrefix.replace(/[^a-zA-Z0-9]/g, '');
-        let handle = baseHandle;
-        let counter = 1;
-
-        // Generate a unique handle (we'll handle conflicts later)
-        handle = `${baseHandle}${Date.now()}`;
-
-        // Create user document in Firestore
-        const userData: Artist = {
-          id: user.uid,
-          name: user.displayName || 'User',
-          handle: handle,
-          avatarUrl: user.photoURL || undefined,
-          bio: "",
-          location: "",
-          website: "",
-          followerCount: 0,
-          followingCount: 0,
-          isProfessional: false,
-          createdAt: new Date(),
-        };
-
-        // Try to save user data to Firestore (with offline handling)
-        try {
-          await setDoc(doc(db, 'users', handle), userData);
-          await setDoc(doc(db, 'userProfiles', user.uid), userData);
-        } catch (firestoreError) {
-          console.warn('Firestore save failed (user still created):', firestoreError);
-          // User is still created in Firebase Auth, just Firestore save failed
-        }
-        
-        toast({
-            title: "Google Signup Successful!",
-            description: `Welcome to SOMA, ${user.displayName || user.email}! Your account has been created successfully.`,
-        });
-        
-        // Redirect to feed
-        router.push('/feed');
-        
-    } catch (error: any) {
-        console.error('Google signup error:', error);
-        
-        let errorMessage = "An error occurred during Google signup. Please try again.";
-        
-        if (error.code === 'auth/popup-closed-by-user') {
-            errorMessage = "Sign-up was cancelled. Please try again.";
-        } else if (error.code === 'auth/popup-blocked') {
-            errorMessage = "Popup was blocked. Please allow popups and try again.";
-        } else if (error.code === 'auth/account-exists-with-different-credential') {
-            errorMessage = "An account already exists with this email using a different sign-in method.";
-        }
-        
-        toast({
-            title: "Google Signup Failed",
-            description: errorMessage,
-            variant: "destructive",
-        });
-    } finally {
-        setIsGoogleLoading(false);
-    }
-  }
 
   return (
     <Form {...form}>
@@ -244,17 +169,9 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button variant="gradient" type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
+        <Button variant="gradient" type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create Account
-        </Button>
-        <div className="relative">
-            <Separator />
-            <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-card px-2 text-sm text-muted-foreground">OR</span>
-        </div>
-         <Button variant="gradient" type="button" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
-            {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign Up with Google
         </Button>
       </form>
     </Form>
