@@ -36,17 +36,11 @@ export default function ProfileEditPage() {
       name: '',
       handle: '',
     bio: '',
-      website: '',
       artistType: '',
     location: '',
     isProfessional: false,
     isTipJarEnabled: false,
-    profileRingColor: '#3b82f6',
-    socialLinks: {
-      instagram: '',
-      twitter: '',
-      website: ''
-    }
+    profileRingColor: '#3b82f6'
   });
 
   useEffect(() => {
@@ -60,17 +54,11 @@ export default function ProfileEditPage() {
             name: changes.name || user.displayName || '',
             handle: changes.handle || user.username || '',
             bio: changes.bio || user.bio || '',
-            website: changes.website || user.website || '',
             artistType: changes.artistType || user.artistType || '',
             location: changes.location || user.location || '',
             isProfessional: changes.isProfessional || user.isProfessional || false,
             isTipJarEnabled: changes.isTipJarEnabled || user.isTipJarEnabled || false,
-            profileRingColor: changes.profileRingColor || user.profileRingColor || '#3b82f6',
-            socialLinks: {
-              instagram: changes.socialLinks?.instagram || user.socialLinks?.instagram || '',
-              twitter: changes.socialLinks?.twitter || user.socialLinks?.twitter || '',
-              website: changes.socialLinks?.website || user.socialLinks?.website || ''
-            }
+            profileRingColor: changes.profileRingColor || user.profileRingColor || '#3b82f6'
           });
           
           if (changes.avatarUrl && changes.avatarUrl !== user.avatarUrl) {
@@ -86,17 +74,11 @@ export default function ProfileEditPage() {
           name: user.displayName || '',
           handle: user.username || '',
           bio: user.bio || '',
-          website: user.website || '',
           artistType: user.artistType || '',
           location: user.location || '',
           isProfessional: user.isProfessional || false,
           isTipJarEnabled: user.isTipJarEnabled || false,
-          profileRingColor: user.profileRingColor || '#3b82f6',
-          socialLinks: {
-            instagram: user.socialLinks?.instagram || '',
-            twitter: user.socialLinks?.twitter || '',
-            website: user.socialLinks?.website || ''
-          }
+          profileRingColor: user.profileRingColor || '#3b82f6'
         });
       }
     }
@@ -138,15 +120,6 @@ export default function ProfileEditPage() {
     }
   };
 
-  const handleSocialLinkChange = (platform: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      socialLinks: {
-        ...prev.socialLinks,
-        [platform]: value
-      }
-    }));
-  };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -253,13 +226,11 @@ export default function ProfileEditPage() {
         name: formData.name,
         handle: formData.handle,
         bio: formData.bio,
-        website: formData.website,
         artistType: formData.artistType,
         location: formData.location,
         isProfessional: formData.isProfessional,
         isTipJarEnabled: formData.isTipJarEnabled,
         profileRingColor: formData.profileRingColor,
-        socialLinks: formData.socialLinks,
         updatedAt: new Date()
       };
 
@@ -479,19 +450,8 @@ export default function ProfileEditPage() {
               />
                                     </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  placeholder="https://yourwebsite.com"
-                />
-                            </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
                 <Input
                   id="location"
                   value={formData.location}
@@ -567,35 +527,6 @@ export default function ProfileEditPage() {
             </CardContent>
         </Card>
 
-        {/* Social Links */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Social Links</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input
-                  id="instagram"
-                  value={formData.socialLinks.instagram}
-                  onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
-                  placeholder="@username"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="twitter">Twitter</Label>
-                <Input
-                  id="twitter"
-                  value={formData.socialLinks.twitter}
-                  onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
-                  placeholder="@username"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Submit Button */}
         <div className="flex justify-end gap-4">

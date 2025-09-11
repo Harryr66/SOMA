@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Heart, Users, UserPlus, Edit, Gift, Upload, Plus } from 'lucide-react';
+import { Heart, Users, UserPlus, Edit, Gift, Upload, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StoryViewer } from './story-viewer';
 import { StoryUploader } from './story-uploader';
@@ -20,7 +20,6 @@ interface ProfileHeaderProps {
     username: string;
     avatarUrl?: string;
     bio?: string;
-    website?: string;
     followerCount: number;
     followingCount: number;
     isProfessional: boolean;
@@ -198,20 +197,6 @@ export function ProfileHeader({
               </div>
             )}
 
-            {/* Website */}
-            {user.website && (
-              <div className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                <Link 
-                  href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {user.website}
-                </Link>
-              </div>
-            )}
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
