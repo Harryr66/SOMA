@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArtPost } from '@/components/art-post';
 import { FeedFilters } from '@/components/feed-filters';
-import { ViewSelector } from '@/components/view-selector';
 import { ArtworkGrid } from '@/components/artwork-grid';
 import { Post } from '@/lib/types';
 
@@ -325,7 +323,6 @@ const generateMorePosts = (startId: number, count: number): Post[] => {
 };
 
 export default function FeedPage() {
-  const [view, setView] = useState<'grid' | 'list'>('grid');
   const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -357,7 +354,7 @@ export default function FeedPage() {
         loadMorePosts();
       }
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loadMorePosts]);
@@ -365,24 +362,15 @@ export default function FeedPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col space-y-6">
-        {/* Filters and View Selector */}
+        {/* Filters */}
         <div className="flex items-center justify-end">
           <div className="flex items-center gap-3">
-            <FeedFilters />
-            <ViewSelector view={view} onViewChange={setView} />
+        <FeedFilters />
           </div>
         </div>
 
         {/* Posts */}
-        {view === 'list' ? (
-        <div className="space-y-6">
-            {posts.map((post) => (
-            <ArtPost key={post.id} post={post} />
-          ))}
-        </div>
-        ) : (
-          <ArtworkGrid posts={posts} />
-        )}
+        <ArtworkGrid posts={posts} />
 
         {/* Loading Indicator */}
         {isLoading && (
@@ -398,7 +386,7 @@ export default function FeedPage() {
         {!hasMore && !isLoading && (
           <div className="flex justify-center py-8">
             <span className="text-muted-foreground">You've reached the end of the feed</span>
-          </div>
+        </div>
         )}
 
         {/* Manual Load More Button (fallback) */}

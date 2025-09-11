@@ -23,7 +23,7 @@ export function ArtworkGrid({ posts, className }: ArtworkGridProps) {
   };
 
   return (
-    <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4', className)}>
+    <div className={cn('grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6', className)}>
       {posts.map((post) => (
         <Card 
           key={post.id} 
