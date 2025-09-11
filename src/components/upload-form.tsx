@@ -29,7 +29,10 @@ export function UploadForm() {
     price: '',
     currency: 'USD',
     isAI: false,
-    aiAssistance: 'none' as 'none' | 'assisted' | 'generated'
+    aiAssistance: 'none' as 'none' | 'assisted',
+    story: '',
+    materials: '',
+    process: ''
   });
   
   const [file, setFile] = useState<File | null>(null);
@@ -55,7 +58,7 @@ export function UploadForm() {
     setLoading(true);
     try {
       // Create artwork object
-      const artwork = {
+      const newArtwork = {
         id: `artwork-${Date.now()}`,
         artist: {
           id: user.id,
@@ -86,25 +89,28 @@ export function UploadForm() {
         views: 0,
         likes: 0,
         isAI: formData.isAI,
-        aiAssistance: formData.aiAssistance
+        aiAssistance: formData.aiAssistance,
+        statement: formData.story,
+        materialsList: formData.materials,
+        processExplanation: formData.process,
       };
 
       // Create post object
       const post = {
         id: `post-${Date.now()}`,
-        artworkId: artwork.id,
-        artist: artwork.artist,
-        imageUrl: artwork.imageUrl,
-        imageAiHint: artwork.imageAiHint,
+        artworkId: newArtwork.id,
+        artist: newArtwork.artist,
+        imageUrl: newArtwork.imageUrl,
+        imageAiHint: newArtwork.imageAiHint,
         caption: formData.description,
         likes: 0,
         commentsCount: 0,
         timestamp: new Date().toISOString(),
         createdAt: Date.now(),
-        tags: artwork.tags
+        tags: newArtwork.tags
       };
 
-      await addContent(post, artwork);
+      await addContent(post, newArtwork);
       router.push('/feed');
     } catch (error) {
       console.error('Error uploading artwork:', error);
@@ -307,6 +313,44 @@ export function UploadForm() {
                 </Select>
               </div>
             )}
+          </div>
+
+          {/* Artist Notes */}
+          <div className="space-y-4">
+            <Label className="text-lg font-semibold">Artist Notes (Optional)</Label>
+            
+            <div className="space-y-2">
+              <Label htmlFor="story">The Story Behind This Work</Label>
+              <Textarea
+                id="story"
+                value={formData.story}
+                onChange={(e) => setFormData({ ...formData, story: e.target.value })}
+                placeholder="Share the inspiration or story behind this piece..."
+                rows={4}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="materials">Materials Used</Label>
+              <Textarea
+                id="materials"
+                value={formData.materials}
+                onChange={(e) => setFormData({ ...formData, materials: e.target.value })}
+                placeholder="List materials (e.g., Oil paints, canvas, brushes)..."
+                rows={3}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="process">Creation Process</Label>
+              <Textarea
+                id="process"
+                value={formData.process}
+                onChange={(e) => setFormData({ ...formData, process: e.target.value })}
+                placeholder="Describe your creation process step by step..."
+                rows={4}
+              />
+            </div>
           </div>
 
           {/* Sale Options */}
