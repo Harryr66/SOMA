@@ -300,7 +300,7 @@ export function UploadForm() {
                   value={formData.aiAssistance} 
                   onValueChange={(value) => setFormData({ 
                     ...formData, 
-                    aiAssistance: value as 'none' | 'assisted' | 'generated'
+                    aiAssistance: value as 'none' | 'assisted'
                   })}
                 >
                   <SelectTrigger>
