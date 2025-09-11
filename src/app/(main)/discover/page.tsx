@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArtworkCard } from '@/components/artwork-card';
+import { ArtworkTile } from '@/components/artwork-tile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
-import { Search, Filter, Grid, List, Star, TrendingUp, Clock } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, Clock } from 'lucide-react';
 import { Artwork } from '@/lib/types';
 
 // Mock data for discover page
@@ -133,7 +133,6 @@ export default function DiscoverPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeArtFilter, setActiveArtFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -323,25 +322,6 @@ export default function DiscoverPage() {
             </SelectContent>
           </Select>
 
-          {/* View Mode Toggle */}
-          <div className="flex border rounded-lg">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className="rounded-r-none"
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="rounded-l-none"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
 
         {/* Quick Filters */}
@@ -400,13 +380,9 @@ export default function DiscoverPage() {
             </p>
           </div>
         ) : (
-          <div className={
-            viewMode === 'grid' 
-              ? 'grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6'
-              : 'space-y-4'
-          }>
+          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
             {filteredArtworks.map((artwork) => (
-              <ArtworkCard
+              <ArtworkTile
                 key={`${activeArtFilter}-${artwork.id}-${Math.random()}`}
                 artwork={artwork}
                 onClick={() => handleArtworkClick(artwork)}
