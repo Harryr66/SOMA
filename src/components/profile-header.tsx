@@ -217,7 +217,7 @@ export function ProfileHeader({
             <div className="flex flex-wrap gap-3">
               {isOwnProfile ? (
                 <>
-                  <Button asChild variant="gradient">
+                  <Button asChild variant="outline">
                     <Link href="/profile/edit">
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Profile
@@ -238,7 +238,7 @@ export function ProfileHeader({
                 </>
               ) : (
                 <Button 
-                  variant={isFollowing ? "outline" : "gradient"}
+                  variant="outline"
                   onClick={onFollowToggle}
                 >
                   <Heart className="h-4 w-4 mr-2" />
