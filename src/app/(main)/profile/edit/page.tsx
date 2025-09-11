@@ -314,7 +314,7 @@ export default function ProfileEditPage() {
     return <div>Loading...</div>;
   }
 
-    return (
+  return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center gap-4 mb-8">
         <Button
