@@ -303,7 +303,6 @@ export function UploadForm() {
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
                     <SelectItem value="assisted">AI Assisted</SelectItem>
-                    <SelectItem value="generated">AI Generated</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
