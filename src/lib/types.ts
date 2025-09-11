@@ -26,7 +26,7 @@ export interface Artwork {
   imageUrl: string;
   imageAiHint: string;
   discussionId?: string;
-  tags?: string[];
+  tags: string[];
   price?: number;
   currency?: string;
   isForSale?: boolean;
