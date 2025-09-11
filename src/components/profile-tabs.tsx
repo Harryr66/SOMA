@@ -57,7 +57,8 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
                 currency: 'USD',
                 isForSale: true,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                tags: []  // Add required tags field
               }}
             />
           </div>
