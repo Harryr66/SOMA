@@ -165,7 +165,7 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
 
     } catch (error) {
         console.error("Error adding content:", error);
-        toast({ variant: 'destructive', title: 'Upload Failed', description: `Could not save your content: ${error.message}` });
+        toast({ variant: 'destructive', title: 'Upload Failed', description: `Could not save your content: ${(error as Error).message || 'Unknown error'}` });
     }
   };
 
