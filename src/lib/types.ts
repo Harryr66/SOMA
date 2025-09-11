@@ -45,6 +45,11 @@ export interface Artwork {
   likes?: number;
   isAI?: boolean;
   aiAssistance?: 'none' | 'assisted' | 'generated';
+  processExplanation?: string;
+  materialsList?: string;
+  supportingImages?: string[];
+  supportingVideos?: string[];
+  statement?: string;
 }
 
 export interface Post {
