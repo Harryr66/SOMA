@@ -131,6 +131,19 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
+  // Helper function to clean undefined values
+  const cleanObject = (obj: any) => {
+    const cleaned = { ...obj };
+    Object.keys(cleaned).forEach(key => {
+      if (cleaned[key] === undefined) {
+        cleaned[key] = null;
+      } else if (typeof cleaned[key] === 'object' && cleaned[key] !== null) {
+        cleaned[key] = cleanObject(cleaned[key]);
+      }
+    });
+    return cleaned;
+  };
+
   const addContent = async (newPost: Post, newArtwork: Artwork) => {
     try {
         const batch = writeBatch(db);
@@ -148,7 +161,7 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
             replyCount: 0,
             replies: [],
         };
-        batch.set(discussionRef, newDiscussion);
+        batch.set(discussionRef, cleanObject(newDiscussion));
 
         const artworkRef = doc(db, 'artworks', newArtwork.id);
         batch.set(artworkRef, { ...newArtwork, discussionId: discussionRef.id });
