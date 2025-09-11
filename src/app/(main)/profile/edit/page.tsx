@@ -328,18 +328,17 @@ export default function ProfileEditPage() {
         <h1 className="text-3xl font-bold">Edit Profile</h1>
       </div>
 
-
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Avatar Section */}
         <Card>
-            <CardHeader>
+          <CardHeader>
             <CardTitle>Profile Picture</CardTitle>
             <CardDescription>
               Upload a new profile picture. Click to change or remove.
             </CardDescription>
-            </CardHeader>
-            <CardContent>
-                   <div className="flex items-center gap-6">
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-6">
               <div className="relative">
                 <Avatar className="h-24 w-24">
                   <AvatarImage 
@@ -348,8 +347,8 @@ export default function ProfileEditPage() {
                   />
                   <AvatarFallback className="text-xl">
                     {formData.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
+                  </AvatarFallback>
+                </Avatar>
                 {previewImage && (
                   <Button
                     type="button"
@@ -359,9 +358,9 @@ export default function ProfileEditPage() {
                     onClick={removeImage}
                   >
                     <X className="h-3 w-3" />
-                                </Button>
-                            )}
-                          </div>
+                  </Button>
+                )}
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="avatar-upload" className="cursor-pointer">
@@ -386,10 +385,10 @@ export default function ProfileEditPage() {
                     size="sm"
                     onClick={removeImage}
                   >
-                                      Remove Picture
-                                  </Button>
-                              )}
-                            </div>
+                    Remove Picture
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -409,7 +408,7 @@ export default function ProfileEditPage() {
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   required
                 />
-                            </div>
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="handle">Handle *</Label>
@@ -448,17 +447,16 @@ export default function ProfileEditPage() {
                 placeholder="Tell us about yourself..."
                 rows={4}
               />
-                                    </div>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="City, Country"
-                />
-              </div>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                placeholder="City, Country"
+              />
             </div>
           </CardContent>
         </Card>
@@ -475,9 +473,9 @@ export default function ProfileEditPage() {
             <div className="flex flex-wrap gap-2">
               {PROFILE_RING_COLORS.map((color) => (
                 <button
-                                    key={color}
-                                    type="button"
-                                    className={cn(
+                  key={color}
+                  type="button"
+                  className={cn(
                     'w-8 h-8 rounded-full border-2 transition-all',
                     formData.profileRingColor === color
                       ? 'border-foreground scale-110'
@@ -486,8 +484,8 @@ export default function ProfileEditPage() {
                   style={{ backgroundColor: color }}
                   onClick={() => handleInputChange('profileRingColor', color)}
                 />
-                            ))}
-                        </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -500,33 +498,32 @@ export default function ProfileEditPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label>Professional Artist Account</Label>
-                            <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Enable additional features like shop, community, and tip jar
-                            </p>
-                        </div>
-                        <Switch
+                </p>
+              </div>
+              <Switch
                 checked={formData.isProfessional}
                 onCheckedChange={(checked) => handleInputChange('isProfessional', checked)}
-                        />
-                </div>
+              />
+            </div>
 
             {formData.isProfessional && (
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label>Tip Jar</Label>
-                                    <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Allow followers to send you tips
-                                    </p>
-                                </div>
-                                <Switch 
+                  </p>
+                </div>
+                <Switch 
                   checked={formData.isTipJarEnabled}
                   onCheckedChange={(checked) => handleInputChange('isTipJarEnabled', checked)}
-                                />
-                            </div>
-                )}
-            </CardContent>
+                />
+              </div>
+            )}
+          </CardContent>
         </Card>
-
 
         {/* Submit Button */}
         <div className="flex justify-end gap-4">
@@ -545,7 +542,7 @@ export default function ProfileEditPage() {
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
-            </form>
+      </form>
     </div>
   );
 }
