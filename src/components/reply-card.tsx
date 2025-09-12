@@ -67,7 +67,7 @@ export function ReplyCard({
       <CardContent className="pt-4">
         <div className="flex items-start space-x-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={reply.author.avatarUrl} alt={reply.author.name} />
+            <AvatarImage src={reply.author.avatarUrl ?? undefined} alt={reply.author.name} />
             <AvatarFallback>{reply.author.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
