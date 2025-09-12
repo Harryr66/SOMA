@@ -380,7 +380,7 @@ export default function DiscoverPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {filteredArtworks.map((artwork) => (
               <ArtworkTile
                 key={`${activeArtFilter}-${artwork.id}-${Math.random()}`}

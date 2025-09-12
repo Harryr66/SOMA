@@ -14,7 +14,7 @@ export default function SavedPage() {
       </header>
 
       {savedPosts.length > 0 ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {savedPosts.map((artwork) => (
             <ArtworkCard key={artwork.id} artwork={artwork} />
           ))}

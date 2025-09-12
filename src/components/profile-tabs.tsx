@@ -37,7 +37,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
             <h3 className="text-lg font-semibold">Artwork Portfolio</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {/* TODO: Replace with actual artwork data */}
             <ArtworkCard 
               artwork={{
