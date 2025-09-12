@@ -250,7 +250,7 @@ export default function ArtworkThreadPage() {
               <CardHeader>
                 <div className="flex items-start space-x-4">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={artwork.artist.avatarUrl} />
+                    <AvatarImage src={artwork.artist.avatarUrl ?? undefined} />
                     <AvatarFallback>{artwork.artist.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
