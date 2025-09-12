@@ -42,7 +42,7 @@ export function StoryCircle({ artist, stories, isOwn = false, onAddStory }: Stor
         <div className="flex flex-col items-center space-y-2 cursor-pointer group">
           <div className="relative">
             <Avatar className="h-16 w-16 ring-2 ring-offset-2 ring-primary group-hover:ring-offset-4 transition-all">
-              <AvatarImage src={artist.avatarUrl} alt={artist.name} />
+              <AvatarImage src={artist.avatarUrl ?? undefined} alt={artist.name} />
               <AvatarFallback className="text-lg">
                 {artist.name.charAt(0).toUpperCase()}
               </AvatarFallback>
