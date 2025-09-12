@@ -109,7 +109,7 @@ export function ExpandedEventView({ event, discussion, onClose }: ExpandedEventV
                                 <h3 className="text-2xl font-bold mb-2">{event.title}</h3>
                                 <div className="flex items-center space-x-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={event.artist.avatarUrl} alt={event.artist.name} />
+                                        <AvatarImage src={event.artist.avatarUrl ?? undefined} alt={event.artist.name} />
                                         <AvatarFallback>{event.artist.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
