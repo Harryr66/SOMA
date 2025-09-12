@@ -6,23 +6,26 @@ import { SiteFooter } from '@/components/site-footer';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
 import { ContentProvider } from '@/providers/content-provider';
+import { DesktopHeader } from '@/components/desktop-header';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ContentProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="flex min-h-screen w-full bg-background flex-col">
+        {/* Desktop Header */}
         <div className="hidden md:block">
-          <AppSidebar />
+          <DesktopHeader />
         </div>
         
-        <div className="flex flex-1 flex-col">
+        {/* Mobile Header */}
+        <div className="md:hidden">
           <MobileHeader />
-          <main className="flex-1 overflow-auto pb-16 md:pb-0">
-            {children}
-          </main>
-          <SiteFooter />
         </div>
+        
+        <main className="flex-1 overflow-auto pb-16 md:pb-0">
+          {children}
+        </main>
+        <SiteFooter />
         <MobileBottomNav />
       </div>
     </ContentProvider>

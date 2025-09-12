@@ -161,13 +161,22 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
             replyCount: 0,
             replies: [],
         };
-        batch.set(discussionRef, cleanObject(newDiscussion));
+
+        const cleanedDiscussion = cleanObject(newDiscussion);
+        batch.set(discussionRef, cleanedDiscussion);
+
+        // Explicitly handle undefined in artist
+        if (newArtwork.artist.avatarUrl === undefined) {
+          newArtwork.artist.avatarUrl = null;
+        }
 
         const artworkRef = doc(db, 'artworks', newArtwork.id);
-        batch.set(artworkRef, { ...newArtwork, discussionId: discussionRef.id });
+        const cleanedArtwork = cleanObject({ ...newArtwork, discussionId: discussionRef.id });
+        batch.set(artworkRef, cleanedArtwork);
 
         const postRef = doc(db, 'posts', newPost.id);
-        batch.set(postRef, { ...newPost, discussionId: discussionRef.id });
+        const cleanedPost = cleanObject({ ...newPost, discussionId: discussionRef.id });
+        batch.set(postRef, cleanedPost);
 
         await batch.commit();
 
@@ -233,7 +242,7 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
     }
     const storageRef = ref(storage, `stories/${user.id || "demo-user"}/${Date.now()}_${file.name}`);
     await uploadBytes(storageRef, file);
-    const mediaUrl = await getDownloadURL(storageRef);
+     const mediaUrl = await getDownloadURL(storageRef);
 
     const newItem: Omit<StoryItem, 'id'> = {
         artistId: user.id || "demo-user",

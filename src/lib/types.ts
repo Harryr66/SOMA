@@ -2,7 +2,7 @@ export interface Artist {
   id: string;
   name: string;
   handle: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   bio?: string;
   website?: string;
   followerCount: number;
