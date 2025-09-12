@@ -60,7 +60,7 @@ export function ExpandedEventView({ event, discussion, onClose }: ExpandedEventV
                     <div className="space-y-4">
                         <div className="flex items-start space-x-3">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={discussion.author.avatarUrl} alt={discussion.author.name} />
+                                <AvatarImage src={discussion.author.avatarUrl ?? undefined} alt={discussion.author.name} />
                                 <AvatarFallback>{discussion.author.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
