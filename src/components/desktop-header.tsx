@@ -16,7 +16,6 @@ const navigation = [
   { name: 'Home', href: '/feed', icon: Home },
   { name: 'Discover', href: '/discover', icon: Eye },
   { name: 'Saved', href: '/saved', icon: Heart },
-  { name: 'Upload Profile', href: '/upload', icon: Upload },
   { name: 'Profile', href: '/profile', icon: User },
 ];
 

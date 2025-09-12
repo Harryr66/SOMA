@@ -219,6 +219,15 @@ export function ProfileHeader({
                     </Button>
                   )}
                   
+                  {user.isProfessional && (
+                    <Button asChild variant="gradient">
+                      <a href="/upload">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload
+                      </a>
+                    </Button>
+                  )}
+                  
                   {getDynamicButton()}
                 </>
               ) : (
