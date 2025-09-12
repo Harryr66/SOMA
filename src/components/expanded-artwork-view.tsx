@@ -83,7 +83,7 @@ export function ExpandedArtworkView({ artwork, discussion, onClose }: ExpandedAr
                                 <h3 className="text-lg font-semibold mb-2">{artwork.title}</h3>
                                 <div className="flex items-center space-x-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={artwork.artist.avatarUrl} alt={artwork.artist.name} />
+                                        <AvatarImage src={artwork.artist.avatarUrl ?? undefined} alt={artwork.artist.name} />
                                         <AvatarFallback>{artwork.artist.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
