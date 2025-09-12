@@ -47,7 +47,7 @@ export function ArtworkGrid({ posts, className }: ArtworkGridProps) {
           <CardContent className="p-4">
             <div className="flex items-center space-x-3 mb-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={post.artist.avatarUrl} alt={post.artist.name} />
+                <AvatarImage src={post.artist.avatarUrl ?? undefined} alt={post.artist.name} />
                 <AvatarFallback>{post.artist.name?.charAt(0)?.toUpperCase() || 'A'}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
