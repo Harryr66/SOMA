@@ -87,15 +87,6 @@ export function ProfileHeader({
     if (!isOwnProfile || !user.isProfessional) return null;
 
     switch (currentTab) {
-      case 'portfolio':
-        return (
-          <Button asChild variant="gradient">
-            <a href="/upload">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Artwork
-            </a>
-          </Button>
-        );
       case 'shop':
         return (
           <Button variant="gradient">
