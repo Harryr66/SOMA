@@ -7,7 +7,7 @@ import { type Post } from '@/lib/types';
 // and returns the HTML to display it.
 export function ArtPost({ post }: { post: Post }) {
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden my-6">
+    <div className="bg-card rounded-lg shadow-lg overflow-hidden my-6">
       {/* Post Header */}
       <div className="p-4 flex items-center">
         <img src={post.artist.avatarUrl || 'https://placehold.co/40x40/2D3748/FFFFFF?text=A'} alt={post.artist.name} className="w-10 h-10 rounded-full mr-4" />
