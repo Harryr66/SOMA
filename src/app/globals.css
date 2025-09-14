@@ -31,7 +31,7 @@
     --chart-5: 27 87% 67%;
 
     /* Gradient Colors */
-    --gradient-border-light: linear-gradient(135deg, #3d9071, #1b4b39, #7df3de, #89f7f8, #7df3c6, #97c8bf, #68ba9b, #065042, #056955, #00755e, #77aaff, #99ccff, #bbeeff, #5588ff, #3366ff);
+    --gradient-border-light: linear-gradient(135deg, #77aaff, #99ccff, #bbeeff, #5588ff, #3366ff, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1);
     --gradient-border-dark: linear-gradient(135deg, #51C4D3, #77ACF1, #EF88AD, #A53860, #670D2F, #E8988A, #FFEAD8, #BA487F, #E1ACAC, #51C4D3, #77ACF1);
     --gradient-border: var(--gradient-border-light);
   }
