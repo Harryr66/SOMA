@@ -161,11 +161,13 @@ export function ProfileHeader({
 
             {/* Stats */}
             <div className="flex gap-6 text-sm">
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                <span className="font-medium">{user.followerCount}</span>
-                <span className="text-muted-foreground">followers</span>
-              </div>
+              {user.isProfessional && (
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span className="font-medium">{user.followerCount}</span>
+                  <span className="text-muted-foreground">followers</span>
+                </div>
+              )}
               <div className="flex items-center gap-1">
                 <UserPlus className="h-4 w-4" />
                 <span className="font-medium">{user.followingCount}</span>
