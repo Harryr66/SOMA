@@ -39,6 +39,40 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Error loading watchlist:', error);
       }
+    } else {
+      // Add some mock watchlist data for demo
+      const mockWatchlist: Watchlist[] = [
+        {
+          id: 'watchlist_1',
+          userId: 'current_user',
+          docuseriesId: 'ds-1',
+          docuseries: {
+            id: 'ds-1',
+            title: 'Abstract Expressions',
+            description: 'Follow Elena Vance as she explores the depths of abstract painting.',
+            thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+            bannerUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1200&h=675&fit=crop',
+            featuredArtist: {} as any,
+            category: 'Traditional Art',
+            genre: 'Documentary',
+            totalEpisodes: 2,
+            totalDuration: 120,
+            releaseDate: new Date('2024-01-15'),
+            lastUpdated: new Date('2024-01-22'),
+            rating: 4.8,
+            viewCount: 45000,
+            isFeatured: true,
+            isNew: true,
+            tags: ['abstract', 'painting', 'emotion', 'color'],
+            status: 'ongoing',
+            episodes: [],
+            createdAt: new Date('2024-01-10'),
+            updatedAt: new Date('2024-01-22')
+          },
+          addedAt: new Date()
+        }
+      ];
+      setWatchlist(mockWatchlist);
     }
   }, []);
 
