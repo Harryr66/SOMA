@@ -294,21 +294,21 @@ export default function MarketplacePage() {
 
     // Sort products
     filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'rating':
+        return b.rating - a.rating;
         case 'newest':
           return b.reviewCount - a.reviewCount; // Using review count as proxy for newness
         case 'best-selling':
           return b.reviewCount - a.reviewCount;
-        default:
-          return 0;
-      }
-    });
+      default:
+        return 0;
+    }
+  });
 
     return filtered;
   }, [searchQuery, selectedCategory, selectedSubcategory, sortBy]);
@@ -329,7 +329,7 @@ export default function MarketplacePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+        {/* Header */}
       <div className="bg-background border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
@@ -340,38 +340,21 @@ export default function MarketplacePage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-sm">
-                <span className="text-muted-foreground">Hello, sign in</span>
-                <span className="font-medium ml-1 text-foreground">Account & Lists</span>
-              </div>
-              <div className="text-sm text-muted-foreground">Returns & Orders</div>
               <div className="flex items-center gap-1">
                 <ShoppingCart className="h-5 w-5 text-foreground" />
                 <span className="text-sm font-medium text-foreground">0</span>
-              </div>
-            </div>
+          </div>
+        </div>
           </div>
 
           {/* Search Bar */}
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1 relative">
-              <Select defaultValue="painting-supplies">
-                <SelectTrigger className="w-32 h-10 rounded-r-none border-r-0">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Input
                 placeholder="Search SOMA Marketplace"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 rounded-l-none border-l-0"
+                className="h-10 rounded-r-none"
               />
               <Button className="absolute right-0 top-0 h-10 px-4 rounded-l-none">
                 <Search className="h-4 w-4" />
@@ -444,18 +427,18 @@ export default function MarketplacePage() {
                   {filteredProducts.length} products found
                 </p>
                 <div className="flex items-center gap-4">
-                  <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-48">
                       <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
+            </SelectTrigger>
+            <SelectContent>
                       {sortOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
                   <Button
                     variant="outline"
                     onClick={() => setShowFilters(!showFilters)}
@@ -463,9 +446,9 @@ export default function MarketplacePage() {
                     <Filter className="h-4 w-4 mr-2" />
                     Filters
                   </Button>
-                </div>
-              </div>
-            </div>
+        </div>
+          </div>
+        </div>
 
             {/* Featured Sections */}
             {selectedCategory === 'all' && (
@@ -526,7 +509,7 @@ export default function MarketplacePage() {
                     <Button variant="ghost" className="text-blue-600 hover:text-blue-700">
                       See more
                     </Button>
-                  </div>
+          </div>
                   <div className="grid grid-cols-6 gap-4">
                     {fourStarsAndAbove.map((product) => (
                       <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -565,8 +548,8 @@ export default function MarketplacePage() {
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
+          </div>
+        )}
 
             {/* Product Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -630,7 +613,7 @@ export default function MarketplacePage() {
               <Button variant="outline" size="sm">3</Button>
               <Button variant="outline" size="sm">
                 <ChevronRight className="h-4 w-4" />
-              </Button>
+            </Button>
             </div>
           </div>
         </div>
