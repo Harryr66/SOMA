@@ -386,16 +386,16 @@ export default function MarketplacePage() {
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center gap-6 text-sm">
-            <Button variant="ghost" className="p-0 h-auto font-normal">All</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Best Sellers</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">New Releases</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Today's Deals</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Art Supplies</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Art Books</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Art Prints</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Ceramics</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Easels</Button>
+          <div className="flex items-center gap-4 text-sm overflow-x-auto">
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">All</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Best Sellers</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">New Releases</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Today's Deals</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Supplies</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Books</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Prints</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Ceramics</Button>
+            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Easels</Button>
           </div>
         </div>
       </div>
