@@ -12,6 +12,11 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export function ArtistCard({ artist }: { artist: Artist }) {
+    // Only show professional artists
+    if (!artist.isProfessional) {
+        return null;
+    }
+
     const artistWorks = artworkData.filter(art => art.artist.id === artist.id).slice(0, 3);
     const [isFollowing, setIsFollowing] = useState(false);
 

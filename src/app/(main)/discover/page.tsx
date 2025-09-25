@@ -22,7 +22,9 @@ const mockArtworks: Artwork[] = [
       avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
       followerCount: 1250,
       followingCount: 89,
-      createdAt: new Date('2023-01-15')
+      createdAt: new Date('2023-01-15'),
+      isProfessional: true,
+      isVerified: true
     },
     title: 'Abstract Harmony',
     description: 'A vibrant abstract piece exploring the relationship between color and emotion.',
@@ -52,7 +54,9 @@ const mockArtworks: Artwork[] = [
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
       followerCount: 2100,
       followingCount: 156,
-      createdAt: new Date('2022-11-20')
+      createdAt: new Date('2022-11-20'),
+      isProfessional: true,
+      isVerified: true
     },
     title: 'Digital Dreams',
     description: 'A futuristic cityscape rendered in digital art, exploring themes of urban isolation.',
@@ -82,7 +86,9 @@ const mockArtworks: Artwork[] = [
       avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
       followerCount: 890,
       followingCount: 234,
-      createdAt: new Date('2023-03-10')
+      createdAt: new Date('2023-03-10'),
+      isProfessional: true,
+      isVerified: false
     },
     title: 'Ceramic Contemplation',
     description: 'A hand-crafted ceramic sculpture representing the beauty of human contemplation.',
@@ -163,7 +169,9 @@ export default function DiscoverPage() {
           avatarUrl: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 1000000000}?w=150&h=150&fit=crop&crop=face`,
           followerCount: Math.floor(Math.random() * 2000) + 100,
           followingCount: Math.floor(Math.random() * 200) + 10,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-01'),
+          isProfessional: true,
+          isVerified: Math.random() > 0.5
         },
         title: `${randomTitle} ${i + 1}`,
         description: `A beautiful ${randomCategory.toLowerCase()} piece that explores themes of creativity and expression.`,
@@ -228,6 +236,9 @@ export default function DiscoverPage() {
   const filterAndSortArtworks = () => {
     let filtered = [...artworks];
 
+    // Only show artworks from professional artists
+    filtered = filtered.filter(artwork => artwork.artist.isProfessional === true);
+
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(artwork =>
@@ -277,7 +288,7 @@ export default function DiscoverPage() {
         <div>
           <h1 className="text-3xl font-bold">Discover Artists</h1>
           <p className="text-muted-foreground">
-            Explore amazing artworks from talented artists around the world
+            Explore amazing artworks from professional artists around the world
           </p>
         </div>
 
