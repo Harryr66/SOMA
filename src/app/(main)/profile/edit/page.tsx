@@ -182,7 +182,7 @@ export default function ProfileEditPage() {
 
   const handlePortfolioImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0 || !user) return;
 
     setIsLoading(true);
     try {
