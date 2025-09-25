@@ -56,10 +56,7 @@ export default function FeedPage() {
       return {
         trending: mockTrendingNow,
         newReleases: mockNewReleases,
-        traditionalArt: mockByCategory['Traditional Art'],
-        digitalArt: mockByCategory['Digital Art'],
-        sculpture: mockByCategory['Sculpture'],
-        mixedMedia: mockByCategory['Mixed Media']
+        mostLoved: mockDocuseries.sort((a, b) => b.rating - a.rating).slice(0, 6)
       };
     }
     
@@ -67,10 +64,7 @@ export default function FeedPage() {
     return {
       trending: categoryContent,
       newReleases: categoryContent,
-      traditionalArt: selectedCategory === 'Traditional Art' ? categoryContent : [],
-      digitalArt: selectedCategory === 'Digital Art' ? categoryContent : [],
-      sculpture: selectedCategory === 'Sculpture' ? categoryContent : [],
-      mixedMedia: selectedCategory === 'Mixed Media' ? categoryContent : []
+      mostLoved: categoryContent.sort((a, b) => b.rating - a.rating)
     };
   }, [selectedCategory]);
 
@@ -184,54 +178,12 @@ export default function FeedPage() {
           />
         )}
 
-        {/* Traditional Art */}
-        {filteredContent.traditionalArt.length > 0 && (
+        {/* Most Loved */}
+        {filteredContent.mostLoved.length > 0 && (
           <ContentRow
-            title="Traditional Art"
-            subtitle="Classic techniques and timeless beauty"
-            items={filteredContent.traditionalArt}
-            type="docuseries"
-            variant="default"
-            onItemClick={handlePlay}
-            onAddToWatchlist={handleAddToWatchlist}
-            isInWatchlist={isInWatchlist}
-          />
-        )}
-
-        {/* Digital Art */}
-        {filteredContent.digitalArt.length > 0 && (
-          <ContentRow
-            title="Digital Art"
-            subtitle="The future of artistic expression"
-            items={filteredContent.digitalArt}
-            type="docuseries"
-            variant="default"
-            onItemClick={handlePlay}
-            onAddToWatchlist={handleAddToWatchlist}
-            isInWatchlist={isInWatchlist}
-          />
-        )}
-
-        {/* Sculpture */}
-        {filteredContent.sculpture.length > 0 && (
-          <ContentRow
-            title="Sculpture"
-            subtitle="Three-dimensional artistry"
-            items={filteredContent.sculpture}
-            type="docuseries"
-            variant="default"
-            onItemClick={handlePlay}
-            onAddToWatchlist={handleAddToWatchlist}
-            isInWatchlist={isInWatchlist}
-          />
-        )}
-
-        {/* Mixed Media */}
-        {filteredContent.mixedMedia.length > 0 && (
-          <ContentRow
-            title="Mixed Media"
-            subtitle="Breaking boundaries and conventions"
-            items={filteredContent.mixedMedia}
+            title="Most Loved"
+            subtitle="Highest rated docuseries"
+            items={filteredContent.mostLoved}
             type="docuseries"
             variant="default"
             onItemClick={handlePlay}
