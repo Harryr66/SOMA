@@ -58,13 +58,13 @@ export function DocuseriesCard({
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button
               size="sm"
-              className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+              className="h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
               onClick={(e) => {
                 e.stopPropagation();
                 onPlay?.(docuseries);
               }}
             >
-              <Play className="h-4 w-4 text-white" />
+              <Play className="h-4 w-4" />
             </Button>
           </div>
           <div className="absolute top-2 right-2">
@@ -105,13 +105,13 @@ export function DocuseriesCard({
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button
               size="lg"
-              className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+              className="h-12 w-12 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
               onClick={(e) => {
                 e.stopPropagation();
                 onPlay?.(docuseries);
               }}
             >
-              <Play className="h-6 w-6 text-white" />
+              <Play className="h-6 w-6" />
             </Button>
           </div>
           <div className="absolute top-4 right-4 flex flex-col space-y-2">
@@ -160,13 +160,13 @@ export function DocuseriesCard({
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             size="sm"
-            className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+            className="h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
             onClick={(e) => {
               e.stopPropagation();
               onPlay?.(docuseries);
             }}
           >
-            <Play className="h-4 w-4 text-white" />
+            <Play className="h-4 w-4" />
           </Button>
         </div>
         <div className="absolute top-3 right-3 flex flex-col space-y-1">

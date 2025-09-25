@@ -189,13 +189,13 @@ export function VideoPlayer({
         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
           <Button
             size="lg"
-            className="h-16 w-16 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+            className="h-16 w-16 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
             onClick={(e) => {
               e.stopPropagation();
               togglePlay();
             }}
           >
-            <Play className="h-8 w-8 text-white ml-1" />
+            <Play className="h-8 w-8 ml-1" />
           </Button>
         </div>
       )}

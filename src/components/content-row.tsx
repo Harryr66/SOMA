@@ -65,9 +65,9 @@ export function ContentRow({
       {/* Row Header */}
       <div className="flex items-center justify-between px-4">
         <div>
-          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <h2 className="text-xl font-bold text-foreground">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-gray-400 mt-1">{subtitle}</p>
+            <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
           )}
         </div>
         {showScrollButtons && (
@@ -75,7 +75,7 @@ export function ContentRow({
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
+              className="h-8 w-8 p-0 text-foreground hover:bg-muted/50"
               onClick={() => scroll('left')}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function ContentRow({
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 text-white hover:bg-white/20"
+              className="h-8 w-8 p-0 text-foreground hover:bg-muted/50"
               onClick={() => scroll('right')}
             >
               <ChevronRight className="h-4 w-4" />

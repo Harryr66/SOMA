@@ -37,7 +37,7 @@ export function FeaturedHero({
   };
 
   return (
-    <div className={`relative h-[70vh] min-h-[500px] overflow-hidden ${className}`}>
+    <div className={`relative h-[70vh] min-h-[500px] overflow-hidden bg-background ${className}`}>
       {/* Background Image/Video */}
       <div className="absolute inset-0">
         <img
