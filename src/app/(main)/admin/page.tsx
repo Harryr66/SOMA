@@ -572,6 +572,240 @@ export default function AdminPanel() {
             )}
           </div>
         </TabsContent>
+
+        <TabsContent value="video-upload" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                Upload Video to Home Feed
+              </CardTitle>
+              <CardDescription>
+                Upload videos that will appear in the main home episodes feed for all SOMA users.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Video File Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="video-upload">Video File *</Label>
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                  <input
+                    id="video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoFileChange}
+                    className="hidden"
+                  />
+                  <Label htmlFor="video-upload" className="cursor-pointer">
+                    <div className="space-y-2">
+                      <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                      <div>
+                        <span className="text-sm font-medium">Click to upload video</span>
+                        <p className="text-xs text-muted-foreground">MP4, MOV, AVI up to 100MB</p>
+                      </div>
+                    </div>
+                  </Label>
+                  {videoFile && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium">Selected: {videoFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Size: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Video Title */}
+              <div className="space-y-2">
+                <Label htmlFor="video-title">Title *</Label>
+                <Input
+                  id="video-title"
+                  value={videoTitle}
+                  onChange={(e) => setVideoTitle(e.target.value)}
+                  placeholder="Enter video title..."
+                />
+              </div>
+
+              {/* Video Description */}
+              <div className="space-y-2">
+                <Label htmlFor="video-description">Description *</Label>
+                <Textarea
+                  id="video-description"
+                  value={videoDescription}
+                  onChange={(e) => setVideoDescription(e.target.value)}
+                  placeholder="Enter video description..."
+                  rows={4}
+                />
+              </div>
+
+              {/* Video Duration */}
+              <div className="space-y-2">
+                <Label htmlFor="video-duration">Duration (seconds)</Label>
+                <Input
+                  id="video-duration"
+                  type="number"
+                  value={videoDuration}
+                  onChange={(e) => setVideoDuration(e.target.value)}
+                  placeholder="Enter duration in seconds..."
+                />
+              </div>
+
+              {/* Tags */}
+              <div className="space-y-2">
+                <Label>Tags</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Add a tag..."
+                    onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                  />
+                  <Button type="button" onClick={addTag} size="sm">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {videoTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {videoTags.map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Upload Button */}
+              <Button
+                onClick={handleVideoUpload}
+                disabled={isUploading || !videoFile || !videoTitle.trim() || !videoDescription.trim()}
+                className="w-full"
+              >
+                {isUploading ? (
+                  <>
+                    <Upload className="h-4 w-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Video to Home Feed
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="advertising" className="mt-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Advertising Applications</h2>
+              <div className="text-sm text-muted-foreground">
+                {advertisingApplications.length} total applications
+              </div>
+            </div>
+
+            {advertisingApplications.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <CardTitle className="mb-2">No advertising applications</CardTitle>
+                  <CardDescription>
+                    No advertising applications have been submitted yet.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {advertisingApplications.map((application) => (
+                  <Card key={application.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold">{application.companyName}</h3>
+                            {getStatusBadge(application.status)}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                            <div>
+                              <p><strong>Contact:</strong> {application.contactName}</p>
+                              <p><strong>Email:</strong> {application.email}</p>
+                              {application.phone && <p><strong>Phone:</strong> {application.phone}</p>}
+                              {application.website && <p><strong>Website:</strong> <a href={application.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{application.website}</a></p>}
+                            </div>
+                            <div>
+                              <p><strong>Type:</strong> {application.advertisingType}</p>
+                              {application.budget && <p><strong>Budget:</strong> {application.budget}</p>}
+                              <p><strong>Submitted:</strong> {application.submittedAt instanceof Date ? application.submittedAt.toLocaleDateString() : (application.submittedAt as any)?.toDate?.()?.toLocaleDateString() || 'N/A'}</p>
+                            </div>
+                          </div>
+                          {application.targetAudience && (
+                            <div className="mt-3">
+                              <p className="text-sm"><strong>Target Audience:</strong> {application.targetAudience}</p>
+                            </div>
+                          )}
+                          {application.campaignGoals && (
+                            <div className="mt-2">
+                              <p className="text-sm"><strong>Campaign Goals:</strong> {application.campaignGoals}</p>
+                            </div>
+                          )}
+                          {application.message && (
+                            <div className="mt-2">
+                              <p className="text-sm"><strong>Additional Message:</strong> {application.message}</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedAdApplication(application)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          {application.status === 'pending' && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => handleApproveAdApplication(application)}
+                                disabled={isProcessing}
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedAdApplication(application);
+                                  setRejectionReason('');
+                                }}
+                                disabled={isProcessing}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Request Detail Modal */}
@@ -717,240 +951,6 @@ export default function AdminPanel() {
         </AlertDialog>
       )}
 
-      {/* Video Upload Tab */}
-      <TabsContent value="video-upload" className="mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5" />
-              Upload Video to Home Feed
-            </CardTitle>
-            <CardDescription>
-              Upload videos that will appear in the main home episodes feed for all SOMA users.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Video File Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="video-upload">Video File *</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                <input
-                  id="video-upload"
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoFileChange}
-                  className="hidden"
-                />
-                <Label htmlFor="video-upload" className="cursor-pointer">
-                  <div className="space-y-2">
-                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                    <div>
-                      <span className="text-sm font-medium">Click to upload video</span>
-                      <p className="text-xs text-muted-foreground">MP4, MOV, AVI up to 100MB</p>
-                    </div>
-                  </div>
-                </Label>
-                {videoFile && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium">Selected: {videoFile.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Size: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Video Title */}
-            <div className="space-y-2">
-              <Label htmlFor="video-title">Title *</Label>
-              <Input
-                id="video-title"
-                value={videoTitle}
-                onChange={(e) => setVideoTitle(e.target.value)}
-                placeholder="Enter video title..."
-              />
-            </div>
-
-            {/* Video Description */}
-            <div className="space-y-2">
-              <Label htmlFor="video-description">Description *</Label>
-              <Textarea
-                id="video-description"
-                value={videoDescription}
-                onChange={(e) => setVideoDescription(e.target.value)}
-                placeholder="Enter video description..."
-                rows={4}
-              />
-            </div>
-
-            {/* Video Duration */}
-            <div className="space-y-2">
-              <Label htmlFor="video-duration">Duration (seconds)</Label>
-              <Input
-                id="video-duration"
-                type="number"
-                value={videoDuration}
-                onChange={(e) => setVideoDuration(e.target.value)}
-                placeholder="Enter duration in seconds..."
-              />
-            </div>
-
-            {/* Tags */}
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Add a tag..."
-                  onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                />
-                <Button type="button" onClick={addTag} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {videoTags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {videoTags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Upload Button */}
-            <Button
-              onClick={handleVideoUpload}
-              disabled={isUploading || !videoFile || !videoTitle.trim() || !videoDescription.trim()}
-              className="w-full"
-            >
-              {isUploading ? (
-                <>
-                  <Upload className="h-4 w-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Video to Home Feed
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="advertising" className="mt-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Advertising Applications</h2>
-            <div className="text-sm text-muted-foreground">
-              {advertisingApplications.length} total applications
-            </div>
-          </div>
-
-          {advertisingApplications.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <CardTitle className="mb-2">No advertising applications</CardTitle>
-                <CardDescription>
-                  No advertising applications have been submitted yet.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {advertisingApplications.map((application) => (
-                <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{application.companyName}</h3>
-                          {getStatusBadge(application.status)}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-                          <div>
-                            <p><strong>Contact:</strong> {application.contactName}</p>
-                            <p><strong>Email:</strong> {application.email}</p>
-                            {application.phone && <p><strong>Phone:</strong> {application.phone}</p>}
-                            {application.website && <p><strong>Website:</strong> <a href={application.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{application.website}</a></p>}
-                          </div>
-                          <div>
-                            <p><strong>Type:</strong> {application.advertisingType}</p>
-                            {application.budget && <p><strong>Budget:</strong> {application.budget}</p>}
-                            <p><strong>Submitted:</strong> {application.submittedAt instanceof Date ? application.submittedAt.toLocaleDateString() : (application.submittedAt as any)?.toDate?.()?.toLocaleDateString() || 'N/A'}</p>
-                          </div>
-                        </div>
-                        {application.targetAudience && (
-                          <div className="mt-3">
-                            <p className="text-sm"><strong>Target Audience:</strong> {application.targetAudience}</p>
-                          </div>
-                        )}
-                        {application.campaignGoals && (
-                          <div className="mt-2">
-                            <p className="text-sm"><strong>Campaign Goals:</strong> {application.campaignGoals}</p>
-                          </div>
-                        )}
-                        {application.message && (
-                          <div className="mt-2">
-                            <p className="text-sm"><strong>Additional Message:</strong> {application.message}</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedAdApplication(application)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        {application.status === 'pending' && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleApproveAdApplication(application)}
-                              disabled={isProcessing}
-                            >
-                              <Check className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedAdApplication(application);
-                                setRejectionReason('');
-                              }}
-                              disabled={isProcessing}
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </TabsContent>
     </div>
   );
 }
