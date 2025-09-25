@@ -74,21 +74,21 @@ const mockProducts = [
   },
   {
     id: '4',
-    title: 'Digital Drawing Tablet - 10.1 inch',
-    price: 299.99,
-    originalPrice: 399.99,
+    title: 'Art Print - Van Gogh Starry Night',
+    price: 29.99,
+    originalPrice: 39.99,
     currency: 'USD',
-    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=300&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=300&h=300&fit=crop',
     rating: 4.7,
     reviewCount: 1560,
-    category: 'Digital Art',
-    subcategory: 'Drawing Tablets',
+    category: 'Art Prints',
+    subcategory: 'Fine Art Prints',
     isWishlisted: false,
     isOnSale: true,
-    tags: ['digital', 'tablet', 'drawing', 'pen'],
-    description: 'High-resolution drawing tablet with pressure sensitivity',
+    tags: ['print', 'van gogh', 'fine art', 'museum quality'],
+    description: 'High-quality museum reproduction print on premium paper',
     seller: {
-      name: 'Digital Art Tools',
+      name: 'Art Prints Co',
       rating: 4.6,
       isVerified: true
     }
@@ -132,6 +132,46 @@ const mockProducts = [
       rating: 4.9,
       isVerified: true
     }
+  },
+  {
+    id: '7',
+    title: 'Wooden Artist Easel - Adjustable',
+    price: 149.99,
+    currency: 'USD',
+    imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=300&h=300&fit=crop',
+    rating: 4.6,
+    reviewCount: 450,
+    category: 'Brushes & Tools',
+    subcategory: 'Easels',
+    isWishlisted: true,
+    isOnSale: false,
+    tags: ['easel', 'wooden', 'adjustable', 'studio'],
+    description: 'Professional wooden easel with adjustable height and angle',
+    seller: {
+      name: 'Studio Equipment',
+      rating: 4.7,
+      isVerified: true
+    }
+  },
+  {
+    id: '8',
+    title: 'Art History Book - Renaissance Masters',
+    price: 34.99,
+    currency: 'USD',
+    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=300&fit=crop',
+    rating: 4.9,
+    reviewCount: 320,
+    category: 'Art Books',
+    subcategory: 'Art History',
+    isWishlisted: false,
+    isOnSale: false,
+    tags: ['book', 'art history', 'renaissance', 'education'],
+    description: 'Comprehensive guide to Renaissance art and masters',
+    seller: {
+      name: 'Art Education Books',
+      rating: 4.8,
+      isVerified: true
+    }
   }
 ];
 
@@ -172,13 +212,13 @@ const categories = [
     ]
   },
   {
-    id: 'digital-art',
-    name: 'Digital Art',
+    id: 'art-prints',
+    name: 'Art Prints',
     subcategories: [
-      { id: 'drawing-tablets', name: 'Drawing Tablets' },
-      { id: 'styluses', name: 'Styluses' },
-      { id: 'software', name: 'Software' },
-      { id: 'accessories', name: 'Accessories' }
+      { id: 'fine-art-prints', name: 'Fine Art Prints' },
+      { id: 'posters', name: 'Posters' },
+      { id: 'canvas-prints', name: 'Canvas Prints' },
+      { id: 'framed-prints', name: 'Framed Prints' }
     ]
   },
   {
@@ -199,6 +239,16 @@ const categories = [
       { id: 'individual-brushes', name: 'Individual Brushes' },
       { id: 'palette-knives', name: 'Palette Knives' },
       { id: 'easels', name: 'Easels' }
+    ]
+  },
+  {
+    id: 'art-books',
+    name: 'Art Books',
+    subcategories: [
+      { id: 'art-history', name: 'Art History' },
+      { id: 'technique-books', name: 'Technique Books' },
+      { id: 'artist-biographies', name: 'Artist Biographies' },
+      { id: 'art-theory', name: 'Art Theory' }
     ]
   }
 ];
@@ -341,11 +391,11 @@ export default function MarketplacePage() {
             <Button variant="ghost" className="p-0 h-auto font-normal">Best Sellers</Button>
             <Button variant="ghost" className="p-0 h-auto font-normal">New Releases</Button>
             <Button variant="ghost" className="p-0 h-auto font-normal">Today's Deals</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Prime</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Books</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Electronics</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Beauty</Button>
-            <Button variant="ghost" className="p-0 h-auto font-normal">Fashion</Button>
+            <Button variant="ghost" className="p-0 h-auto font-normal">Art Supplies</Button>
+            <Button variant="ghost" className="p-0 h-auto font-normal">Art Books</Button>
+            <Button variant="ghost" className="p-0 h-auto font-normal">Art Prints</Button>
+            <Button variant="ghost" className="p-0 h-auto font-normal">Ceramics</Button>
+            <Button variant="ghost" className="p-0 h-auto font-normal">Easels</Button>
           </div>
         </div>
       </div>
