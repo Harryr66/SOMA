@@ -57,7 +57,7 @@ export function EpisodeCard({
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button
               size="sm"
-              className="h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
+              className="h-10 w-10 rounded-full bg-black/80 hover:bg-black text-white shadow-lg border border-white/20"
               onClick={(e) => {
                 e.stopPropagation();
                 onPlay?.(episode);
@@ -104,7 +104,7 @@ export function EpisodeCard({
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button
               size="lg"
-              className="h-12 w-12 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
+              className="h-12 w-12 rounded-full bg-black/80 hover:bg-black text-white shadow-lg border-2 border-white/20"
               onClick={(e) => {
                 e.stopPropagation();
                 onPlay?.(episode);
@@ -154,7 +154,7 @@ export function EpisodeCard({
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             size="sm"
-            className="h-10 w-10 rounded-full bg-white/90 hover:bg-white text-black shadow-lg"
+            className="h-10 w-10 rounded-full bg-black/80 hover:bg-black text-white shadow-lg border border-white/20"
             onClick={(e) => {
               e.stopPropagation();
               onPlay?.(episode);
