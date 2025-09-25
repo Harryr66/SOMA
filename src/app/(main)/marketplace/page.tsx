@@ -627,8 +627,7 @@ export default function MarketplacePage() {
                         )}
                       </div>
                       <Button className="w-full">
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Add to Cart
+                        View Product
                       </Button>
                     </div>
                   </CardContent>
