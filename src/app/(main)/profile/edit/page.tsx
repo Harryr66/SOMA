@@ -18,11 +18,6 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { db, storage } from '@/lib/firebase';
 import { toast } from '@/hooks/use-toast';
 
-const PROFILE_RING_COLORS = [
-  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
-  '#14b8a6', '#e11d48', '#a855f7', '#0ea5e9', '#22c55e'
-];
 
 export default function ProfileEditPage() {
   const router = useRouter();
@@ -40,7 +35,6 @@ export default function ProfileEditPage() {
     location: '',
     isProfessional: false,
     isTipJarEnabled: false,
-    profileRingColor: '#3b82f6'
   });
 
   useEffect(() => {
@@ -57,8 +51,7 @@ export default function ProfileEditPage() {
             artistType: changes.artistType || user.artistType || '',
             location: changes.location || user.location || '',
             isProfessional: changes.isProfessional || user.isProfessional || false,
-            isTipJarEnabled: changes.isTipJarEnabled || user.isTipJarEnabled || false,
-            profileRingColor: changes.profileRingColor || user.profileRingColor || '#3b82f6'
+            isTipJarEnabled: changes.isTipJarEnabled || user.isTipJarEnabled || false
           });
           
           if (changes.avatarUrl && changes.avatarUrl !== user.avatarUrl) {
@@ -78,7 +71,6 @@ export default function ProfileEditPage() {
           location: user.location || '',
           isProfessional: user.isProfessional || false,
           isTipJarEnabled: user.isTipJarEnabled || false,
-          profileRingColor: user.profileRingColor || '#3b82f6'
         });
       }
     }
@@ -230,7 +222,6 @@ export default function ProfileEditPage() {
         location: formData.location,
         isProfessional: formData.isProfessional,
         isTipJarEnabled: formData.isTipJarEnabled,
-        profileRingColor: formData.profileRingColor,
         updatedAt: new Date()
       };
 
@@ -461,33 +452,6 @@ export default function ProfileEditPage() {
           </CardContent>
         </Card>
 
-        {/* Profile Ring Color */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Ring Color</CardTitle>
-            <CardDescription>
-              Choose a color for your profile picture border
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {PROFILE_RING_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={cn(
-                    'w-8 h-8 rounded-full border-2 transition-all',
-                    formData.profileRingColor === color
-                      ? 'border-foreground scale-110'
-                      : 'border-muted hover:scale-105'
-                  )}
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleInputChange('profileRingColor', color)}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Account Settings */}
         <Card>
