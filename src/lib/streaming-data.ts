@@ -277,6 +277,7 @@ export const mockDocuseries: Docuseries[] = [
   }
 ];
 
+export { mockEpisodes };
 export const mockFeaturedContent = mockDocuseries[0]; // Abstract Expressions as featured
 export const mockContinueWatching = mockEpisodes.slice(0, 3);
 export const mockTrendingNow = mockDocuseries.slice(0, 3);
