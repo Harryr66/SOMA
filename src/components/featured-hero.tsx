@@ -93,7 +93,7 @@ export function FeaturedHero({
                 {formatDuration(docuseries.totalDuration)}
               </span>
               <span className="text-sm">
-                {docuseries.rating.toFixed(1)} ⭐
+                {docuseries.rating?.toFixed(1) || '0.0'} ⭐
               </span>
             </div>
 

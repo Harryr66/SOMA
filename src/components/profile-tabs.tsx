@@ -229,15 +229,17 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {getContinueWatching().map((episode) => (
-            <EpisodeCard
-              key={episode.id}
-              episode={episode}
-              docuseries={mockDocuseries.find(ds => ds.id === episode.docuseriesId)}
-              variant="default"
-              showProgress={true}
-              progress={getWatchProgress(episode.id)}
-              onPlay={() => console.log('Play episode:', episode.title)}
-            />
+            episode && (
+              <EpisodeCard
+                key={episode.id}
+                episode={episode}
+                docuseries={mockDocuseries.find(ds => ds.id === episode.docuseriesId)}
+                variant="default"
+                showProgress={true}
+                progress={getWatchProgress(episode.id)}
+                onPlay={() => console.log('Play episode:', episode.title)}
+              />
+            )
           ))}
         </div>
 
@@ -266,13 +268,15 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {watchlist.map((item) => (
-            <DocuseriesCard
-              key={item.id}
-              docuseries={item.docuseries}
-              variant="default"
-              onPlay={() => console.log('Play docuseries:', item.docuseries.title)}
-              onAddToWatchlist={() => console.log('Already in watchlist')}
-            />
+            item.docuseries && (
+              <DocuseriesCard
+                key={item.id}
+                docuseries={item.docuseries}
+                variant="default"
+                onPlay={() => console.log('Play docuseries:', item.docuseries.title)}
+                onAddToWatchlist={() => console.log('Already in watchlist')}
+              />
+            )
           ))}
         </div>
 

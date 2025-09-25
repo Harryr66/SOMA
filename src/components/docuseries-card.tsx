@@ -37,6 +37,7 @@ export function DocuseriesCard({
   };
 
   const formatViewCount = (count: number) => {
+    if (!count || count < 0) return '0';
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`;
     } else if (count >= 1000) {
@@ -130,7 +131,7 @@ export function DocuseriesCard({
             <div className="flex items-center space-x-4 text-sm">
               <span className="flex items-center">
                 <Star className="h-4 w-4 mr-1 text-yellow-400" />
-                {docuseries.rating.toFixed(1)}
+                {docuseries.rating?.toFixed(1) || '0.0'}
               </span>
               <span className="flex items-center">
                 <Eye className="h-4 w-4 mr-1" />
@@ -213,7 +214,7 @@ export function DocuseriesCard({
           <div className="flex items-center space-x-3">
             <span className="flex items-center">
               <Star className="h-3 w-3 mr-1 text-yellow-400" />
-              {docuseries.rating.toFixed(1)}
+              {docuseries.rating?.toFixed(1) || '0.0'}
             </span>
             <span className="flex items-center">
               <Eye className="h-3 w-3 mr-1" />
