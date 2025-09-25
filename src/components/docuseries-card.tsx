@@ -1,0 +1,234 @@
+'use client';
+
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Play, Clock, Eye, Heart, Bookmark, Star } from 'lucide-react';
+import { Docuseries } from '@/lib/types';
+import { cn } from '@/lib/utils';
+
+interface DocuseriesCardProps {
+  docuseries: Docuseries;
+  variant?: 'default' | 'compact' | 'featured';
+  showProgress?: boolean;
+  progress?: number;
+  className?: string;
+  onPlay?: (docuseries: Docuseries) => void;
+  onAddToWatchlist?: (docuseriesId: string) => void;
+}
+
+export function DocuseriesCard({
+  docuseries,
+  variant = 'default',
+  showProgress = false,
+  progress = 0,
+  className,
+  onPlay,
+  onAddToWatchlist
+}: DocuseriesCardProps) {
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    }
+    return `${remainingMinutes}m`;
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    } else if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
+  };
+
+  if (variant === 'compact') {
+    return (
+      <Card className={cn('group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer', className)}>
+        <div className="relative aspect-video overflow-hidden">
+          <img
+            src={docuseries.thumbnailUrl}
+            alt={docuseries.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              size="sm"
+              className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlay?.(docuseries);
+              }}
+            >
+              <Play className="h-4 w-4 text-white" />
+            </Button>
+          </div>
+          <div className="absolute top-2 right-2">
+            <Badge variant="secondary" className="text-xs bg-black/50 text-white">
+              {docuseries.totalEpisodes} episodes
+            </Badge>
+          </div>
+          {showProgress && progress > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30">
+              <div 
+                className="h-full bg-white transition-all duration-200"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
+        </div>
+        
+        <CardContent className="p-3">
+          <h4 className="font-medium text-sm line-clamp-2 mb-1">{docuseries.title}</h4>
+          <p className="text-xs text-muted-foreground line-clamp-1">
+            {docuseries.category} • {docuseries.genre}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (variant === 'featured') {
+    return (
+      <Card className={cn('group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer', className)}>
+        <div className="relative aspect-video overflow-hidden">
+          <img
+            src={docuseries.bannerUrl}
+            alt={docuseries.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              size="lg"
+              className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlay?.(docuseries);
+              }}
+            >
+              <Play className="h-6 w-6 text-white" />
+            </Button>
+          </div>
+          <div className="absolute top-4 right-4 flex flex-col space-y-2">
+            {docuseries.isNew && (
+              <Badge variant="secondary" className="text-sm bg-red-600 text-white">
+                NEW
+              </Badge>
+            )}
+            <Badge variant="secondary" className="text-sm bg-black/50 text-white">
+              {docuseries.totalEpisodes} episodes
+            </Badge>
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 text-white">
+            <h3 className="text-xl font-bold mb-2 line-clamp-2">{docuseries.title}</h3>
+            <p className="text-sm text-white/80 mb-2 line-clamp-2">{docuseries.description}</p>
+            <div className="flex items-center space-x-4 text-sm">
+              <span className="flex items-center">
+                <Star className="h-4 w-4 mr-1 text-yellow-400" />
+                {docuseries.rating.toFixed(1)}
+              </span>
+              <span className="flex items-center">
+                <Eye className="h-4 w-4 mr-1" />
+                {formatViewCount(docuseries.viewCount)}
+              </span>
+              <span className="flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                {formatDuration(docuseries.totalDuration)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Default variant
+  return (
+    <Card className={cn('group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer', className)}>
+      <div className="relative aspect-video overflow-hidden">
+        <img
+          src={docuseries.thumbnailUrl}
+          alt={docuseries.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Button
+            size="sm"
+            className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay?.(docuseries);
+            }}
+          >
+            <Play className="h-4 w-4 text-white" />
+          </Button>
+        </div>
+        <div className="absolute top-3 right-3 flex flex-col space-y-1">
+          {docuseries.isNew && (
+            <Badge variant="secondary" className="text-xs bg-red-600 text-white">
+              NEW
+            </Badge>
+          )}
+          <Badge variant="secondary" className="text-xs bg-black/50 text-white">
+            {docuseries.totalEpisodes} episodes
+          </Badge>
+        </div>
+        {showProgress && progress > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30">
+            <div 
+              className="h-full bg-white transition-all duration-200"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </div>
+      
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <h4 className="font-medium text-sm line-clamp-2 flex-1 mr-2">{docuseries.title}</h4>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToWatchlist?.(docuseries.id);
+            }}
+          >
+            <Bookmark className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+          {docuseries.category} • {docuseries.genre}
+        </p>
+        
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center space-x-3">
+            <span className="flex items-center">
+              <Star className="h-3 w-3 mr-1 text-yellow-400" />
+              {docuseries.rating.toFixed(1)}
+            </span>
+            <span className="flex items-center">
+              <Eye className="h-3 w-3 mr-1" />
+              {formatViewCount(docuseries.viewCount)}
+            </span>
+            <span className="flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              {formatDuration(docuseries.totalDuration)}
+            </span>
+          </div>
+          <span className="text-xs">
+            {new Date(docuseries.releaseDate).getFullYear()}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

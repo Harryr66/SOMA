@@ -1,0 +1,289 @@
+import { Docuseries, Episode, Artist } from './types';
+
+// Mock Artists
+const mockArtists: Artist[] = [
+  {
+    id: 'elena-vance',
+    name: 'Elena Vance',
+    handle: 'elena_vance',
+    avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    followerCount: 1250,
+    followingCount: 89,
+    createdAt: new Date('2023-01-15'),
+    isVerified: true,
+    isProfessional: true,
+    location: 'New York, NY',
+    bio: 'Abstract expressionist painter exploring the intersection of color and emotion.',
+    socialLinks: {
+      instagram: '@elena_vance',
+      website: 'elena-vance.com'
+    }
+  },
+  {
+    id: 'marcus-chen',
+    name: 'Marcus Chen',
+    handle: 'marcus_chen',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    followerCount: 2100,
+    followingCount: 156,
+    createdAt: new Date('2022-11-20'),
+    isVerified: true,
+    isProfessional: true,
+    location: 'Los Angeles, CA',
+    bio: 'Digital artist creating futuristic cityscapes and urban narratives.',
+    socialLinks: {
+      instagram: '@marcus_chen',
+      website: 'marcuschen.art'
+    }
+  },
+  {
+    id: 'sophia-rodriguez',
+    name: 'Sophia Rodriguez',
+    handle: 'sophia_art',
+    avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    followerCount: 890,
+    followingCount: 234,
+    createdAt: new Date('2023-03-10'),
+    isVerified: false,
+    isProfessional: true,
+    location: 'Miami, FL',
+    bio: 'Ceramic sculptor exploring themes of femininity and nature.',
+    socialLinks: {
+      instagram: '@sophia_art',
+      website: 'sophiarodriguez.art'
+    }
+  },
+  {
+    id: 'alex-kim',
+    name: 'Alex Kim',
+    handle: 'alex_kim',
+    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    followerCount: 3200,
+    followingCount: 180,
+    createdAt: new Date('2022-08-15'),
+    isVerified: true,
+    isProfessional: true,
+    location: 'Seattle, WA',
+    bio: 'Mixed media artist bridging traditional and digital techniques.',
+    socialLinks: {
+      instagram: '@alex_kim',
+      website: 'alexkim.studio'
+    }
+  }
+];
+
+// Mock Episodes
+const mockEpisodes: Episode[] = [
+  {
+    id: 'ep-1',
+    docuseriesId: 'ds-1',
+    title: 'The Color of Emotion',
+    description: 'Elena explores how different colors evoke specific emotions in her abstract paintings.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    duration: 480, // 8 minutes
+    episodeNumber: 1,
+    seasonNumber: 1,
+    releaseDate: new Date('2024-01-15'),
+    viewCount: 12500,
+    likes: 450,
+    commentsCount: 89,
+    isPublished: true,
+    isFeatured: true,
+    tags: ['abstract', 'painting', 'emotion', 'color'],
+    artist: mockArtists[0],
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-15')
+  },
+  {
+    id: 'ep-2',
+    docuseriesId: 'ds-1',
+    title: 'Finding Inspiration in Chaos',
+    description: 'A deep dive into Elena\'s creative process and how she finds beauty in unexpected places.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=600&fit=crop',
+    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+    duration: 720, // 12 minutes
+    episodeNumber: 2,
+    seasonNumber: 1,
+    releaseDate: new Date('2024-01-22'),
+    viewCount: 8900,
+    likes: 320,
+    commentsCount: 67,
+    isPublished: true,
+    isFeatured: false,
+    tags: ['inspiration', 'process', 'creativity'],
+    artist: mockArtists[0],
+    createdAt: new Date('2024-01-17'),
+    updatedAt: new Date('2024-01-22')
+  },
+  {
+    id: 'ep-3',
+    docuseriesId: 'ds-2',
+    title: 'Digital Dreams',
+    description: 'Marcus takes us through his digital art creation process using cutting-edge technology.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    duration: 600, // 10 minutes
+    episodeNumber: 1,
+    seasonNumber: 1,
+    releaseDate: new Date('2024-01-20'),
+    viewCount: 15600,
+    likes: 680,
+    commentsCount: 124,
+    isPublished: true,
+    isFeatured: true,
+    tags: ['digital', 'technology', 'futuristic', 'cityscape'],
+    artist: mockArtists[1],
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-20')
+  },
+  {
+    id: 'ep-4',
+    docuseriesId: 'ds-3',
+    title: 'Clay and Soul',
+    description: 'Sophia demonstrates her ceramic sculpting techniques and the meditative quality of working with clay.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=600&fit=crop',
+    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+    duration: 900, // 15 minutes
+    episodeNumber: 1,
+    seasonNumber: 1,
+    releaseDate: new Date('2024-01-25'),
+    viewCount: 7800,
+    likes: 290,
+    commentsCount: 45,
+    isPublished: true,
+    isFeatured: false,
+    tags: ['ceramics', 'sculpture', 'meditation', 'process'],
+    artist: mockArtists[2],
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-01-25')
+  },
+  {
+    id: 'ep-5',
+    docuseriesId: 'ds-4',
+    title: 'Bridging Worlds',
+    description: 'Alex shows how he combines traditional painting techniques with digital tools.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+    videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    duration: 660, // 11 minutes
+    episodeNumber: 1,
+    seasonNumber: 1,
+    releaseDate: new Date('2024-01-28'),
+    viewCount: 11200,
+    likes: 420,
+    commentsCount: 78,
+    isPublished: true,
+    isFeatured: true,
+    tags: ['mixed-media', 'traditional', 'digital', 'hybrid'],
+    artist: mockArtists[3],
+    createdAt: new Date('2024-01-23'),
+    updatedAt: new Date('2024-01-28')
+  }
+];
+
+// Mock Docuseries
+export const mockDocuseries: Docuseries[] = [
+  {
+    id: 'ds-1',
+    title: 'Abstract Expressions',
+    description: 'Follow Elena Vance as she explores the depths of abstract painting, revealing the emotional journey behind each brushstroke and the stories that colors tell.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+    bannerUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1200&h=675&fit=crop',
+    featuredArtist: mockArtists[0],
+    category: 'Traditional Art',
+    genre: 'Documentary',
+    totalEpisodes: 2,
+    totalDuration: 120, // 2 hours
+    releaseDate: new Date('2024-01-15'),
+    lastUpdated: new Date('2024-01-22'),
+    rating: 4.8,
+    viewCount: 45000,
+    isFeatured: true,
+    isNew: true,
+    tags: ['abstract', 'painting', 'emotion', 'color'],
+    status: 'ongoing',
+    episodes: mockEpisodes.filter(ep => ep.docuseriesId === 'ds-1'),
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-22')
+  },
+  {
+    id: 'ds-2',
+    title: 'Digital Visions',
+    description: 'Marcus Chen takes us on a journey through the digital art landscape, showcasing how technology is reshaping the boundaries of artistic expression.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=600&fit=crop',
+    bannerUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=675&fit=crop',
+    featuredArtist: mockArtists[1],
+    category: 'Digital Art',
+    genre: 'Behind the Scenes',
+    totalEpisodes: 1,
+    totalDuration: 60, // 1 hour
+    releaseDate: new Date('2024-01-20'),
+    lastUpdated: new Date('2024-01-20'),
+    rating: 4.6,
+    viewCount: 32000,
+    isFeatured: true,
+    isNew: true,
+    tags: ['digital', 'technology', 'futuristic', 'cityscape'],
+    status: 'ongoing',
+    episodes: mockEpisodes.filter(ep => ep.docuseriesId === 'ds-2'),
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-20')
+  },
+  {
+    id: 'ds-3',
+    title: 'Sculpting Stories',
+    description: 'Sophia Rodriguez shares her intimate relationship with clay, exploring how sculpture becomes a form of storytelling and emotional expression.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=600&fit=crop',
+    bannerUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=675&fit=crop',
+    featuredArtist: mockArtists[2],
+    category: 'Sculpture',
+    genre: 'Process',
+    totalEpisodes: 1,
+    totalDuration: 90, // 1.5 hours
+    releaseDate: new Date('2024-01-25'),
+    lastUpdated: new Date('2024-01-25'),
+    rating: 4.4,
+    viewCount: 18000,
+    isFeatured: false,
+    isNew: true,
+    tags: ['ceramics', 'sculpture', 'meditation', 'process'],
+    status: 'ongoing',
+    episodes: mockEpisodes.filter(ep => ep.docuseriesId === 'ds-3'),
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-01-25')
+  },
+  {
+    id: 'ds-4',
+    title: 'Hybrid Horizons',
+    description: 'Alex Kim demonstrates the fusion of traditional and digital art, creating a new language of visual expression that bridges past and future.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop',
+    bannerUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1200&h=675&fit=crop',
+    featuredArtist: mockArtists[3],
+    category: 'Mixed Media',
+    genre: 'Tutorial',
+    totalEpisodes: 1,
+    totalDuration: 75, // 1.25 hours
+    releaseDate: new Date('2024-01-28'),
+    lastUpdated: new Date('2024-01-28'),
+    rating: 4.7,
+    viewCount: 25000,
+    isFeatured: false,
+    isNew: true,
+    tags: ['mixed-media', 'traditional', 'digital', 'hybrid'],
+    status: 'ongoing',
+    episodes: mockEpisodes.filter(ep => ep.docuseriesId === 'ds-4'),
+    createdAt: new Date('2024-01-23'),
+    updatedAt: new Date('2024-01-28')
+  }
+];
+
+export const mockFeaturedContent = mockDocuseries[0]; // Abstract Expressions as featured
+export const mockContinueWatching = mockEpisodes.slice(0, 3);
+export const mockTrendingNow = mockDocuseries.slice(0, 3);
+export const mockNewReleases = mockDocuseries.filter(ds => ds.isNew);
+export const mockByCategory = {
+  'Traditional Art': mockDocuseries.filter(ds => ds.category === 'Traditional Art'),
+  'Digital Art': mockDocuseries.filter(ds => ds.category === 'Digital Art'),
+  'Sculpture': mockDocuseries.filter(ds => ds.category === 'Sculpture'),
+  'Mixed Media': mockDocuseries.filter(ds => ds.category === 'Mixed Media')
+};
