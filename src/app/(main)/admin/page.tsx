@@ -196,17 +196,14 @@ export default function AdminPanel() {
         updatedAt: new Date(),
         artist: {
           id: 'admin',
-          username: 'SOMA Admin',
-          displayName: 'SOMA Admin',
+          name: 'SOMA Admin',
+          handle: 'soma-admin',
           avatarUrl: '',
           isProfessional: true,
           followerCount: 0,
           followingCount: 0,
-          postCount: 0,
           createdAt: new Date(),
-          updatedAt: new Date(),
-          isVerified: true,
-          isActive: true
+          isVerified: true
         }
       };
 
