@@ -285,24 +285,24 @@ export default function MarketplacePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-background border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">SOMA Marketplace</h1>
-              <div className="text-sm text-gray-600">
-                Deliver to <span className="font-medium">United States</span>
+              <h1 className="text-2xl font-bold text-foreground">SOMA Marketplace</h1>
+              <div className="text-sm text-muted-foreground">
+                Deliver to <span className="font-medium text-foreground">United States</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm">
-                <span className="text-gray-600">Hello, sign in</span>
-                <span className="font-medium ml-1">Account & Lists</span>
+                <span className="text-muted-foreground">Hello, sign in</span>
+                <span className="font-medium ml-1 text-foreground">Account & Lists</span>
               </div>
-              <div className="text-sm text-gray-600">Returns & Orders</div>
+              <div className="text-sm text-muted-foreground">Returns & Orders</div>
               <div className="flex items-center gap-1">
-                <ShoppingCart className="h-5 w-5" />
-                <span className="text-sm font-medium">0</span>
+                <ShoppingCart className="h-5 w-5 text-foreground" />
+                <span className="text-sm font-medium text-foreground">0</span>
               </div>
             </div>
           </div>
@@ -354,8 +354,8 @@ export default function MarketplacePage() {
         <div className="flex gap-6">
           {/* Sidebar */}
           <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg border p-4">
-              <h3 className="font-semibold mb-4">Department</h3>
+            <div className="bg-card rounded-lg border border-border p-4">
+              <h3 className="font-semibold mb-4 text-card-foreground">Department</h3>
               <div className="space-y-2">
                 {categories.map((category) => (
                   <div key={category.id}>
@@ -393,11 +393,11 @@ export default function MarketplacePage() {
           <div className="flex-1">
             {/* Page Header */}
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 {selectedCategoryData?.name || 'All Products'}
               </h2>
               <div className="flex items-center justify-between">
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {filteredProducts.length} products found
                 </p>
                 <div className="flex items-center gap-4">
@@ -459,15 +459,15 @@ export default function MarketplacePage() {
                               <h4 className="font-medium text-sm line-clamp-2 mb-2">{product.title}</h4>
                               <div className="flex items-center gap-1 mb-1">
                                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span className="text-xs text-gray-600">{product.rating}</span>
+                                <span className="text-xs text-muted-foreground">{product.rating}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-green-600">${product.price}</span>
                                 {product.originalPrice && (
-                                  <span className="text-xs text-gray-500 line-through">${product.originalPrice}</span>
+                                  <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 mt-1">{product.reviewCount} reviews</p>
+                              <p className="text-xs text-muted-foreground mt-1">{product.reviewCount} reviews</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -507,15 +507,15 @@ export default function MarketplacePage() {
                             <h4 className="font-medium text-sm line-clamp-2 mb-2">{product.title}</h4>
                             <div className="flex items-center gap-1 mb-1">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs text-gray-600">{product.rating}</span>
+                              <span className="text-xs text-muted-foreground">{product.rating}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-semibold text-green-600">${product.price}</span>
                               {product.originalPrice && (
-                                <span className="text-xs text-gray-500 line-through">${product.originalPrice}</span>
+                                <span className="text-xs text-muted-foreground line-through">${product.originalPrice}</span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">{product.reviewCount} reviews</p>
+                            <p className="text-xs text-muted-foreground mt-1">{product.reviewCount} reviews</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -552,17 +552,17 @@ export default function MarketplacePage() {
                       <h3 className="font-semibold mb-2 line-clamp-2">{product.title}</h3>
                       <div className="flex items-center gap-1 mb-2">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm text-gray-600">{product.rating}</span>
-                        <span className="text-sm text-gray-500">({product.reviewCount})</span>
+                        <span className="text-sm text-muted-foreground">{product.rating}</span>
+                        <span className="text-sm text-muted-foreground">({product.reviewCount})</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-bold text-lg text-green-600">${product.price}</span>
                         {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
+                          <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-xs text-gray-500">by {product.seller.name}</span>
+                        <span className="text-xs text-muted-foreground">by {product.seller.name}</span>
                         {product.seller.isVerified && (
                           <Badge variant="secondary" className="text-xs">Verified</Badge>
                         )}
