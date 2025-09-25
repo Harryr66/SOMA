@@ -49,15 +49,7 @@ export function DesktopHeader() {
         })}
       </nav>
       
-      <div className="flex items-center space-x-2 sm:space-x-3">
-        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
-          <span className="text-white text-xs sm:text-sm font-medium">U</span>
-        </div>
-        <div className="hidden sm:flex flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">User Name</p>
-          <p className="text-xs text-muted-foreground truncate">@username</p>
-        </div>
-      </div>
+      {/* Username section removed - profile section already available */}
     </div>
   );
 }

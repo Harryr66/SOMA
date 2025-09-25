@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Star, Heart, ShoppingCart, Filter, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Search, Star, Heart, Filter, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ProductCard } from '@/components/shop/product-card';
 
 // Mock data for marketplace
@@ -377,10 +377,7 @@ export default function MarketplacePage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <ShoppingCart className="h-5 w-5 text-foreground" />
-                <span className="text-sm font-medium text-foreground">0</span>
-              </div>
+              {/* Shopping cart removed - monetizing via affiliate links */}
             </div>
           </div>
 
