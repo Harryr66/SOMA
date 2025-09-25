@@ -8,6 +8,7 @@ export function SiteFooter() {
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             <Link href="#" className="transition-colors hover:text-foreground">Terms of Service</Link>
             <Link href="#" className="transition-colors hover:text-foreground">Privacy Policy</Link>
+            <Link href="/advertise" className="transition-colors hover:text-foreground">Advertise with SOMA</Link>
             <Link href="/admin" className="font-medium transition-colors hover:text-foreground">
                 Admin
             </Link>

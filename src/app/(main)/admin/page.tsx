@@ -13,14 +13,16 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { ArtistRequest, Episode } from '@/lib/types';
-import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus } from 'lucide-react';
+import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
+import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function AdminPanel() {
   const [artistRequests, setArtistRequests] = useState<ArtistRequest[]>([]);
+  const [advertisingApplications, setAdvertisingApplications] = useState<AdvertisingApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<ArtistRequest | null>(null);
+  const [selectedAdApplication, setSelectedAdApplication] = useState<AdvertisingApplication | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,21 +37,37 @@ export default function AdminPanel() {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    const q = query(
+    const artistRequestsQuery = query(
       collection(db, 'artistRequests'),
       orderBy('submittedAt', 'desc')
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const advertisingQuery = query(
+      collection(db, 'advertisingApplications'),
+      orderBy('submittedAt', 'desc')
+    );
+
+    const unsubscribeArtistRequests = onSnapshot(artistRequestsQuery, (snapshot) => {
       const requests = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as ArtistRequest[];
       setArtistRequests(requests);
+    });
+
+    const unsubscribeAdvertising = onSnapshot(advertisingQuery, (snapshot) => {
+      const applications = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as AdvertisingApplication[];
+      setAdvertisingApplications(applications);
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeArtistRequests();
+      unsubscribeAdvertising();
+    };
   }, []);
 
   const handleApprove = async (request: ArtistRequest) => {
@@ -138,6 +156,73 @@ export default function AdminPanel() {
         return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleApproveAdApplication = async (application: AdvertisingApplication) => {
+    setIsProcessing(true);
+    try {
+      await updateDoc(doc(db, 'advertisingApplications', application.id), {
+        status: 'approved',
+        reviewedBy: 'admin',
+        reviewedAt: serverTimestamp(),
+        updatedAt: new Date()
+      });
+
+      toast({
+        title: "Application approved",
+        description: `Advertising application from ${application.companyName} has been approved.`,
+      });
+
+      setSelectedAdApplication(null);
+    } catch (error) {
+      console.error('Error approving application:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRejectAdApplication = async (application: AdvertisingApplication) => {
+    if (!rejectionReason.trim()) {
+      toast({
+        title: "Rejection reason required",
+        description: "Please provide a reason for rejection.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      await updateDoc(doc(db, 'advertisingApplications', application.id), {
+        status: 'rejected',
+        rejectionReason: rejectionReason,
+        reviewedBy: 'admin',
+        reviewedAt: serverTimestamp(),
+        updatedAt: new Date()
+      });
+
+      toast({
+        title: "Application rejected",
+        description: `Advertising application from ${application.companyName} has been rejected.`,
+      });
+
+      setSelectedAdApplication(null);
+      setRejectionReason('');
+    } catch (error) {
+      console.error('Error rejecting application:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -257,7 +342,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
           <TabsTrigger value="pending" className="text-xs sm:text-sm">
             <span className="hidden sm:inline">Pending</span>
             <span className="sm:hidden">Pending</span>
@@ -272,6 +357,12 @@ export default function AdminPanel() {
             <span className="hidden sm:inline">Rejected</span>
             <span className="sm:hidden">Rejected</span>
             <span className="ml-1">({rejectedRequests.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="advertising" className="text-xs sm:text-sm">
+            <Megaphone className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Advertising</span>
+            <span className="sm:hidden">Ads</span>
+            <span className="ml-1">({advertisingApplications.filter(app => app.status === 'pending').length})</span>
           </TabsTrigger>
           <TabsTrigger value="video-upload" className="text-xs sm:text-sm">
             <Video className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -757,6 +848,108 @@ export default function AdminPanel() {
             </Button>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="advertising" className="mt-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Advertising Applications</h2>
+            <div className="text-sm text-muted-foreground">
+              {advertisingApplications.length} total applications
+            </div>
+          </div>
+
+          {advertisingApplications.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <CardTitle className="mb-2">No advertising applications</CardTitle>
+                <CardDescription>
+                  No advertising applications have been submitted yet.
+                </CardDescription>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {advertisingApplications.map((application) => (
+                <Card key={application.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold">{application.companyName}</h3>
+                          {getStatusBadge(application.status)}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                          <div>
+                            <p><strong>Contact:</strong> {application.contactName}</p>
+                            <p><strong>Email:</strong> {application.email}</p>
+                            {application.phone && <p><strong>Phone:</strong> {application.phone}</p>}
+                            {application.website && <p><strong>Website:</strong> <a href={application.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{application.website}</a></p>}
+                          </div>
+                          <div>
+                            <p><strong>Type:</strong> {application.advertisingType}</p>
+                            {application.budget && <p><strong>Budget:</strong> {application.budget}</p>}
+                            <p><strong>Submitted:</strong> {application.submittedAt instanceof Date ? application.submittedAt.toLocaleDateString() : (application.submittedAt as any)?.toDate?.()?.toLocaleDateString() || 'N/A'}</p>
+                          </div>
+                        </div>
+                        {application.targetAudience && (
+                          <div className="mt-3">
+                            <p className="text-sm"><strong>Target Audience:</strong> {application.targetAudience}</p>
+                          </div>
+                        )}
+                        {application.campaignGoals && (
+                          <div className="mt-2">
+                            <p className="text-sm"><strong>Campaign Goals:</strong> {application.campaignGoals}</p>
+                          </div>
+                        )}
+                        {application.message && (
+                          <div className="mt-2">
+                            <p className="text-sm"><strong>Additional Message:</strong> {application.message}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedAdApplication(application)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        {application.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveAdApplication(application)}
+                              disabled={isProcessing}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedAdApplication(application);
+                                setRejectionReason('');
+                              }}
+                              disabled={isProcessing}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </TabsContent>
     </div>
   );

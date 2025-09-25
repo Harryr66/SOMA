@@ -39,6 +39,28 @@ export interface ArtistRequest {
   notes?: string;
 }
 
+export interface AdvertisingApplication {
+  id: string;
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  website?: string;
+  advertisingType: string;
+  budget?: string;
+  targetAudience?: string;
+  campaignGoals?: string;
+  message?: string;
+  timeline?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  rejectionReason?: string;
+}
+
 export interface Artwork {
   id: string;
   artist: Artist;
