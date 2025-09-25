@@ -101,7 +101,7 @@ export function FeaturedHero({
             <div className="flex items-center space-x-4">
               <Button
                 size="lg"
-                className="bg-white text-black hover:bg-white/90 px-8 py-3 text-lg font-semibold"
+                className="bg-black/80 text-white hover:bg-black border-2 border-white/20 px-8 py-3 text-lg font-semibold"
                 onClick={onPlay}
               >
                 <Play className="h-5 w-5 mr-2" />

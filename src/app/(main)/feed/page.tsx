@@ -1,23 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FeaturedHero } from '@/components/featured-hero';
 import { ContentRow } from '@/components/content-row';
 import { DocuseriesCard } from '@/components/docuseries-card';
 import { EpisodeCard } from '@/components/episode-card';
 import { useWatchlist } from '@/providers/watchlist-provider';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   mockFeaturedContent, 
   mockContinueWatching, 
   mockTrendingNow, 
   mockNewReleases, 
-  mockByCategory 
+  mockByCategory,
+  mockDocuseries 
 } from '@/lib/streaming-data';
 import { Docuseries, Episode } from '@/lib/types';
+import { Filter, X } from 'lucide-react';
+
+const CATEGORIES = [
+  { id: 'all', name: 'All Categories', count: mockDocuseries.length },
+  { id: 'Traditional Art', name: 'Traditional Art', count: mockByCategory['Traditional Art'].length },
+  { id: 'Digital Art', name: 'Digital Art', count: mockByCategory['Digital Art'].length },
+  { id: 'Sculpture', name: 'Sculpture', count: mockByCategory['Sculpture'].length },
+  { id: 'Mixed Media', name: 'Mixed Media', count: mockByCategory['Mixed Media'].length },
+];
 
 export default function FeedPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
   const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
 
   const handlePlay = (item: Docuseries | Episode) => {
@@ -37,6 +51,31 @@ export default function FeedPage() {
     setIsMuted(!isMuted);
   };
 
+  const filteredContent = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return {
+        trending: mockTrendingNow,
+        newReleases: mockNewReleases,
+        traditionalArt: mockByCategory['Traditional Art'],
+        digitalArt: mockByCategory['Digital Art'],
+        sculpture: mockByCategory['Sculpture'],
+        mixedMedia: mockByCategory['Mixed Media']
+      };
+    }
+    
+    const categoryContent = mockByCategory[selectedCategory as keyof typeof mockByCategory] || [];
+    return {
+      trending: categoryContent,
+      newReleases: categoryContent,
+      traditionalArt: selectedCategory === 'Traditional Art' ? categoryContent : [],
+      digitalArt: selectedCategory === 'Digital Art' ? categoryContent : [],
+      sculpture: selectedCategory === 'Sculpture' ? categoryContent : [],
+      mixedMedia: selectedCategory === 'Mixed Media' ? categoryContent : []
+    };
+  }, [selectedCategory]);
+
+  const activeFiltersCount = selectedCategory !== 'all' ? 1 : 0;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Featured Hero Section */}
@@ -49,6 +88,59 @@ export default function FeedPage() {
         onToggleMute={handleToggleMute}
         isMuted={isMuted}
       />
+
+      {/* Category Filters */}
+    <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filter by Category
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+            {activeFiltersCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory('all')}>
+                <X className="h-4 w-4 mr-1" />
+                Clear Filter
+              </Button>
+            )}
+          </div>
+          {selectedCategory !== 'all' && (
+            <div className="text-sm text-muted-foreground">
+              Showing content from: <span className="font-medium text-foreground">{selectedCategory}</span>
+            </div>
+          )}
+        </div>
+
+        {showFilters && (
+          <div className="mb-6 p-4 border rounded-lg bg-card">
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className="flex items-center gap-2"
+                >
+                  {category.name}
+                  <Badge variant="secondary" className="ml-1">
+                    {category.count}
+                  </Badge>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+        </div>
 
       {/* Content Rows */}
       <div className="space-y-8 pb-16">
@@ -65,76 +157,88 @@ export default function FeedPage() {
         />
 
         {/* Trending Now */}
-        <ContentRow
-          title="Trending Now"
-          subtitle="What's popular this week"
-          items={mockTrendingNow}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.trending.length > 0 && (
+          <ContentRow
+            title="Trending Now"
+            subtitle="What's popular this week"
+            items={filteredContent.trending}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
 
         {/* New Releases */}
-        <ContentRow
-          title="New Releases"
-          subtitle="Fresh content just added"
-          items={mockNewReleases}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.newReleases.length > 0 && (
+          <ContentRow
+            title="New Releases"
+            subtitle="Fresh content just added"
+            items={filteredContent.newReleases}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
 
         {/* Traditional Art */}
-        <ContentRow
-          title="Traditional Art"
-          subtitle="Classic techniques and timeless beauty"
-          items={mockByCategory['Traditional Art']}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.traditionalArt.length > 0 && (
+          <ContentRow
+            title="Traditional Art"
+            subtitle="Classic techniques and timeless beauty"
+            items={filteredContent.traditionalArt}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
 
         {/* Digital Art */}
-        <ContentRow
-          title="Digital Art"
-          subtitle="The future of artistic expression"
-          items={mockByCategory['Digital Art']}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.digitalArt.length > 0 && (
+          <ContentRow
+            title="Digital Art"
+            subtitle="The future of artistic expression"
+            items={filteredContent.digitalArt}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
 
         {/* Sculpture */}
-        <ContentRow
-          title="Sculpture"
-          subtitle="Three-dimensional artistry"
-          items={mockByCategory['Sculpture']}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.sculpture.length > 0 && (
+          <ContentRow
+            title="Sculpture"
+            subtitle="Three-dimensional artistry"
+            items={filteredContent.sculpture}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
 
         {/* Mixed Media */}
-        <ContentRow
-          title="Mixed Media"
-          subtitle="Breaking boundaries and conventions"
-          items={mockByCategory['Mixed Media']}
-          type="docuseries"
-          variant="default"
-          onItemClick={handlePlay}
-          onAddToWatchlist={handleAddToWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
+        {filteredContent.mixedMedia.length > 0 && (
+          <ContentRow
+            title="Mixed Media"
+            subtitle="Breaking boundaries and conventions"
+            items={filteredContent.mixedMedia}
+            type="docuseries"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        )}
       </div>
     </div>
   );
