@@ -345,12 +345,12 @@ export default function MarketplacePage() {
                 <span className="text-sm font-medium text-foreground">0</span>
           </div>
         </div>
-          </div>
+        </div>
 
           {/* Search Bar */}
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1 relative">
-              <Input
+            <Input
                 placeholder="Search SOMA Marketplace"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -366,7 +366,6 @@ export default function MarketplacePage() {
           <div className="flex items-center gap-4 text-sm overflow-x-auto">
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Best Sellers</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">New Releases</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Today's Deals</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Supplies</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Books</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Prints</Button>
