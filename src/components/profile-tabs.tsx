@@ -36,7 +36,7 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
       <Tabs defaultValue="portfolio" className="w-full" onValueChange={onTabChange}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-          <TabsTrigger value="shop">Shop</TabsTrigger>
+          <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
@@ -64,8 +64,8 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
           )}
         </TabsContent>
 
-        {/* Shop Tab */}
-        <TabsContent value="shop" className="space-y-4">
+        {/* Marketplace Tab */}
+        <TabsContent value="marketplace" className="space-y-4">
           <Tabs defaultValue="products" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="products">Products</TabsTrigger>
