@@ -110,7 +110,7 @@ export function ContentRow({
               {type === 'episodes' ? (
                 <EpisodeCard
                   episode={item as Episode}
-                  docuseries={item.docuseriesId ? items.find(d => d.id === item.docuseriesId) as Docuseries : undefined}
+                  docuseries={(item as Episode).docuseriesId ? items.find(d => d.id === (item as Episode).docuseriesId) as Docuseries : undefined}
                   variant={getCardVariant() as any}
                   onPlay={onItemClick}
                   onAddToWatchlist={onAddToWatchlist}
