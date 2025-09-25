@@ -233,7 +233,7 @@ export default function AdminPanel() {
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        Submitted {request.submittedAt.toDate().toLocaleDateString()}
+                        Submitted {request.submittedAt instanceof Date ? request.submittedAt.toLocaleDateString() : request.submittedAt.toDate().toLocaleDateString()}
                       </div>
                     </div>
                   </CardContent>
@@ -285,7 +285,7 @@ export default function AdminPanel() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        Approved {request.reviewedAt?.toDate().toLocaleDateString()}
+                        Approved {request.reviewedAt instanceof Date ? request.reviewedAt.toLocaleDateString() : request.reviewedAt?.toDate().toLocaleDateString()}
                       </div>
                       {request.reviewedBy && (
                         <div className="flex items-center gap-1">
@@ -350,7 +350,7 @@ export default function AdminPanel() {
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          Rejected {request.reviewedAt?.toDate().toLocaleDateString()}
+                          Rejected {request.reviewedAt instanceof Date ? request.reviewedAt.toLocaleDateString() : request.reviewedAt?.toDate().toLocaleDateString()}
                         </div>
                         {request.reviewedBy && (
                           <div className="flex items-center gap-1">
