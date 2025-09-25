@@ -475,3 +475,95 @@ export interface ModerationAction {
   createdAt: Date;
   expiresAt?: Date;
 }
+
+// Streaming Platform Types
+
+export interface Docuseries {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  bannerUrl: string;
+  featuredArtist: Artist;
+  category: 'Emerging Artists' | 'Street Art' | 'Digital Art' | 'Traditional Art' | 'Sculpture' | 'Photography' | 'Mixed Media';
+  genre: 'Documentary' | 'Behind the Scenes' | 'Tutorial' | 'Interview' | 'Process' | 'Exhibition';
+  totalEpisodes: number;
+  totalDuration: number; // in minutes
+  releaseDate: Date;
+  lastUpdated: Date;
+  rating: number;
+  viewCount: number;
+  isFeatured: boolean;
+  isNew: boolean;
+  tags: string[];
+  status: 'ongoing' | 'completed' | 'upcoming';
+  episodes: Episode[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Episode {
+  id: string;
+  docuseriesId: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  duration: number; // in seconds
+  episodeNumber: number;
+  seasonNumber: number;
+  releaseDate: Date;
+  viewCount: number;
+  likes: number;
+  commentsCount: number;
+  isPublished: boolean;
+  isFeatured: boolean;
+  tags: string[];
+  artist: Artist;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WatchHistory {
+  id: string;
+  userId: string;
+  episodeId: string;
+  episode: Episode;
+  watchedDuration: number; // in seconds
+  totalDuration: number; // in seconds
+  lastWatchedAt: Date;
+  isCompleted: boolean;
+  progress: number; // percentage 0-100
+}
+
+export interface Watchlist {
+  id: string;
+  userId: string;
+  docuseriesId: string;
+  docuseries: Docuseries;
+  addedAt: Date;
+}
+
+export interface StreamingCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  docuseriesCount: number;
+  isActive: boolean;
+}
+
+export interface FeaturedContent {
+  id: string;
+  type: 'docuseries' | 'episode';
+  contentId: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  videoUrl?: string;
+  priority: number;
+  isActive: boolean;
+  startDate: Date;
+  endDate?: Date;
+}
