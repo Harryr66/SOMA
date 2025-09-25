@@ -10,13 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Upload, X, Check } from 'lucide-react';
+import { ArrowLeft, Upload, X, Check, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { toast } from '@/hooks/use-toast';
+import { ArtistRequest } from '@/lib/types';
 
 
 export default function ProfileEditPage() {
@@ -26,6 +27,9 @@ export default function ProfileEditPage() {
   const [isCheckingHandle, setIsCheckingHandle] = useState(false);
   const [handleAvailable, setHandleAvailable] = useState<boolean | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showArtistRequest, setShowArtistRequest] = useState(false);
+  const [portfolioImages, setPortfolioImages] = useState<string[]>([]);
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
 
   const [formData, setFormData] = useState({
       name: '',
@@ -35,6 +39,17 @@ export default function ProfileEditPage() {
     location: '',
     isProfessional: false,
     isTipJarEnabled: false,
+  });
+
+  const [artistRequestData, setArtistRequestData] = useState({
+    artistStatement: '',
+    experience: '',
+    socialLinks: {
+      instagram: '',
+      twitter: '',
+      website: '',
+      tiktok: ''
+    }
   });
 
   useEffect(() => {
@@ -163,6 +178,102 @@ export default function ProfileEditPage() {
 
   const removeImage = () => {
     setPreviewImage(null);
+  };
+
+  const handlePortfolioImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const compressedFile = await compressImage(file);
+        const imageRef = ref(storage, `portfolio/${user.id}/${Date.now()}_${file.name}`);
+        await uploadBytes(imageRef, compressedFile);
+        return await getDownloadURL(imageRef);
+      });
+
+      const urls = await Promise.all(uploadPromises);
+      setPortfolioImages(prev => [...prev, ...urls]);
+    } catch (error) {
+      console.error('Error uploading portfolio images:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload portfolio images. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removePortfolioImage = (index: number) => {
+    setPortfolioImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleArtistRequestSubmit = async () => {
+    if (!user) return;
+
+    if (portfolioImages.length === 0) {
+      toast({
+        title: "Portfolio required",
+        description: "Please upload at least one portfolio image.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!artistRequestData.artistStatement.trim()) {
+      toast({
+        title: "Artist statement required",
+        description: "Please provide an artist statement.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmittingRequest(true);
+    try {
+      const artistRequest: Omit<ArtistRequest, 'id'> = {
+        userId: user.id,
+        user: user,
+        portfolioImages,
+        artistStatement: artistRequestData.artistStatement,
+        experience: artistRequestData.experience,
+        socialLinks: {
+          instagram: artistRequestData.socialLinks.instagram || undefined,
+          twitter: artistRequestData.socialLinks.twitter || undefined,
+          website: artistRequestData.socialLinks.website || undefined,
+          tiktok: artistRequestData.socialLinks.tiktok || undefined,
+        },
+        status: 'pending',
+        submittedAt: new Date()
+      };
+
+      await addDoc(collection(db, 'artistRequests'), artistRequest);
+
+      toast({
+        title: "Request submitted",
+        description: "Your artist account request has been submitted for review.",
+      });
+
+      setShowArtistRequest(false);
+      setPortfolioImages([]);
+      setArtistRequestData({
+        artistStatement: '',
+        experience: '',
+        socialLinks: { instagram: '', twitter: '', website: '', tiktok: '' }
+      });
+    } catch (error) {
+      console.error('Error submitting artist request:', error);
+      toast({
+        title: "Submission failed",
+        description: "Failed to submit artist request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingRequest(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -488,6 +599,176 @@ export default function ProfileEditPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Artist Account Request */}
+        {!formData.isProfessional && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Become a Professional Artist</CardTitle>
+              <CardDescription>
+                Request to become a professional artist to upload artworks, be discoverable, and access additional features.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!showArtistRequest ? (
+                <Button 
+                  onClick={() => setShowArtistRequest(true)}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Request Artist Account
+                </Button>
+              ) : (
+                <div className="space-y-6">
+                  {/* Portfolio Images */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Portfolio Images *</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Upload 3-10 images showcasing your best work
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {portfolioImages.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Portfolio ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-2 right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100"
+                              onClick={() => removePortfolioImage(index)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                        {portfolioImages.length < 10 && (
+                          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center h-32">
+                            <Label htmlFor="portfolio-upload" className="cursor-pointer">
+                              <div className="text-center">
+                                <Plus className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">Add Image</span>
+                              </div>
+                            </Label>
+                            <input
+                              id="portfolio-upload"
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handlePortfolioImageUpload}
+                              className="hidden"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Artist Statement */}
+                  <div className="space-y-2">
+                    <Label htmlFor="artistStatement">Artist Statement *</Label>
+                    <Textarea
+                      id="artistStatement"
+                      value={artistRequestData.artistStatement}
+                      onChange={(e) => setArtistRequestData(prev => ({ ...prev, artistStatement: e.target.value }))}
+                      placeholder="Describe your artistic vision, inspiration, and what drives your creative process..."
+                      rows={4}
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div className="space-y-2">
+                    <Label htmlFor="experience">Experience & Background</Label>
+                    <Textarea
+                      id="experience"
+                      value={artistRequestData.experience}
+                      onChange={(e) => setArtistRequestData(prev => ({ ...prev, experience: e.target.value }))}
+                      placeholder="Tell us about your artistic journey, education, exhibitions, or any relevant experience..."
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="space-y-4">
+                    <Label>Social Media Links</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input
+                          id="instagram"
+                          value={artistRequestData.socialLinks.instagram}
+                          onChange={(e) => setArtistRequestData(prev => ({ 
+                            ...prev, 
+                            socialLinks: { ...prev.socialLinks, instagram: e.target.value }
+                          }))}
+                          placeholder="@username or URL"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="twitter">Twitter</Label>
+                        <Input
+                          id="twitter"
+                          value={artistRequestData.socialLinks.twitter}
+                          onChange={(e) => setArtistRequestData(prev => ({ 
+                            ...prev, 
+                            socialLinks: { ...prev.socialLinks, twitter: e.target.value }
+                          }))}
+                          placeholder="@username or URL"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="website">Website</Label>
+                        <Input
+                          id="website"
+                          value={artistRequestData.socialLinks.website}
+                          onChange={(e) => setArtistRequestData(prev => ({ 
+                            ...prev, 
+                            socialLinks: { ...prev.socialLinks, website: e.target.value }
+                          }))}
+                          placeholder="https://yourwebsite.com"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tiktok">TikTok</Label>
+                        <Input
+                          id="tiktok"
+                          value={artistRequestData.socialLinks.tiktok}
+                          onChange={(e) => setArtistRequestData(prev => ({ 
+                            ...prev, 
+                            socialLinks: { ...prev.socialLinks, tiktok: e.target.value }
+                          }))}
+                          placeholder="@username or URL"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Buttons */}
+                  <div className="flex gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowArtistRequest(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleArtistRequestSubmit}
+                      disabled={isSubmittingRequest || portfolioImages.length === 0 || !artistRequestData.artistStatement.trim()}
+                    >
+                      {isSubmittingRequest ? 'Submitting...' : 'Submit Request'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end gap-4">

@@ -13,6 +13,7 @@ import { CommunityCard } from './community/community-card';
 import { CreateCommunityDialog } from './community/create-community-dialog';
 import { EpisodeCard } from './episode-card';
 import { DocuseriesCard } from './docuseries-card';
+import { PortfolioManager } from './portfolio-manager';
 import { useWatchlist } from '@/providers/watchlist-provider';
 import { useFollow } from '@/providers/follow-provider';
 import { mockDocuseries, mockEpisodes } from '@/lib/streaming-data';
@@ -41,54 +42,26 @@ export function ProfileTabs({ userId, isOwnProfile, isProfessional, onTabChange 
 
         {/* Portfolio Tab */}
         <TabsContent value="portfolio" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Artwork Portfolio</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {/* TODO: Replace with actual artwork data */}
-            <ArtworkCard 
-              artwork={{
-                id: '1',
-                title: 'Sample Artwork',
-                imageUrl: '/placeholder-art.jpg',
-                imageAiHint: 'Sample artwork description',
-                artist: { 
-                  id: '1',
-                  name: 'Artist Name', 
-                  handle: 'artist',
-                  followerCount: 0,
-                  followingCount: 0,
-                  createdAt: new Date()
-                },
-                price: 299,
-                currency: 'USD',
-                isForSale: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                tags: []  // Add required tags field
-              }}
-            />
-          </div>
-
-          {/* Empty State */}
-          <Card className="p-8 text-center">
-            <CardContent>
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <CardTitle className="mb-2">No artwork yet</CardTitle>
-              <CardDescription className="mb-4">
-                {isOwnProfile 
-                  ? "Start building your portfolio by uploading your first artwork."
-                  : "This artist hasn't uploaded any artwork yet."
-                }
-              </CardDescription>
-              {isOwnProfile && (
-                <Button asChild variant="gradient">
-                  <a href="/upload">Upload Artwork</a>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          {isOwnProfile ? (
+            <PortfolioManager />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Artwork Portfolio</h3>
+              </div>
+              
+              {/* TODO: Display other user's portfolio */}
+              <Card className="p-8 text-center">
+                <CardContent>
+                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <CardTitle className="mb-2">No artwork yet</CardTitle>
+                  <CardDescription className="mb-4">
+                    This artist hasn't uploaded any artwork yet.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </TabsContent>
 
         {/* Shop Tab */}

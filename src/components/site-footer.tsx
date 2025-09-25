@@ -8,7 +8,7 @@ export function SiteFooter() {
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             <Link href="#" className="transition-colors hover:text-foreground">Terms of Service</Link>
             <Link href="#" className="transition-colors hover:text-foreground">Privacy Policy</Link>
-            <Link href="/dashboard" className="font-medium transition-colors hover:text-foreground">
+            <Link href="/admin" className="font-medium transition-colors hover:text-foreground">
                 Admin
             </Link>
             <ThemeToggle />

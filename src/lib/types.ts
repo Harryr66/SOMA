@@ -18,6 +18,27 @@ export interface Artist {
   };
 }
 
+export interface ArtistRequest {
+  id: string;
+  userId: string;
+  user: User;
+  portfolioImages: string[];
+  artistStatement: string;
+  experience: string;
+  socialLinks?: {
+    instagram?: string;
+    twitter?: string;
+    website?: string;
+    tiktok?: string;
+  };
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: Date;
+  reviewedAt?: Date;
+  reviewedBy?: string;
+  rejectionReason?: string;
+  notes?: string;
+}
+
 export interface Artwork {
   id: string;
   artist: Artist;
@@ -207,6 +228,17 @@ export interface User {
   lastSeen?: Date;
   artistType?: string;
   isTipJarEnabled?: boolean;
+  portfolio?: Array<{
+    id: string;
+    imageUrl: string;
+    title: string;
+    description: string;
+    medium: string;
+    dimensions: string;
+    year: string;
+    tags: string[];
+    createdAt: Date;
+  }>;
   socialLinks?: {
     instagram?: string;
     twitter?: string;
