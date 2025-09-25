@@ -177,11 +177,6 @@ const mockProducts = [
 
 const categories = [
   {
-    id: 'all',
-    name: 'All Categories',
-    subcategories: []
-  },
-  {
     id: 'painting-supplies',
     name: 'Painting Supplies',
     subcategories: [
@@ -264,7 +259,7 @@ const sortOptions = [
 
 export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('painting-supplies');
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
   const [showFilters, setShowFilters] = useState(false);
@@ -360,13 +355,12 @@ export default function MarketplacePage() {
           {/* Search Bar */}
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1 relative">
-              <Select defaultValue="all">
+              <Select defaultValue="painting-supplies">
                 <SelectTrigger className="w-32 h-10 rounded-r-none border-r-0">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.slice(1).map(category => (
+                  {categories.map(category => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
@@ -387,7 +381,6 @@ export default function MarketplacePage() {
 
           {/* Navigation */}
           <div className="flex items-center gap-4 text-sm overflow-x-auto">
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">All</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Best Sellers</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">New Releases</Button>
             <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Today's Deals</Button>
@@ -444,7 +437,7 @@ export default function MarketplacePage() {
             {/* Page Header */}
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                {selectedCategoryData?.name || 'All Products'}
+                {selectedCategoryData?.name || categories[0]?.name || 'Art Supplies'}
               </h2>
               <div className="flex items-center justify-between">
                 <p className="text-muted-foreground">
