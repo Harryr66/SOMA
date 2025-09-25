@@ -257,19 +257,26 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="pending">
-            Pending ({pendingRequests.length})
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsTrigger value="pending" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">Pending</span>
+            <span className="sm:hidden">Pending</span>
+            <span className="ml-1">({pendingRequests.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="approved">
-            Approved ({approvedRequests.length})
+          <TabsTrigger value="approved" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">Approved</span>
+            <span className="sm:hidden">Approved</span>
+            <span className="ml-1">({approvedRequests.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="rejected">
-            Rejected ({rejectedRequests.length})
+          <TabsTrigger value="rejected" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">Rejected</span>
+            <span className="sm:hidden">Rejected</span>
+            <span className="ml-1">({rejectedRequests.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="video-upload">
-            <Video className="h-4 w-4 mr-2" />
-            Upload Video
+          <TabsTrigger value="video-upload" className="text-xs sm:text-sm">
+            <Video className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Upload Video</span>
+            <span className="sm:hidden">Upload</span>
           </TabsTrigger>
         </TabsList>
 

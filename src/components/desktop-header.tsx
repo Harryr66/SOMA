@@ -23,12 +23,12 @@ export function DesktopHeader() {
   const pathname = usePathname();
 
   return (
-    <div className="flex items-center justify-between bg-card border-b h-16 px-6">
-      <h1 className="text-2xl font-bold text-foreground">
+    <div className="flex items-center justify-between bg-card border-b h-16 px-4 sm:px-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-foreground">
         SOMA
       </h1>
       
-      <nav className="flex items-center space-x-6">
+      <nav className="hidden md:flex items-center space-x-6">
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -42,18 +42,18 @@ export function DesktopHeader() {
                   : 'text-foreground hover:text-foreground hover:bg-muted/50'
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-4 w-4" />
               <span>{item.name}</span>
             </Link>
           );
         })}
       </nav>
       
-      <div className="flex items-center space-x-3">
-        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
-          <span className="text-white text-sm font-medium">U</span>
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+          <span className="text-white text-xs sm:text-sm font-medium">U</span>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="hidden sm:flex flex-1 min-w-0">
           <p className="text-sm font-medium truncate">User Name</p>
           <p className="text-xs text-muted-foreground truncate">@username</p>
         </div>

@@ -159,15 +159,16 @@ export default function FeedPage() {
 
       {/* Category Filters */}
     <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm"
             >
               <Filter className="h-4 w-4" />
-              Filter by Style
+              <span className="hidden sm:inline">Filter by Style</span>
+              <span className="sm:hidden">Filters</span>
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="ml-1">
                   {activeFiltersCount}
@@ -175,7 +176,7 @@ export default function FeedPage() {
               )}
             </Button>
             {activeFiltersCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory('all')}>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCategory('all')} className="text-sm">
                 <X className="h-4 w-4 mr-1" />
                 Clear Filter
               </Button>

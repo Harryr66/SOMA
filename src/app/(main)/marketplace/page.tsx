@@ -356,13 +356,14 @@ export default function MarketplacePage() {
         {/* Header */}
       <div className="bg-background border-b border-border">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-foreground">SOMA Marketplace</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">SOMA Marketplace</h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Deliver to</span>
+                <span className="hidden sm:inline">Deliver to</span>
+                <span className="sm:hidden">Country:</span>
                 <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                  <SelectTrigger className="w-40 h-8 text-sm">
+                  <SelectTrigger className="w-32 sm:w-40 h-8 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -379,9 +380,9 @@ export default function MarketplacePage() {
               <div className="flex items-center gap-1">
                 <ShoppingCart className="h-5 w-5 text-foreground" />
                 <span className="text-sm font-medium text-foreground">0</span>
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
 
           {/* Search Bar */}
           <div className="flex items-center gap-4 mb-4">
@@ -399,22 +400,22 @@ export default function MarketplacePage() {
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center gap-4 text-sm overflow-x-auto">
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Best Sellers</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">New Releases</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Supplies</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Books</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Art Prints</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Ceramics</Button>
-            <Button variant="ghost" className="px-3 py-2 h-auto font-normal whitespace-nowrap">Easels</Button>
+          <div className="flex items-center gap-2 sm:gap-4 text-sm overflow-x-auto pb-2">
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Best Sellers</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">New Releases</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Art Supplies</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Art Books</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Art Prints</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Ceramics</Button>
+            <Button variant="ghost" className="px-2 sm:px-3 py-2 h-auto font-normal whitespace-nowrap text-xs sm:text-sm">Easels</Button>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
+          <div className="w-full lg:w-64 flex-shrink-0">
             <div className="bg-card rounded-lg border border-border p-4">
               <h3 className="font-semibold mb-4 text-card-foreground">Department</h3>
               <div className="space-y-2">
