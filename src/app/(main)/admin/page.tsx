@@ -10,10 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { ArtistRequest } from '@/lib/types';
-import { Check, X, Eye, Clock, User, Calendar, ExternalLink } from 'lucide-react';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
+import { ArtistRequest, Episode } from '@/lib/types';
+import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function AdminPanel() {
@@ -23,6 +24,15 @@ export default function AdminPanel() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Video upload states
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoDescription, setVideoDescription] = useState('');
+  const [videoDuration, setVideoDuration] = useState('');
+  const [videoTags, setVideoTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const q = query(
@@ -131,6 +141,101 @@ export default function AdminPanel() {
     }
   };
 
+  // Video upload functions
+  const handleVideoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setVideoFile(file);
+    }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !videoTags.includes(newTag.trim())) {
+      setVideoTags([...videoTags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setVideoTags(videoTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleVideoUpload = async () => {
+    if (!videoFile || !videoTitle.trim() || !videoDescription.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields and select a video file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Upload video to Firebase Storage
+      const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
+      await uploadBytes(videoRef, videoFile);
+      const videoUrl = await getDownloadURL(videoRef);
+
+      // Create episode document in Firestore
+      const episodeData: Omit<Episode, 'id'> = {
+        title: videoTitle,
+        description: videoDescription,
+        videoUrl,
+        thumbnailUrl: '', // Will be generated later
+        duration: parseInt(videoDuration) || 0,
+        viewCount: 0,
+        likeCount: 0,
+        commentCount: 0,
+        tags: videoTags,
+        category: 'admin-upload',
+        docuseriesId: 'admin-episodes',
+        episodeNumber: 1,
+        isPublished: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        artist: {
+          id: 'admin',
+          username: 'SOMA Admin',
+          displayName: 'SOMA Admin',
+          avatarUrl: '',
+          isProfessional: true,
+          followerCount: 0,
+          followingCount: 0,
+          postCount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isVerified: true,
+          isActive: true
+        }
+      };
+
+      await addDoc(collection(db, 'episodes'), episodeData);
+
+      toast({
+        title: "Video Uploaded",
+        description: "Video has been successfully uploaded to the home feed.",
+      });
+
+      // Reset form
+      setVideoFile(null);
+      setVideoTitle('');
+      setVideoDescription('');
+      setVideoDuration('');
+      setVideoTags([]);
+      setNewTag('');
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload video. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const pendingRequests = artistRequests.filter(req => req.status === 'pending');
   const approvedRequests = artistRequests.filter(req => req.status === 'approved');
   const rejectedRequests = artistRequests.filter(req => req.status === 'rejected');
@@ -153,7 +258,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pending">
             Pending ({pendingRequests.length})
           </TabsTrigger>
@@ -162,6 +267,10 @@ export default function AdminPanel() {
           </TabsTrigger>
           <TabsTrigger value="rejected">
             Rejected ({rejectedRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="video-upload">
+            <Video className="h-4 w-4 mr-2" />
+            Upload Video
           </TabsTrigger>
         </TabsList>
 
@@ -510,6 +619,139 @@ export default function AdminPanel() {
           </AlertDialogContent>
         </AlertDialog>
       )}
+
+      {/* Video Upload Tab */}
+      <TabsContent value="video-upload" className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              Upload Video to Home Feed
+            </CardTitle>
+            <CardDescription>
+              Upload videos that will appear in the main home episodes feed for all SOMA users.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Video File Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="video-upload">Video File *</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
+                  className="hidden"
+                />
+                <Label htmlFor="video-upload" className="cursor-pointer">
+                  <div className="space-y-2">
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                    <div>
+                      <span className="text-sm font-medium">Click to upload video</span>
+                      <p className="text-xs text-muted-foreground">MP4, MOV, AVI up to 100MB</p>
+                    </div>
+                  </div>
+                </Label>
+                {videoFile && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium">Selected: {videoFile.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Size: {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Video Title */}
+            <div className="space-y-2">
+              <Label htmlFor="video-title">Title *</Label>
+              <Input
+                id="video-title"
+                value={videoTitle}
+                onChange={(e) => setVideoTitle(e.target.value)}
+                placeholder="Enter video title..."
+              />
+            </div>
+
+            {/* Video Description */}
+            <div className="space-y-2">
+              <Label htmlFor="video-description">Description *</Label>
+              <Textarea
+                id="video-description"
+                value={videoDescription}
+                onChange={(e) => setVideoDescription(e.target.value)}
+                placeholder="Enter video description..."
+                rows={4}
+              />
+            </div>
+
+            {/* Video Duration */}
+            <div className="space-y-2">
+              <Label htmlFor="video-duration">Duration (seconds)</Label>
+              <Input
+                id="video-duration"
+                type="number"
+                value={videoDuration}
+                onChange={(e) => setVideoDuration(e.target.value)}
+                placeholder="Enter duration in seconds..."
+              />
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  placeholder="Add a tag..."
+                  onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                />
+                <Button type="button" onClick={addTag} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {videoTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {videoTags.map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Upload Button */}
+            <Button
+              onClick={handleVideoUpload}
+              disabled={isUploading || !videoFile || !videoTitle.trim() || !videoDescription.trim()}
+              className="w-full"
+            >
+              {isUploading ? (
+                <>
+                  <Upload className="h-4 w-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Video to Home Feed
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </TabsContent>
     </div>
   );
 }

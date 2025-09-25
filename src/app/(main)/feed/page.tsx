@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FeaturedHero } from '@/components/featured-hero';
 import { ContentRow } from '@/components/content-row';
 import { DocuseriesCard } from '@/components/docuseries-card';
@@ -18,6 +18,8 @@ import {
 } from '@/lib/streaming-data';
 import { Docuseries, Episode } from '@/lib/types';
 import { Filter, X } from 'lucide-react';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const CATEGORIES = [
   { id: 'all', name: 'All Styles', count: mockDocuseries.length },
@@ -63,7 +65,28 @@ export default function FeedPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [realEpisodes, setRealEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
+
+  // Fetch real episodes from database
+  useEffect(() => {
+    const q = query(
+      collection(db, 'episodes'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const episodes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Episode[];
+      setRealEpisodes(episodes);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handlePlay = (item: Docuseries | Episode) => {
     console.log('Playing:', item.title);
@@ -200,6 +223,21 @@ export default function FeedPage() {
           onAddToWatchlist={handleAddToWatchlist}
           getWatchProgress={getWatchProgress}
         />
+
+        {/* Admin Uploaded Videos */}
+        {realEpisodes.length > 0 && (
+          <ContentRow
+            title="Latest Episodes"
+            subtitle="New videos from SOMA"
+            items={realEpisodes}
+            type="episodes"
+            variant="default"
+            onItemClick={handlePlay}
+            onAddToWatchlist={handleAddToWatchlist}
+            isInWatchlist={isInWatchlist}
+            getWatchProgress={getWatchProgress}
+          />
+        )}
 
         {/* Trending Now */}
         {filteredContent.trending.length > 0 && (
