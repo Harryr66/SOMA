@@ -21,10 +21,41 @@ import { Filter, X } from 'lucide-react';
 
 const CATEGORIES = [
   { id: 'all', name: 'All Styles', count: mockDocuseries.length },
+  // Artistic Styles
+  { id: 'Abstract', name: 'Abstract', count: 0 },
+  { id: 'Realism', name: 'Realism', count: 0 },
+  { id: 'Impressionism', name: 'Impressionism', count: 0 },
+  { id: 'Expressionism', name: 'Expressionism', count: 0 },
+  { id: 'Surrealism', name: 'Surrealism', count: 0 },
+  { id: 'Minimalism', name: 'Minimalism', count: 0 },
+  { id: 'Pop Art', name: 'Pop Art', count: 0 },
+  { id: 'Street Art', name: 'Street Art', count: 0 },
+  // Traditional Art Forms
   { id: 'Traditional Art', name: 'Traditional Art', count: mockByCategory['Traditional Art'].length },
   { id: 'Digital Art', name: 'Digital Art', count: mockByCategory['Digital Art'].length },
   { id: 'Sculpture', name: 'Sculpture', count: mockByCategory['Sculpture'].length },
   { id: 'Mixed Media', name: 'Mixed Media', count: mockByCategory['Mixed Media'].length },
+  // Mediums
+  { id: 'Oil Painting', name: 'Oil Painting', count: 0 },
+  { id: 'Acrylic', name: 'Acrylic', count: 0 },
+  { id: 'Watercolor', name: 'Watercolor', count: 0 },
+  { id: 'Charcoal', name: 'Charcoal', count: 0 },
+  { id: 'Pencil', name: 'Pencil', count: 0 },
+  { id: 'Ink', name: 'Ink', count: 0 },
+  { id: 'Pastel', name: 'Pastel', count: 0 },
+  { id: 'Gouache', name: 'Gouache', count: 0 },
+  { id: 'Collage', name: 'Collage', count: 0 },
+  { id: 'Photography', name: 'Photography', count: 0 },
+  { id: 'Printmaking', name: 'Printmaking', count: 0 },
+  { id: 'Ceramics', name: 'Ceramics', count: 0 },
+  { id: 'Textiles', name: 'Textiles', count: 0 },
+  { id: 'Wood', name: 'Wood', count: 0 },
+  { id: 'Metal', name: 'Metal', count: 0 },
+  { id: 'Stone', name: 'Stone', count: 0 },
+  { id: 'Glass', name: 'Glass', count: 0 },
+  { id: 'Digital', name: 'Digital', count: 0 },
+  { id: '3D Modeling', name: '3D Modeling', count: 0 },
+  { id: 'Animation', name: 'Animation', count: 0 },
 ];
 
 export default function FeedPage() {
@@ -60,11 +91,31 @@ export default function FeedPage() {
       };
     }
     
-    const categoryContent = mockByCategory[selectedCategory as keyof typeof mockByCategory] || [];
+    // Check if it's one of the original categories
+    const originalCategoryContent = mockByCategory[selectedCategory as keyof typeof mockByCategory];
+    if (originalCategoryContent) {
+      return {
+        trending: originalCategoryContent,
+        newReleases: originalCategoryContent,
+        mostLoved: originalCategoryContent.sort((a, b) => b.rating - a.rating)
+      };
+    }
+    
+    // For new styles and mediums, filter by tags or category field
+    const filteredDocuseries = mockDocuseries.filter(docuseries => {
+      const tags = docuseries.tags.map(tag => tag.toLowerCase());
+      const categoryLower = docuseries.category.toLowerCase();
+      const selectedLower = selectedCategory.toLowerCase();
+      
+      return tags.includes(selectedLower) || 
+             categoryLower.includes(selectedLower) ||
+             docuseries.title.toLowerCase().includes(selectedLower);
+    });
+    
     return {
-      trending: categoryContent,
-      newReleases: categoryContent,
-      mostLoved: categoryContent.sort((a, b) => b.rating - a.rating)
+      trending: filteredDocuseries,
+      newReleases: filteredDocuseries,
+      mostLoved: filteredDocuseries.sort((a, b) => b.rating - a.rating)
     };
   }, [selectedCategory]);
 
