@@ -20,7 +20,7 @@ import { Docuseries, Episode } from '@/lib/types';
 import { Filter, X } from 'lucide-react';
 
 const CATEGORIES = [
-  { id: 'all', name: 'All Categories', count: mockDocuseries.length },
+  { id: 'all', name: 'All Styles', count: mockDocuseries.length },
   { id: 'Traditional Art', name: 'Traditional Art', count: mockByCategory['Traditional Art'].length },
   { id: 'Digital Art', name: 'Digital Art', count: mockByCategory['Digital Art'].length },
   { id: 'Sculpture', name: 'Sculpture', count: mockByCategory['Sculpture'].length },
@@ -93,7 +93,7 @@ export default function FeedPage() {
               className="flex items-center gap-2"
             >
               <Filter className="h-4 w-4" />
-              Filter by Category
+              Filter by Style
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="ml-1">
                   {activeFiltersCount}
