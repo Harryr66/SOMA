@@ -41,7 +41,7 @@ export function StoryCircle({ artist, stories, isOwn = false, onAddStory }: Stor
       <DialogTrigger asChild>
         <div className="flex flex-col items-center space-y-2 cursor-pointer group">
           <div className="relative">
-            <Avatar className="h-16 w-16 ring-2 ring-offset-2 ring-primary group-hover:ring-offset-4 transition-all">
+            <Avatar className="h-16 w-16">
               <AvatarImage src={artist.avatarUrl ?? undefined} alt={artist.name} />
               <AvatarFallback className="text-lg">
                 {artist.name.charAt(0).toUpperCase()}

@@ -207,7 +207,6 @@ export interface User {
   lastSeen?: Date;
   artistType?: string;
   isTipJarEnabled?: boolean;
-  profileRingColor?: string;
   socialLinks?: {
     instagram?: string;
     twitter?: string;

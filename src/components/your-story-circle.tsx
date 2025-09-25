@@ -23,7 +23,7 @@ export function YourStoryCircle() {
       <DialogTrigger asChild>
         <div className="flex flex-col items-center space-y-2 cursor-pointer group">
           <div className="relative">
-            <Avatar className="h-16 w-16 ring-2 ring-offset-2 ring-primary group-hover:ring-offset-4 transition-all">
+            <Avatar className="h-16 w-16">
               <AvatarImage src={avatarUrl || undefined} alt={user.displayName} />
               <AvatarFallback className="text-lg">
                 {user.displayName?.charAt(0)?.toUpperCase() || 'U'}

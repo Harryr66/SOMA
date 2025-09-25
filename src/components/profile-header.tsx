@@ -67,19 +67,11 @@ export function ProfileHeader({
   const getAvatarBorderClass = () => {
     if (user.hasActiveStory) {
       return 'story-gradient-border';
-    } else if (user.profileRingColor) {
-      return 'profile-ring-border';
     }
     return 'border-4 border-muted rounded-full';
   };
 
   const getAvatarBorderStyle = () => {
-    if (user.profileRingColor && !user.hasActiveStory) {
-      return { 
-        borderColor: user.profileRingColor,
-        borderRadius: '50%'
-      };
-    }
     return { borderRadius: '50%' };
   };
 
