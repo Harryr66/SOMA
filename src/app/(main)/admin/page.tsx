@@ -185,13 +185,15 @@ export default function AdminPanel() {
         thumbnailUrl: '', // Will be generated later
         duration: parseInt(videoDuration) || 0,
         viewCount: 0,
-        likeCount: 0,
-        commentCount: 0,
+        likes: 0,
+        commentsCount: 0,
         tags: videoTags,
-        category: 'admin-upload',
         docuseriesId: 'admin-episodes',
         episodeNumber: 1,
+        seasonNumber: 1,
+        releaseDate: new Date(),
         isPublished: true,
+        isFeatured: false,
         createdAt: new Date(),
         updatedAt: new Date(),
         artist: {
