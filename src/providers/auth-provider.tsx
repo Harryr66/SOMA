@@ -150,7 +150,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             lastSeen: userData.lastSeen?.toDate(),
             artistType: userData.artistType || '',
             isTipJarEnabled: userData.isTipJarEnabled || false,
-            profileRingColor: userData.profileRingColor || '#3b82f6',
             socialLinks: userData.socialLinks || {},
             preferences: userData.preferences || {
               notifications: {
