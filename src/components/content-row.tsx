@@ -18,6 +18,8 @@ interface ContentRowProps {
   className?: string;
   onItemClick?: (item: Episode | Docuseries) => void;
   onAddToWatchlist?: (docuseriesId: string) => void;
+  isInWatchlist?: (docuseriesId: string) => boolean;
+  getWatchProgress?: (episodeId: string) => number;
 }
 
 export function ContentRow({
@@ -29,7 +31,9 @@ export function ContentRow({
   showScrollButtons = true,
   className,
   onItemClick,
-  onAddToWatchlist
+  onAddToWatchlist,
+  isInWatchlist,
+  getWatchProgress
 }: ContentRowProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -112,6 +116,8 @@ export function ContentRow({
                   episode={item as Episode}
                   docuseries={(item as Episode).docuseriesId ? items.find(d => d.id === (item as Episode).docuseriesId) as Docuseries : undefined}
                   variant={getCardVariant() as any}
+                  showProgress={true}
+                  progress={getWatchProgress ? getWatchProgress((item as Episode).id) : 0}
                   onPlay={onItemClick}
                   onAddToWatchlist={onAddToWatchlist}
                 />

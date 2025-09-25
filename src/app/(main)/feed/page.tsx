@@ -5,6 +5,7 @@ import { FeaturedHero } from '@/components/featured-hero';
 import { ContentRow } from '@/components/content-row';
 import { DocuseriesCard } from '@/components/docuseries-card';
 import { EpisodeCard } from '@/components/episode-card';
+import { useWatchlist } from '@/providers/watchlist-provider';
 import { 
   mockFeaturedContent, 
   mockContinueWatching, 
@@ -17,6 +18,7 @@ import { Docuseries, Episode } from '@/lib/types';
 export default function FeedPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
 
   const handlePlay = (item: Docuseries | Episode) => {
     console.log('Playing:', item.title);
@@ -24,7 +26,7 @@ export default function FeedPage() {
   };
 
   const handleAddToWatchlist = (docuseriesId: string) => {
-    console.log('Added to watchlist:', docuseriesId);
+    addToWatchlist(docuseriesId);
   };
 
   const handleShowInfo = () => {
@@ -54,11 +56,12 @@ export default function FeedPage() {
         <ContentRow
           title="Continue Watching"
           subtitle="Pick up where you left off"
-          items={mockContinueWatching}
+          items={getContinueWatching()}
           type="episodes"
           variant="compact"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          getWatchProgress={getWatchProgress}
         />
 
         {/* Trending Now */}
@@ -70,6 +73,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
 
         {/* New Releases */}
@@ -81,6 +85,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
 
         {/* Traditional Art */}
@@ -92,6 +97,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
 
         {/* Digital Art */}
@@ -103,6 +109,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
 
         {/* Sculpture */}
@@ -114,6 +121,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
 
         {/* Mixed Media */}
@@ -125,6 +133,7 @@ export default function FeedPage() {
           variant="default"
           onItemClick={handlePlay}
           onAddToWatchlist={handleAddToWatchlist}
+          isInWatchlist={isInWatchlist}
         />
       </div>
     </div>

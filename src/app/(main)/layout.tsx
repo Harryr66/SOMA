@@ -6,12 +6,14 @@ import { SiteFooter } from '@/components/site-footer';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
 import { ContentProvider } from '@/providers/content-provider';
+import { WatchlistProvider } from '@/providers/watchlist-provider';
 import { DesktopHeader } from '@/components/desktop-header';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ContentProvider>
-      <div className="flex min-h-screen w-full bg-background flex-col">
+      <WatchlistProvider>
+        <div className="flex min-h-screen w-full bg-background flex-col">
         {/* Desktop Header */}
         <div className="hidden md:block">
           <DesktopHeader />
@@ -27,7 +29,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </main>
         <SiteFooter />
         <MobileBottomNav />
-      </div>
+        </div>
+      </WatchlistProvider>
     </ContentProvider>
   );
 }

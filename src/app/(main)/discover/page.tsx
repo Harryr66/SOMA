@@ -293,6 +293,16 @@ export default function DiscoverPage() {
               className="pl-10"
             />
           </div>
+          
+          {/* Advanced Search Link */}
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/search')}
+            className="flex items-center gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Advanced Search
+          </Button>
 
           {/* Category Filter */}
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
