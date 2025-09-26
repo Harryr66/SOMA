@@ -165,7 +165,11 @@ const mockEpisodes: Episode[] = [
     commentsCount: 45,
     isPublished: true,
     isFeatured: false,
+    isMainEvent: false,
     tags: ['ceramics', 'sculpture', 'meditation', 'process'],
+    categories: ['Ceramics', 'Sculpture'],
+    displayLocation: 'new-releases',
+    likedBy: ['user10', 'user11'],
     artist: mockArtists[2],
     createdAt: new Date('2024-01-20'),
     updatedAt: new Date('2024-01-25')
@@ -186,7 +190,11 @@ const mockEpisodes: Episode[] = [
     commentsCount: 78,
     isPublished: true,
     isFeatured: true,
+    isMainEvent: false,
     tags: ['mixed-media', 'traditional', 'digital', 'hybrid'],
+    categories: ['Mixed Media', 'Digital'],
+    displayLocation: 'trending',
+    likedBy: ['user12', 'user13', 'user14'],
     artist: mockArtists[3],
     createdAt: new Date('2024-01-23'),
     updatedAt: new Date('2024-01-28')
