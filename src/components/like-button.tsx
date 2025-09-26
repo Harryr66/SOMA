@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
-import { doc, updateDoc, arrayUnion, arrayRemove, increment, decrement } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/providers/auth-provider';
 import { toast } from '@/hooks/use-toast';
@@ -50,7 +50,7 @@ export function LikeButton({
         // Unlike
         await updateDoc(episodeRef, {
           likedBy: arrayRemove(user.id),
-          likes: decrement(1)
+          likes: increment(-1)
         });
         setLikedBy(prev => prev.filter(id => id !== user.id));
         setLikes(prev => prev - 1);
