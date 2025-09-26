@@ -57,6 +57,7 @@ export default function AdminPanel() {
   
   // Video upload states
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
   const [videoDuration, setVideoDuration] = useState('');
@@ -264,6 +265,31 @@ export default function AdminPanel() {
     }
   };
 
+  const handleThumbnailFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate image file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file for the thumbnail.",
+          variant: "destructive",
+        });
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Thumbnail image must be smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setThumbnailFile(file);
+    }
+  };
+
   const addTag = () => {
     if (newTag.trim() && !videoTags.includes(newTag.trim())) {
       setVideoTags([...videoTags, newTag.trim()]);
@@ -300,12 +326,20 @@ export default function AdminPanel() {
       await uploadBytes(videoRef, videoFile);
       const videoUrl = await getDownloadURL(videoRef);
 
+      // Upload thumbnail to Firebase Storage (if provided)
+      let thumbnailUrl = '';
+      if (thumbnailFile) {
+        const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
+        await uploadBytes(thumbnailRef, thumbnailFile);
+        thumbnailUrl = await getDownloadURL(thumbnailRef);
+      }
+
       // Create episode document in Firestore
       const episodeData: Omit<Episode, 'id'> = {
         title: videoTitle,
         description: videoDescription,
         videoUrl,
-        thumbnailUrl: '', // Will be generated later
+        thumbnailUrl: thumbnailUrl || '', // Use uploaded thumbnail or empty string
         duration: parseInt(videoDuration) || 0,
         viewCount: 0,
         likes: 0,
@@ -344,6 +378,7 @@ export default function AdminPanel() {
 
       // Reset form
       setVideoFile(null);
+      setThumbnailFile(null);
       setVideoTitle('');
       setVideoDescription('');
       setVideoDuration('');
@@ -657,6 +692,58 @@ export default function AdminPanel() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Thumbnail Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="thumbnail-upload">Thumbnail Image (Optional)</Label>
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                  <input
+                    id="thumbnail-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleThumbnailFileChange}
+                    className="hidden"
+                  />
+                  <Label htmlFor="thumbnail-upload" className="cursor-pointer">
+                    <div className="space-y-2">
+                      <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                      <div>
+                        <span className="text-sm font-medium">Click to upload thumbnail</span>
+                        <p className="text-xs text-muted-foreground">JPG, PNG, GIF up to 5MB</p>
+                      </div>
+                    </div>
+                  </Label>
+                  {thumbnailFile && (
+                    <div className="mt-4">
+                      <div className="flex items-center justify-center space-x-4">
+                        <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-muted-foreground/25">
+                          <img
+                            src={URL.createObjectURL(thumbnailFile)}
+                            alt="Thumbnail preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-medium">Selected: {thumbnailFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Size: {(thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setThumbnailFile(null)}
+                            className="text-xs text-red-500 hover:text-red-700 mt-1"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Upload a custom thumbnail image for better video presentation. If not provided, a default thumbnail will be used.
+                </p>
               </div>
 
               {/* Video Title */}
