@@ -17,7 +17,7 @@ import {
   mockDocuseries 
 } from '@/lib/streaming-data';
 import { Docuseries, Episode } from '@/lib/types';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, Play, Bookmark } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -68,6 +68,12 @@ export default function FeedPage() {
   const [realEpisodes, setRealEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
+
+  // Get the main event episode (most recent one marked as main event)
+  const mainEventEpisode = useMemo(() => {
+    const mainEvents = realEpisodes.filter(episode => episode.isMainEvent);
+    return mainEvents.length > 0 ? mainEvents[0] : null;
+  }, [realEpisodes]);
 
   // Fetch real episodes from database
   useEffect(() => {
@@ -157,15 +163,49 @@ export default function FeedPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Featured Hero Section */}
-      <FeaturedHero
-        docuseries={mockFeaturedContent}
-        isPlaying={isPlaying}
-        onPlay={() => handlePlay(mockFeaturedContent)}
-        onAddToWatchlist={() => handleAddToWatchlist(mockFeaturedContent.id)}
-        onShowInfo={handleShowInfo}
-        onToggleMute={handleToggleMute}
-        isMuted={isMuted}
-      />
+      {mainEventEpisode ? (
+        <div className="relative h-[60vh] min-h-[400px] overflow-hidden">
+          <img
+            src={mainEventEpisode.thumbnailUrl || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1920&h=1080&fit=crop'}
+            alt={mainEventEpisode.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-6xl font-bold mb-4">{mainEventEpisode.title}</h1>
+              <p className="text-lg md:text-xl mb-6 opacity-90 max-w-2xl">{mainEventEpisode.description}</p>
+              <div className="flex gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => handlePlay(mainEventEpisode)}
+                  className="bg-white text-black hover:bg-gray-200"
+                >
+                  <Play className="h-5 w-5 mr-2" />
+                  Play Now
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => handleAddToWatchlist(mainEventEpisode.docuseriesId)}
+                  className="border-white text-white hover:bg-white hover:text-black"
+                >
+                  <Bookmark className="h-5 w-5 mr-2" />
+                  Add to Watchlist
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <FeaturedHero
+          docuseries={mockFeaturedContent}
+          isPlaying={isPlaying}
+          onPlay={() => handlePlay(mockFeaturedContent)}
+          onAddToWatchlist={() => handleAddToWatchlist(mockFeaturedContent.id)}
+          onShowInfo={handleShowInfo}
+        />
+      )}
 
       {/* Category Filters */}
     <div className="container mx-auto px-4 py-6">
@@ -235,12 +275,12 @@ export default function FeedPage() {
           getWatchProgress={getWatchProgress}
         />
 
-        {/* Admin Uploaded Videos */}
-        {realEpisodes.length > 0 && (
+        {/* Recently Added Episodes */}
+        {realEpisodes.filter(episode => !episode.isMainEvent).length > 0 && (
           <ContentRow
-            title="Latest Episodes"
-            subtitle="New videos from SOMA"
-            items={realEpisodes}
+            title="Recently Added"
+            subtitle="Latest videos from SOMA"
+            items={realEpisodes.filter(episode => !episode.isMainEvent)}
             type="episodes"
             variant="default"
             onItemClick={handlePlay}

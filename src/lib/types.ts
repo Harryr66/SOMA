@@ -571,6 +571,7 @@ export interface Episode {
   commentsCount: number;
   isPublished: boolean;
   isFeatured: boolean;
+  isMainEvent: boolean; // New: High-profile episodes for hero banner
   tags: string[];
   categories: string[]; // New: Art medium categories (Oil, Acrylic, Pastel, etc.)
   displayLocation: 'main-banner' | 'new-releases' | 'trending' | 'most-loved' | 'all'; // New: Where to display the video

@@ -64,6 +64,7 @@ export default function AdminPanel() {
   const [videoTags, setVideoTags] = useState<string[]>([]);
   const [videoCategories, setVideoCategories] = useState<string[]>([]);
   const [videoDisplayLocation, setVideoDisplayLocation] = useState<'main-banner' | 'new-releases' | 'trending' | 'most-loved' | 'all'>('new-releases');
+  const [isMainEvent, setIsMainEvent] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -354,6 +355,7 @@ export default function AdminPanel() {
         releaseDate: new Date(),
         isPublished: true,
         isFeatured: false,
+        isMainEvent: isMainEvent,
         createdAt: new Date(),
         updatedAt: new Date(),
         artist: {
@@ -385,6 +387,7 @@ export default function AdminPanel() {
       setVideoTags([]);
       setVideoCategories([]);
       setVideoDisplayLocation('new-releases');
+      setIsMainEvent(false);
       setNewTag('');
     } catch (error) {
       console.error('Error uploading video:', error);
@@ -832,6 +835,26 @@ export default function AdminPanel() {
                 </Select>
                 <p className="text-xs text-muted-foreground">
                   Choose where this video should appear on the home feed
+                </p>
+              </div>
+
+              {/* Main Event Checkbox */}
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="main-event"
+                    type="checkbox"
+                    checked={isMainEvent}
+                    onChange={(e) => setIsMainEvent(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="main-event" className="text-sm font-medium">
+                    Main Event
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground ml-6">
+                  Check this box for high-profile episodes that should appear in the hero banner section. 
+                  This overrides the display location setting above.
                 </p>
               </div>
 
