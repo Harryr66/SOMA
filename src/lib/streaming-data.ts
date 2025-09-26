@@ -91,6 +91,9 @@ const mockEpisodes: Episode[] = [
     isPublished: true,
     isFeatured: true,
     tags: ['abstract', 'painting', 'emotion', 'color'],
+    categories: ['Oil Painting', 'Acrylic'],
+    displayLocation: 'main-banner',
+    likedBy: ['user1', 'user2', 'user3'],
     artist: mockArtists[0],
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-15')
@@ -112,6 +115,9 @@ const mockEpisodes: Episode[] = [
     isPublished: true,
     isFeatured: false,
     tags: ['inspiration', 'process', 'creativity'],
+    categories: ['Watercolor', 'Mixed Media'],
+    displayLocation: 'new-releases',
+    likedBy: ['user4', 'user5'],
     artist: mockArtists[0],
     createdAt: new Date('2024-01-17'),
     updatedAt: new Date('2024-01-22')
@@ -133,6 +139,9 @@ const mockEpisodes: Episode[] = [
     isPublished: true,
     isFeatured: true,
     tags: ['digital', 'technology', 'futuristic', 'cityscape'],
+    categories: ['Digital', '3D Modeling'],
+    displayLocation: 'trending',
+    likedBy: ['user6', 'user7', 'user8', 'user9'],
     artist: mockArtists[1],
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-20')

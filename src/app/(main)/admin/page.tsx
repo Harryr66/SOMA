@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -16,6 +17,33 @@ import { db, storage } from '@/lib/firebase';
 import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
 import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+const ART_MEDIUM_CATEGORIES = [
+  'Oil Painting',
+  'Acrylic',
+  'Watercolor',
+  'Charcoal',
+  'Pencil',
+  'Ink',
+  'Pastel',
+  'Gouache',
+  'Collage',
+  'Photography',
+  'Printmaking',
+  'Ceramics',
+  'Textiles',
+  'Wood',
+  'Metal',
+  'Stone',
+  'Glass',
+  'Digital',
+  '3D Modeling',
+  'Animation',
+  'Mixed Media',
+  'Sculpture',
+  'Installation',
+  'Performance Art'
+];
 
 export default function AdminPanel() {
   const [artistRequests, setArtistRequests] = useState<ArtistRequest[]>([]);
@@ -33,6 +61,8 @@ export default function AdminPanel() {
   const [videoDescription, setVideoDescription] = useState('');
   const [videoDuration, setVideoDuration] = useState('');
   const [videoTags, setVideoTags] = useState<string[]>([]);
+  const [videoCategories, setVideoCategories] = useState<string[]>([]);
+  const [videoDisplayLocation, setVideoDisplayLocation] = useState<'main-banner' | 'new-releases' | 'trending' | 'most-loved' | 'all'>('new-releases');
   const [newTag, setNewTag] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -245,6 +275,14 @@ export default function AdminPanel() {
     setVideoTags(videoTags.filter(tag => tag !== tagToRemove));
   };
 
+  const toggleCategory = (category: string) => {
+    if (videoCategories.includes(category)) {
+      setVideoCategories(videoCategories.filter(cat => cat !== category));
+    } else {
+      setVideoCategories([...videoCategories, category]);
+    }
+  };
+
   const handleVideoUpload = async () => {
     if (!videoFile || !videoTitle.trim() || !videoDescription.trim()) {
       toast({
@@ -273,6 +311,9 @@ export default function AdminPanel() {
         likes: 0,
         commentsCount: 0,
         tags: videoTags,
+        categories: videoCategories,
+        displayLocation: videoDisplayLocation,
+        likedBy: [],
         docuseriesId: 'admin-episodes',
         episodeNumber: 1,
         seasonNumber: 1,
@@ -307,6 +348,8 @@ export default function AdminPanel() {
       setVideoDescription('');
       setVideoDuration('');
       setVideoTags([]);
+      setVideoCategories([]);
+      setVideoDisplayLocation('new-releases');
       setNewTag('');
     } catch (error) {
       console.error('Error uploading video:', error);
@@ -649,6 +692,60 @@ export default function AdminPanel() {
                   onChange={(e) => setVideoDuration(e.target.value)}
                   placeholder="Enter duration in seconds..."
                 />
+              </div>
+
+              {/* Art Medium Categories */}
+              <div className="space-y-2">
+                <Label>Art Medium Categories</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {ART_MEDIUM_CATEGORIES.map((category) => (
+                    <label key={category} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={videoCategories.includes(category)}
+                        onChange={() => toggleCategory(category)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">{category}</span>
+                    </label>
+                  ))}
+                </div>
+                {videoCategories.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {videoCategories.map((category) => (
+                      <Badge key={category} variant="secondary" className="flex items-center gap-1">
+                        {category}
+                        <button
+                          type="button"
+                          onClick={() => toggleCategory(category)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Display Location */}
+              <div className="space-y-2">
+                <Label htmlFor="display-location">Display Location</Label>
+                <Select value={videoDisplayLocation} onValueChange={(value: any) => setVideoDisplayLocation(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select where to display the video" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="main-banner">Main Banner (Featured Hero)</SelectItem>
+                    <SelectItem value="new-releases">New Releases</SelectItem>
+                    <SelectItem value="trending">Trending Now</SelectItem>
+                    <SelectItem value="most-loved">Most Loved</SelectItem>
+                    <SelectItem value="all">All Sections</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose where this video should appear on the home feed
+                </p>
               </div>
 
               {/* Tags */}

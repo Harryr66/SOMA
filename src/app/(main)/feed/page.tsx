@@ -106,11 +106,21 @@ export default function FeedPage() {
   };
 
   const filteredContent = useMemo(() => {
+    // Get most loved episodes from real episodes, ranked by likes
+    const mostLovedEpisodes = realEpisodes
+      .filter(episode => 
+        selectedCategory === 'all' || 
+        episode.categories?.includes(selectedCategory) ||
+        episode.tags.some(tag => tag.toLowerCase().includes(selectedCategory.toLowerCase()))
+      )
+      .sort((a, b) => b.likes - a.likes)
+      .slice(0, 6);
+
     if (selectedCategory === 'all') {
       return {
         trending: mockTrendingNow,
         newReleases: mockNewReleases,
-        mostLoved: mockDocuseries.sort((a, b) => b.rating - a.rating).slice(0, 6)
+        mostLoved: mostLovedEpisodes
       };
     }
     
@@ -120,7 +130,7 @@ export default function FeedPage() {
       return {
         trending: originalCategoryContent,
         newReleases: originalCategoryContent,
-        mostLoved: originalCategoryContent.sort((a, b) => b.rating - a.rating)
+        mostLoved: mostLovedEpisodes
       };
     }
     
@@ -138,9 +148,9 @@ export default function FeedPage() {
     return {
       trending: filteredDocuseries,
       newReleases: filteredDocuseries,
-      mostLoved: filteredDocuseries.sort((a, b) => b.rating - a.rating)
+      mostLoved: mostLovedEpisodes
     };
-  }, [selectedCategory]);
+  }, [selectedCategory, realEpisodes]);
 
   const activeFiltersCount = selectedCategory !== 'all' ? 1 : 0;
 
@@ -272,13 +282,14 @@ export default function FeedPage() {
         {filteredContent.mostLoved.length > 0 && (
           <ContentRow
             title="Most Loved"
-            subtitle="Highest rated docuseries"
+            subtitle="Most liked videos"
             items={filteredContent.mostLoved}
-            type="docuseries"
+            type="episodes"
             variant="default"
             onItemClick={handlePlay}
             onAddToWatchlist={handleAddToWatchlist}
             isInWatchlist={isInWatchlist}
+            getWatchProgress={getWatchProgress}
           />
         )}
       </div>

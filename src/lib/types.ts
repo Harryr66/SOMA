@@ -572,6 +572,9 @@ export interface Episode {
   isPublished: boolean;
   isFeatured: boolean;
   tags: string[];
+  categories: string[]; // New: Art medium categories (Oil, Acrylic, Pastel, etc.)
+  displayLocation: 'main-banner' | 'new-releases' | 'trending' | 'most-loved' | 'all'; // New: Where to display the video
+  likedBy: string[]; // New: Array of user IDs who liked the video
   artist: Artist;
   createdAt: Date;
   updatedAt: Date;

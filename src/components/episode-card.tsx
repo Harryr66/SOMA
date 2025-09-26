@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Play, Clock, Eye, Heart, MessageCircle, Bookmark } from 'lucide-react';
 import { Episode, Docuseries } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { LikeButton } from './like-button';
 
 interface EpisodeCardProps {
   episode: Episode;
@@ -127,10 +128,14 @@ export function EpisodeCard({
                 <Eye className="h-4 w-4 mr-1" />
                 {formatViewCount(episode.viewCount)}
               </span>
-              <span className="flex items-center">
-                <Heart className="h-4 w-4 mr-1" />
-                {formatViewCount(episode.likes)}
-              </span>
+              <LikeButton
+                episodeId={episode.id}
+                initialLikes={episode.likes}
+                initialLikedBy={episode.likedBy || []}
+                size="sm"
+                variant="ghost"
+                showCount={true}
+              />
               <span className="flex items-center">
                 <MessageCircle className="h-4 w-4 mr-1" />
                 {episode.commentsCount}
@@ -205,10 +210,14 @@ export function EpisodeCard({
               <Eye className="h-3 w-3 mr-1" />
               {formatViewCount(episode.viewCount)}
             </span>
-            <span className="flex items-center">
-              <Heart className="h-3 w-3 mr-1" />
-              {formatViewCount(episode.likes)}
-            </span>
+            <LikeButton
+              episodeId={episode.id}
+              initialLikes={episode.likes}
+              initialLikedBy={episode.likedBy || []}
+              size="sm"
+              variant="ghost"
+              showCount={true}
+            />
             <span className="flex items-center">
               <MessageCircle className="h-3 w-3 mr-1" />
               {episode.commentsCount}
