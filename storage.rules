@@ -1,12 +1,36 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+// Firebase Storage rules for SOMA
 service firebase.storage {
   match /b/{bucket}/o {
+    // Allow public read access to all files
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read: if true;
+    }
+    
+    // Allow uploads to episodes folder (for admin video uploads)
+    match /episodes/{allPaths=**} {
+      allow write: if true; // Allow admin uploads - in production, add proper admin authentication
+    }
+    
+    // Allow uploads to stories folder (for user story uploads)
+    match /stories/{allPaths=**} {
+      allow write: if true; // Allow user story uploads
+    }
+    
+    // Allow uploads to artworks folder (for artwork images)
+    match /artworks/{allPaths=**} {
+      allow write: if true; // Allow artwork uploads
+    }
+    
+    // Allow uploads to profiles folder (for profile pictures)
+    match /profiles/{allPaths=**} {
+      allow write: if true; // Allow profile picture uploads
+    }
+    
+    // Default rule - deny all other writes
+    match /{allPaths=**} {
+      allow write: if false;
     }
   }
 }

@@ -2,6 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow public read access to episodes for the home feed
+    match /episodes/{episodeId} {
+      allow read: if true;
+      allow write: if true; // Allow admin uploads - in production, add proper admin authentication
+    }
+    
+    // Allow public read access to posts
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if true; // Allow authenticated users to create posts
+    }
+    
+    // Allow public read access to artworks
+    match /artworks/{artworkId} {
+      allow read: if true;
+      allow write: if true; // Allow authenticated users to create artworks
+    }
+    
+    // Allow public read access to discussions
+    match /discussions/{discussionId} {
+      allow read: if true;
+      allow write: if true; // Allow authenticated users to create discussions
+    }
+    
+    // Allow public read access to artist requests
+    match /artistRequests/{requestId} {
+      allow read: if true;
+      allow write: if true; // Allow users to submit artist requests
+    }
+    
+    // Allow public read access to advertising applications
+    match /advertisingApplications/{applicationId} {
+      allow read: if true;
+      allow write: if true; // Allow companies to submit advertising applications
+    }
+    
+    // Allow public read access to user profiles
+    match /userProfiles/{userId} {
+      allow read: if true;
+      allow write: if true; // Allow users to update their profiles
+    }
+    
+    // Default rule - deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

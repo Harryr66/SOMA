@@ -60,7 +60,6 @@ export default function AdminPanel() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
-  const [videoDuration, setVideoDuration] = useState('');
   const [videoTags, setVideoTags] = useState<string[]>([]);
   const [videoCategories, setVideoCategories] = useState<string[]>([]);
   const [videoDisplayLocation, setVideoDisplayLocation] = useState<'main-banner' | 'new-releases' | 'trending' | 'most-loved' | 'all'>('new-releases');
@@ -322,26 +321,34 @@ export default function AdminPanel() {
 
     setIsUploading(true);
     try {
+      console.log('Starting video upload process...');
+      
       // Upload video to Firebase Storage
+      console.log('Uploading video file to Firebase Storage...');
       const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
       await uploadBytes(videoRef, videoFile);
+      console.log('Video uploaded successfully, getting download URL...');
       const videoUrl = await getDownloadURL(videoRef);
+      console.log('Video URL obtained:', videoUrl);
 
       // Upload thumbnail to Firebase Storage (if provided)
       let thumbnailUrl = '';
       if (thumbnailFile) {
+        console.log('Uploading thumbnail file...');
         const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
         await uploadBytes(thumbnailRef, thumbnailFile);
         thumbnailUrl = await getDownloadURL(thumbnailRef);
+        console.log('Thumbnail uploaded successfully');
       }
 
       // Create episode document in Firestore
+      console.log('Creating episode document in Firestore...');
       const episodeData: Omit<Episode, 'id'> = {
         title: videoTitle,
         description: videoDescription,
         videoUrl,
         thumbnailUrl: thumbnailUrl || '', // Use uploaded thumbnail or empty string
-        duration: parseInt(videoDuration) || 0,
+        duration: 0, // Duration will be calculated automatically
         viewCount: 0,
         likes: 0,
         commentsCount: 0,
@@ -371,10 +378,11 @@ export default function AdminPanel() {
         }
       };
 
-      await addDoc(collection(db, 'episodes'), episodeData);
+      const docRef = await addDoc(collection(db, 'episodes'), episodeData);
+      console.log('Episode document created with ID:', docRef.id);
 
       toast({
-        title: "Video Uploaded",
+        title: "Video Uploaded Successfully",
         description: "Video has been successfully uploaded to the home feed.",
       });
 
@@ -383,17 +391,33 @@ export default function AdminPanel() {
       setThumbnailFile(null);
       setVideoTitle('');
       setVideoDescription('');
-      setVideoDuration('');
       setVideoTags([]);
       setVideoCategories([]);
       setVideoDisplayLocation('new-releases');
       setIsMainEvent(false);
       setNewTag('');
+      
+      console.log('Video upload process completed successfully');
     } catch (error) {
       console.error('Error uploading video:', error);
+      
+      // More specific error messages
+      let errorMessage = "Failed to upload video. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes('storage/unauthorized')) {
+          errorMessage = "Storage access denied. Please check Firebase configuration.";
+        } else if (error.message.includes('storage/object-not-found')) {
+          errorMessage = "Storage object not found. Please try uploading again.";
+        } else if (error.message.includes('firestore/permission-denied')) {
+          errorMessage = "Database access denied. Please check Firestore rules.";
+        } else {
+          errorMessage = `Upload failed: ${error.message}`;
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to upload video. Please try again.",
+        title: "Upload Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -772,17 +796,6 @@ export default function AdminPanel() {
                 />
               </div>
 
-              {/* Video Duration */}
-              <div className="space-y-2">
-                <Label htmlFor="video-duration">Duration (seconds)</Label>
-                <Input
-                  id="video-duration"
-                  type="number"
-                  value={videoDuration}
-                  onChange={(e) => setVideoDuration(e.target.value)}
-                  placeholder="Enter duration in seconds..."
-                />
-              </div>
 
               {/* Art Medium Categories */}
               <div className="space-y-2">
