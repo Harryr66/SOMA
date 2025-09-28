@@ -342,10 +342,22 @@ export default function AdminPanel() {
       const videoFileName = `video_${Date.now()}_${videoFile.name}`;
       const videoRef = ref(storage, `episodes/${videoFileName}`);
       
-      console.log('Uploading video file:', videoFileName);
-      await uploadBytes(videoRef, videoFile);
-      const videoUrl = await getDownloadURL(videoRef);
-      console.log('Video uploaded successfully:', videoUrl);
+      console.log('=== STARTING VIDEO UPLOAD ===');
+      console.log('Video file:', videoFile.name, 'Size:', videoFile.size);
+      console.log('Video reference:', videoRef.fullPath);
+      
+      try {
+        console.log('Uploading video bytes...');
+        await uploadBytes(videoRef, videoFile);
+        console.log('Video bytes uploaded successfully');
+        
+        console.log('Getting download URL...');
+        const videoUrl = await getDownloadURL(videoRef);
+        console.log('Video URL obtained:', videoUrl);
+      } catch (uploadError) {
+        console.error('Firebase Storage upload failed:', uploadError);
+        throw new Error(`Storage upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
+      }
 
       // Upload thumbnail file to Firebase Storage (if provided)
       let thumbnailUrl = '';
@@ -353,13 +365,28 @@ export default function AdminPanel() {
         const thumbnailFileName = `thumb_${Date.now()}_${thumbnailFile.name}`;
         const thumbnailRef = ref(storage, `episodes/thumbnails/${thumbnailFileName}`);
         
-        console.log('Uploading thumbnail file:', thumbnailFileName);
-        await uploadBytes(thumbnailRef, thumbnailFile);
-        thumbnailUrl = await getDownloadURL(thumbnailRef);
-        console.log('Thumbnail uploaded successfully:', thumbnailUrl);
+        console.log('=== STARTING THUMBNAIL UPLOAD ===');
+        console.log('Thumbnail file:', thumbnailFile.name, 'Size:', thumbnailFile.size);
+        console.log('Thumbnail reference:', thumbnailRef.fullPath);
+        
+        try {
+          console.log('Uploading thumbnail bytes...');
+          await uploadBytes(thumbnailRef, thumbnailFile);
+          console.log('Thumbnail bytes uploaded successfully');
+          
+          console.log('Getting thumbnail download URL...');
+          thumbnailUrl = await getDownloadURL(thumbnailRef);
+          console.log('Thumbnail URL obtained:', thumbnailUrl);
+        } catch (thumbnailError) {
+          console.error('Thumbnail upload failed:', thumbnailError);
+          // Use default thumbnail if upload fails
+          thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
+          console.log('Using default thumbnail due to upload failure');
+        }
       } else {
         // Generate a thumbnail from the video (placeholder for now)
         thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
+        console.log('No thumbnail file provided, using default');
       }
 
       // Create episode document in Firestore
