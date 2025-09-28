@@ -101,7 +101,7 @@ export function FeaturedHero({
             <div className="flex items-center space-x-4">
               <Button
                 size="lg"
-                className="bg-black/80 text-white hover:bg-black border-2 border-white/20 px-8 py-3 text-lg font-semibold"
+                className="bg-black/80 text-white hover:bg-black border-2 border-white/20 px-8 py-3 text-lg font-semibold dark:text-white"
                 onClick={onPlay}
               >
                 <Play className="h-5 w-5 mr-2" />
@@ -111,7 +111,7 @@ export function FeaturedHero({
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/50 text-white hover:bg-white/10 px-8 py-3 text-lg"
+                className="border-white/50 text-white hover:bg-white/10 px-8 py-3 text-lg dark:text-white"
                 onClick={onAddToWatchlist}
               >
                 <Plus className="h-5 w-5 mr-2" />
@@ -121,7 +121,7 @@ export function FeaturedHero({
               <Button
                 size="lg"
                 variant="ghost"
-                className="text-white hover:bg-white/10 px-8 py-3 text-lg"
+                className="text-white hover:bg-white/10 px-8 py-3 text-lg dark:text-white"
                 onClick={onShowInfo}
               >
                 <Info className="h-5 w-5 mr-2" />
@@ -132,7 +132,7 @@ export function FeaturedHero({
                 <Button
                   size="lg"
                   variant="ghost"
-                  className="text-white hover:bg-white/10 px-4 py-3"
+                  className="text-white hover:bg-white/10 px-4 py-3 dark:text-white"
                   onClick={onToggleMute}
                 >
                   {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}

@@ -323,8 +323,8 @@ export default function AdminPanel() {
     try {
       console.log('Starting video upload process...');
       
-      // For now, use placeholder URLs since Firebase Storage isn't set up
-      const videoUrl = `https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4`;
+      // Use working video URLs since Firebase Storage isn't set up
+      const videoUrl = `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`;
       const thumbnailUrl = thumbnailFile ? URL.createObjectURL(thumbnailFile) : 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
 
       // Create episode document in Firestore
