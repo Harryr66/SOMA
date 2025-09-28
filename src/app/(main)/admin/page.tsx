@@ -11,11 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
-import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone } from 'lucide-react';
+import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone, Trash2, Edit } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const ART_MEDIUM_CATEGORIES = [
@@ -48,9 +48,11 @@ const ART_MEDIUM_CATEGORIES = [
 export default function AdminPanel() {
   const [artistRequests, setArtistRequests] = useState<ArtistRequest[]>([]);
   const [advertisingApplications, setAdvertisingApplications] = useState<AdvertisingApplication[]>([]);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<ArtistRequest | null>(null);
   const [selectedAdApplication, setSelectedAdApplication] = useState<AdvertisingApplication | null>(null);
+  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,6 +80,11 @@ export default function AdminPanel() {
       orderBy('submittedAt', 'desc')
     );
 
+    const episodesQuery = query(
+      collection(db, 'episodes'),
+      orderBy('createdAt', 'desc')
+    );
+
     const unsubscribeArtistRequests = onSnapshot(artistRequestsQuery, (snapshot) => {
       const requests = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -92,12 +99,21 @@ export default function AdminPanel() {
         ...doc.data()
       })) as AdvertisingApplication[];
       setAdvertisingApplications(applications);
+    });
+
+    const unsubscribeEpisodes = onSnapshot(episodesQuery, (snapshot) => {
+      const episodes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Episode[];
+      setEpisodes(episodes);
       setLoading(false);
     });
 
     return () => {
       unsubscribeArtistRequests();
       unsubscribeAdvertising();
+      unsubscribeEpisodes();
     };
   }, []);
 
@@ -430,6 +446,67 @@ export default function AdminPanel() {
     }
   };
 
+  // Episode management functions
+  const handleDeleteEpisode = async (episode: Episode) => {
+    setIsProcessing(true);
+    try {
+      // Delete video file from Storage if it exists
+      if (episode.videoUrl && episode.videoUrl.includes('firebasestorage')) {
+        const videoRef = ref(storage, episode.videoUrl);
+        await deleteObject(videoRef);
+      }
+      
+      // Delete thumbnail file from Storage if it exists
+      if (episode.thumbnailUrl && episode.thumbnailUrl.includes('firebasestorage')) {
+        const thumbnailRef = ref(storage, episode.thumbnailUrl);
+        await deleteObject(thumbnailRef);
+      }
+
+      // Delete episode document from Firestore
+      await deleteDoc(doc(db, 'episodes', episode.id));
+
+      toast({
+        title: "Episode Deleted",
+        description: `"${episode.title}" has been permanently deleted.`,
+      });
+
+      setSelectedEpisode(null);
+    } catch (error) {
+      console.error('Error deleting episode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete episode. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleToggleMainEvent = async (episode: Episode) => {
+    setIsProcessing(true);
+    try {
+      await updateDoc(doc(db, 'episodes', episode.id), {
+        isMainEvent: !episode.isMainEvent,
+        updatedAt: serverTimestamp()
+      });
+
+      toast({
+        title: "Episode Updated",
+        description: `"${episode.title}" ${!episode.isMainEvent ? 'is now' : 'is no longer'} a main event.`,
+      });
+    } catch (error) {
+      console.error('Error updating episode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update episode. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const pendingRequests = artistRequests.filter(req => req.status === 'pending');
   const approvedRequests = artistRequests.filter(req => req.status === 'approved');
   const rejectedRequests = artistRequests.filter(req => req.status === 'rejected');
@@ -452,7 +529,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
           <TabsTrigger value="pending" className="text-xs sm:text-sm">
             <span className="hidden sm:inline">Pending</span>
             <span className="sm:hidden">Pending</span>
@@ -474,9 +551,15 @@ export default function AdminPanel() {
             <span className="sm:hidden">Ads</span>
             <span className="ml-1">({advertisingApplications.filter(app => app.status === 'pending').length})</span>
           </TabsTrigger>
-          <TabsTrigger value="video-upload" className="text-xs sm:text-sm">
+          <TabsTrigger value="episodes" className="text-xs sm:text-sm">
             <Video className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Upload Video</span>
+            <span className="hidden sm:inline">Episodes</span>
+            <span className="sm:hidden">Videos</span>
+            <span className="ml-1">({episodes.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="video-upload" className="text-xs sm:text-sm">
+            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Upload</span>
             <span className="sm:hidden">Upload</span>
           </TabsTrigger>
         </TabsList>
@@ -679,6 +762,104 @@ export default function AdminPanel() {
                   </CardContent>
                 </Card>
               ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="episodes" className="mt-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Episodes Management</h2>
+              <div className="text-sm text-muted-foreground">
+                {episodes.length} total episodes
+              </div>
+            </div>
+
+            {episodes.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Video className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <CardTitle className="mb-2">No episodes uploaded</CardTitle>
+                  <CardDescription>
+                    Upload your first video using the Upload tab.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {episodes.map((episode) => (
+                  <Card key={episode.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-32 h-20 rounded-lg overflow-hidden bg-muted">
+                          <img
+                            src={episode.thumbnailUrl}
+                            alt={episode.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold">{episode.title}</h3>
+                            {episode.isMainEvent && (
+                              <Badge variant="default" className="bg-red-600 text-white">
+                                Main Event
+                              </Badge>
+                            )}
+                            <Badge variant="secondary">
+                              {episode.displayLocation}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                            {episode.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                            <span>{episode.likes} likes</span>
+                            <span>{episode.viewCount} views</span>
+                            <span>{episode.categories?.join(', ')}</span>
+                            <span>Created {episode.createdAt instanceof Date ? episode.createdAt.toLocaleDateString() : 'Recently'}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {episode.tags?.slice(0, 3).map((tag, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedEpisode(episode)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleToggleMainEvent(episode)}
+                            disabled={isProcessing}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            {episode.isMainEvent ? 'Remove Main' : 'Set Main'}
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setSelectedEpisode(episode)}
+                            disabled={isProcessing}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </div>
         </TabsContent>
@@ -1171,6 +1352,94 @@ export default function AdminPanel() {
                   </AlertDialogAction>
                 </>
               )}
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {/* Episode Detail Modal */}
+      {selectedEpisode && (
+        <AlertDialog open={!!selectedEpisode} onOpenChange={() => setSelectedEpisode(null)}>
+          <AlertDialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Episode Details</AlertDialogTitle>
+              <AlertDialogDescription>
+                Manage episode: {selectedEpisode.title}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <div className="space-y-6">
+              {/* Video Preview */}
+              <div className="flex gap-6">
+                <div className="w-64 h-36 rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={selectedEpisode.thumbnailUrl}
+                    alt={selectedEpisode.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-2">{selectedEpisode.title}</h3>
+                  <p className="text-muted-foreground mb-4">{selectedEpisode.description}</p>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p><strong>Views:</strong> {selectedEpisode.viewCount}</p>
+                      <p><strong>Likes:</strong> {selectedEpisode.likes}</p>
+                      <p><strong>Comments:</strong> {selectedEpisode.commentsCount}</p>
+                    </div>
+                    <div>
+                      <p><strong>Display Location:</strong> {selectedEpisode.displayLocation}</p>
+                      <p><strong>Main Event:</strong> {selectedEpisode.isMainEvent ? 'Yes' : 'No'}</p>
+                      <p><strong>Published:</strong> {selectedEpisode.isPublished ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories and Tags */}
+              <div>
+                <Label className="text-lg font-semibold">Categories</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedEpisode.categories?.map((category, index) => (
+                    <Badge key={index} variant="secondary">{category}</Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-lg font-semibold">Tags</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedEpisode.tags?.map((tag, index) => (
+                    <Badge key={index} variant="outline">{tag}</Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Video URL */}
+              <div>
+                <Label className="text-lg font-semibold">Video URL</Label>
+                <p className="text-sm text-muted-foreground mt-1 break-all">{selectedEpisode.videoUrl}</p>
+              </div>
+            </div>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setSelectedEpisode(null)}>
+                Close
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleToggleMainEvent(selectedEpisode)}
+                disabled={isProcessing}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {isProcessing ? 'Updating...' : (selectedEpisode.isMainEvent ? 'Remove from Main Event' : 'Set as Main Event')}
+              </AlertDialogAction>
+              <AlertDialogAction
+                onClick={() => handleDeleteEpisode(selectedEpisode)}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={isProcessing}
+              >
+                {isProcessing ? 'Deleting...' : 'Delete Episode'}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
