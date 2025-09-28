@@ -365,15 +365,24 @@ export default function AdminPanel() {
       const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
       console.log('Video reference created:', videoRef.fullPath);
       
-      // Add timeout to prevent endless loading
-      const uploadPromise = uploadBytes(videoRef, videoFile);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
-      );
+      // Test with a small text file first to verify connectivity
+      console.log('Testing Firebase Storage connectivity with small file...');
+      const testRef = ref(storage, `test/connectivity-test-${Date.now()}.txt`);
+      const testData = new Blob(['test'], { type: 'text/plain' });
       
-      console.log('Uploading video bytes with timeout...');
-      await Promise.race([uploadPromise, timeoutPromise]);
-      console.log('Video bytes uploaded successfully');
+      try {
+        console.log('Uploading test file...');
+        await uploadBytes(testRef, testData);
+        console.log('Test file uploaded successfully - Firebase Storage is working!');
+        
+        // Now try the actual video upload
+        console.log('Now uploading actual video file...');
+        await uploadBytes(videoRef, videoFile);
+        console.log('Video bytes uploaded successfully');
+      } catch (testError) {
+        console.error('Test upload failed:', testError);
+        throw new Error(`Firebase Storage connectivity test failed: ${testError instanceof Error ? testError.message : 'Unknown error'}`);
+      }
       
       console.log('Getting video download URL...');
       const videoUrl = await getDownloadURL(videoRef);
