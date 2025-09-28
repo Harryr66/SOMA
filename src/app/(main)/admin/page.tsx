@@ -338,11 +338,29 @@ export default function AdminPanel() {
     setIsUploading(true);
     
     try {
-      // Simple approach: Use placeholder URLs for now to get uploads working
-      const videoUrl = `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`;
-      const thumbnailUrl = thumbnailFile 
-        ? `https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop`
-        : `https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop`;
+      // Upload video file to Firebase Storage
+      const videoFileName = `video_${Date.now()}_${videoFile.name}`;
+      const videoRef = ref(storage, `episodes/${videoFileName}`);
+      
+      console.log('Uploading video file:', videoFileName);
+      await uploadBytes(videoRef, videoFile);
+      const videoUrl = await getDownloadURL(videoRef);
+      console.log('Video uploaded successfully:', videoUrl);
+
+      // Upload thumbnail file to Firebase Storage (if provided)
+      let thumbnailUrl = '';
+      if (thumbnailFile) {
+        const thumbnailFileName = `thumb_${Date.now()}_${thumbnailFile.name}`;
+        const thumbnailRef = ref(storage, `episodes/thumbnails/${thumbnailFileName}`);
+        
+        console.log('Uploading thumbnail file:', thumbnailFileName);
+        await uploadBytes(thumbnailRef, thumbnailFile);
+        thumbnailUrl = await getDownloadURL(thumbnailRef);
+        console.log('Thumbnail uploaded successfully:', thumbnailUrl);
+      } else {
+        // Generate a thumbnail from the video (placeholder for now)
+        thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
+      }
 
       // Create episode document in Firestore
       const episodeData: Omit<Episode, 'id'> = {
@@ -350,7 +368,7 @@ export default function AdminPanel() {
         description: videoDescription,
         videoUrl,
         thumbnailUrl,
-        duration: 600, // 10 minutes default duration
+        duration: 600, // Will be calculated from actual video later
         viewCount: 0,
         likes: 0,
         commentsCount: 0,
@@ -383,8 +401,8 @@ export default function AdminPanel() {
       await addDoc(collection(db, 'episodes'), episodeData);
 
       toast({
-        title: "Episode Created Successfully",
-        description: "Episode has been created and will appear in the home feed.",
+        title: "Video Uploaded Successfully",
+        description: "Your video has been uploaded to Firebase Storage and will appear in the home feed.",
       });
 
       // Reset form
@@ -399,10 +417,24 @@ export default function AdminPanel() {
       setNewTag('');
       
     } catch (error) {
-      console.error('Error creating episode:', error);
+      console.error('Error uploading video:', error);
+      let errorMessage = "Failed to upload video. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('storage/unauthorized')) {
+          errorMessage = "Storage access denied. Please check Firebase Storage rules.";
+        } else if (error.message.includes('storage/bucket-not-found')) {
+          errorMessage = "Firebase Storage bucket not found. Please set up Storage in Firebase Console.";
+        } else if (error.message.includes('storage/quota-exceeded')) {
+          errorMessage = "Storage quota exceeded. Please check your Firebase plan.";
+        } else {
+          errorMessage = `Upload failed: ${error.message}`;
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to create episode. Please try again.",
+        title: "Upload Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
