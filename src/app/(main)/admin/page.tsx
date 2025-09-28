@@ -339,25 +339,33 @@ export default function AdminPanel() {
     try {
       console.log('Starting video upload process...');
       
-      // Upload video to Firebase Storage
-      console.log('Uploading video file to Firebase Storage...');
+      // Upload video to Firebase Storage with detailed error handling
+      console.log('Starting Firebase Storage upload...');
+      console.log('Video file:', videoFile.name, 'Size:', videoFile.size);
+      
       const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
+      console.log('Video reference created:', videoRef.fullPath);
+      
+      console.log('Uploading video bytes...');
       await uploadBytes(videoRef, videoFile);
-      console.log('Video uploaded successfully, getting download URL...');
+      console.log('Video bytes uploaded successfully');
+      
+      console.log('Getting video download URL...');
       const videoUrl = await getDownloadURL(videoRef);
       console.log('Video URL obtained:', videoUrl);
 
       // Upload thumbnail to Firebase Storage (if provided)
       let thumbnailUrl = '';
       if (thumbnailFile) {
-        console.log('Uploading thumbnail file...');
+        console.log('Uploading thumbnail file:', thumbnailFile.name);
         const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
         await uploadBytes(thumbnailRef, thumbnailFile);
         thumbnailUrl = await getDownloadURL(thumbnailRef);
-        console.log('Thumbnail uploaded successfully');
+        console.log('Thumbnail uploaded successfully:', thumbnailUrl);
       } else {
         // Use default thumbnail
         thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
+        console.log('Using default thumbnail');
       }
 
       // Create episode document in Firestore
@@ -419,6 +427,11 @@ export default function AdminPanel() {
       console.log('Video upload process completed successfully');
     } catch (error) {
       console.error('Error uploading video:', error);
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       
       // More specific error messages
       let errorMessage = "Failed to upload video. Please try again.";
@@ -431,6 +444,12 @@ export default function AdminPanel() {
           errorMessage = "Database access denied. Please check Firestore rules.";
         } else if (error.message.includes('storage/bucket-not-found')) {
           errorMessage = "Firebase Storage bucket not found. Please set up Storage in Firebase Console.";
+        } else if (error.message.includes('storage/quota-exceeded')) {
+          errorMessage = "Storage quota exceeded. Please check your Firebase plan.";
+        } else if (error.message.includes('storage/invalid-argument')) {
+          errorMessage = "Invalid file format or size. Please try a different video file.";
+        } else if (error.message.includes('network')) {
+          errorMessage = "Network error. Please check your internet connection.";
         } else {
           errorMessage = `Upload failed: ${error.message}`;
         }
