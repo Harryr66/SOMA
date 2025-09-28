@@ -337,6 +337,7 @@ export default function AdminPanel() {
 
     setIsUploading(true);
     try {
+      console.log('=== UPLOAD START ===');
       console.log('Starting video upload process...');
       
       // Test Firebase Storage connection first
@@ -344,6 +345,18 @@ export default function AdminPanel() {
       console.log('Storage instance:', storage);
       console.log('Storage app:', storage.app);
       console.log('Storage bucket:', storage.bucket);
+      
+      // Test if Firebase functions are available
+      console.log('Testing Firebase functions...');
+      console.log('ref function:', typeof ref);
+      console.log('uploadBytes function:', typeof uploadBytes);
+      console.log('getDownloadURL function:', typeof getDownloadURL);
+      
+      // Test creating a reference
+      console.log('Testing reference creation...');
+      const testRef = ref(storage, 'test/test.txt');
+      console.log('Test reference created:', testRef.fullPath);
+      console.log('=== FIREBASE TESTS PASSED ===');
       
       // Upload video to Firebase Storage with timeout and detailed error handling
       console.log('Starting Firebase Storage upload...');
@@ -438,12 +451,14 @@ export default function AdminPanel() {
       
       console.log('Video upload process completed successfully');
     } catch (error) {
+      console.error('=== UPLOAD ERROR ===');
       console.error('Error uploading video:', error);
       console.error('Error details:', {
         name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack trace'
       });
+      console.error('=== END ERROR ===');
       
       // More specific error messages
       let errorMessage = "Failed to upload video. Please try again.";
@@ -473,7 +488,10 @@ export default function AdminPanel() {
         variant: "destructive",
       });
     } finally {
+      console.log('=== UPLOAD FINALLY ===');
+      console.log('Setting isUploading to false');
       setIsUploading(false);
+      console.log('=== UPLOAD END ===');
     }
   };
 
