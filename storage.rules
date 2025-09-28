@@ -3,34 +3,35 @@ rules_version = '2';
 // Firebase Storage rules for SOMA
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files
-    match /{allPaths=**} {
-      allow read: if true;
-    }
-    
     // Allow uploads to episodes folder (for admin video uploads)
     match /episodes/{allPaths=**} {
-      allow write: if true; // Allow admin uploads - in production, add proper admin authentication
+      allow read, write: if true; // Allow admin uploads - in production, add proper admin authentication
     }
     
     // Allow uploads to stories folder (for user story uploads)
     match /stories/{allPaths=**} {
-      allow write: if true; // Allow user story uploads
+      allow read, write: if true; // Allow user story uploads
     }
     
     // Allow uploads to artworks folder (for artwork images)
     match /artworks/{allPaths=**} {
-      allow write: if true; // Allow artwork uploads
+      allow read, write: if true; // Allow artwork uploads
     }
     
     // Allow uploads to profiles folder (for profile pictures)
     match /profiles/{allPaths=**} {
-      allow write: if true; // Allow profile picture uploads
+      allow read, write: if true; // Allow profile picture uploads
     }
     
-    // Default rule - deny all other writes
+    // Allow uploads to test folder (for testing)
+    match /test/{allPaths=**} {
+      allow read, write: if true; // Allow test uploads
+    }
+    
+    // Allow public read access to all other files
     match /{allPaths=**} {
-      allow write: if false;
+      allow read: if true;
+      allow write: if false; // Deny writes to other paths
     }
   }
 }
