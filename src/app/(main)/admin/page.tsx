@@ -350,7 +350,7 @@ export default function AdminPanel() {
         description: videoDescription,
         videoUrl,
         thumbnailUrl,
-        duration: 0,
+        duration: 600, // 10 minutes default duration
         viewCount: 0,
         likes: 0,
         commentsCount: 0,
