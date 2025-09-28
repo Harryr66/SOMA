@@ -344,7 +344,7 @@ export default function AdminPanel() {
       console.log('Testing Firebase Storage connection...');
       console.log('Storage instance:', storage);
       console.log('Storage app:', storage.app);
-      console.log('Storage bucket:', storage.bucket);
+      console.log('Storage bucket:', (storage as any).bucket || 'not available');
       
       // Test if Firebase functions are available
       console.log('Testing Firebase functions...');
