@@ -367,12 +367,12 @@ export default function AdminPanel() {
       
       // Test with a small text file first to verify connectivity
       console.log('Testing Firebase Storage connectivity with small file...');
-      const testRef = ref(storage, `test/connectivity-test-${Date.now()}.txt`);
+      const connectivityTestRef = ref(storage, `test/connectivity-test-${Date.now()}.txt`);
       const testData = new Blob(['test'], { type: 'text/plain' });
       
       try {
         console.log('Uploading test file...');
-        await uploadBytes(testRef, testData);
+        await uploadBytes(connectivityTestRef, testData);
         console.log('Test file uploaded successfully - Firebase Storage is working!');
         
         // Now try the actual video upload
