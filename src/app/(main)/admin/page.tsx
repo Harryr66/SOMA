@@ -339,15 +339,27 @@ export default function AdminPanel() {
     try {
       console.log('Starting video upload process...');
       
-      // Upload video to Firebase Storage with detailed error handling
+      // Test Firebase Storage connection first
+      console.log('Testing Firebase Storage connection...');
+      console.log('Storage instance:', storage);
+      console.log('Storage app:', storage.app);
+      console.log('Storage bucket:', storage.bucket);
+      
+      // Upload video to Firebase Storage with timeout and detailed error handling
       console.log('Starting Firebase Storage upload...');
       console.log('Video file:', videoFile.name, 'Size:', videoFile.size);
       
       const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
       console.log('Video reference created:', videoRef.fullPath);
       
-      console.log('Uploading video bytes...');
-      await uploadBytes(videoRef, videoFile);
+      // Add timeout to prevent endless loading
+      const uploadPromise = uploadBytes(videoRef, videoFile);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
+      );
+      
+      console.log('Uploading video bytes with timeout...');
+      await Promise.race([uploadPromise, timeoutPromise]);
       console.log('Video bytes uploaded successfully');
       
       console.log('Getting video download URL...');
