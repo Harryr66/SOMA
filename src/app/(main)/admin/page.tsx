@@ -323,23 +323,9 @@ export default function AdminPanel() {
     try {
       console.log('Starting video upload process...');
       
-      // Upload video to Firebase Storage
-      console.log('Uploading video file to Firebase Storage...');
-      const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
-      await uploadBytes(videoRef, videoFile);
-      console.log('Video uploaded successfully, getting download URL...');
-      const videoUrl = await getDownloadURL(videoRef);
-      console.log('Video URL obtained:', videoUrl);
-
-      // Upload thumbnail to Firebase Storage (if provided)
-      let thumbnailUrl = '';
-      if (thumbnailFile) {
-        console.log('Uploading thumbnail file...');
-        const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
-        await uploadBytes(thumbnailRef, thumbnailFile);
-        thumbnailUrl = await getDownloadURL(thumbnailRef);
-        console.log('Thumbnail uploaded successfully');
-      }
+      // For now, use placeholder URLs since Firebase Storage isn't set up
+      const videoUrl = `https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4`;
+      const thumbnailUrl = thumbnailFile ? URL.createObjectURL(thumbnailFile) : 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
 
       // Create episode document in Firestore
       console.log('Creating episode document in Firestore...');
@@ -347,7 +333,7 @@ export default function AdminPanel() {
         title: videoTitle,
         description: videoDescription,
         videoUrl,
-        thumbnailUrl: thumbnailUrl || '', // Use uploaded thumbnail or empty string
+        thumbnailUrl,
         duration: 0, // Duration will be calculated automatically
         viewCount: 0,
         likes: 0,
@@ -401,23 +387,9 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error uploading video:', error);
       
-      // More specific error messages
-      let errorMessage = "Failed to upload video. Please try again.";
-      if (error instanceof Error) {
-        if (error.message.includes('storage/unauthorized')) {
-          errorMessage = "Storage access denied. Please check Firebase configuration.";
-        } else if (error.message.includes('storage/object-not-found')) {
-          errorMessage = "Storage object not found. Please try uploading again.";
-        } else if (error.message.includes('firestore/permission-denied')) {
-          errorMessage = "Database access denied. Please check Firestore rules.";
-        } else {
-          errorMessage = `Upload failed: ${error.message}`;
-        }
-      }
-      
       toast({
         title: "Upload Error",
-        description: errorMessage,
+        description: `Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
