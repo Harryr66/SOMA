@@ -337,6 +337,9 @@ export default function AdminPanel() {
 
     setIsUploading(true);
     
+    let videoUrl = '';
+    let thumbnailUrl = '';
+    
     try {
       // Upload video file to Firebase Storage
       const videoFileName = `video_${Date.now()}_${videoFile.name}`;
@@ -352,7 +355,7 @@ export default function AdminPanel() {
         console.log('Video bytes uploaded successfully');
         
         console.log('Getting download URL...');
-        const videoUrl = await getDownloadURL(videoRef);
+        videoUrl = await getDownloadURL(videoRef);
         console.log('Video URL obtained:', videoUrl);
       } catch (uploadError) {
         console.error('Firebase Storage upload failed:', uploadError);
@@ -360,7 +363,6 @@ export default function AdminPanel() {
       }
 
       // Upload thumbnail file to Firebase Storage (if provided)
-      let thumbnailUrl = '';
       if (thumbnailFile) {
         const thumbnailFileName = `thumb_${Date.now()}_${thumbnailFile.name}`;
         const thumbnailRef = ref(storage, `episodes/thumbnails/${thumbnailFileName}`);
