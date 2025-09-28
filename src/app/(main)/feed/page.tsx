@@ -165,10 +165,13 @@ export default function FeedPage() {
       {/* Featured Hero Section */}
       {mainEventEpisode ? (
         <div className="relative h-[60vh] min-h-[400px] overflow-hidden">
-          <img
-            src={mainEventEpisode.thumbnailUrl || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1920&h=1080&fit=crop'}
-            alt={mainEventEpisode.title}
+          <video
+            src={mainEventEpisode.videoUrl}
+            poster={mainEventEpisode.thumbnailUrl || 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1920&h=1080&fit=crop'}
             className="w-full h-full object-cover"
+            muted
+            loop
+            playsInline
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -179,7 +182,7 @@ export default function FeedPage() {
                 <Button
                   size="lg"
                   onClick={() => handlePlay(mainEventEpisode)}
-                  className="bg-white text-black hover:bg-gray-200"
+                  className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:text-white"
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Play Now
@@ -188,7 +191,7 @@ export default function FeedPage() {
                   variant="outline"
                   size="lg"
                   onClick={() => handleAddToWatchlist(mainEventEpisode.docuseriesId)}
-                  className="border-white text-white hover:bg-white hover:text-black"
+                  className="border-white text-white hover:bg-white hover:text-black dark:text-white"
                 >
                   <Bookmark className="h-5 w-5 mr-2" />
                   Add to Watchlist
