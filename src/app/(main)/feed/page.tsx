@@ -72,6 +72,8 @@ export default function FeedPage() {
   // Get the main event episode (most recent one marked as main event)
   const mainEventEpisode = useMemo(() => {
     const mainEvents = realEpisodes.filter(episode => episode.isMainEvent);
+    console.log('Main event episodes:', mainEvents);
+    console.log('Selected main event:', mainEvents.length > 0 ? mainEvents[0] : null);
     return mainEvents.length > 0 ? mainEvents[0] : null;
   }, [realEpisodes]);
 
@@ -87,7 +89,12 @@ export default function FeedPage() {
         id: doc.id,
         ...doc.data()
       })) as Episode[];
+      console.log('Fetched episodes from Firestore:', episodes);
+      console.log('Number of episodes:', episodes.length);
       setRealEpisodes(episodes);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching episodes:', error);
       setLoading(false);
     });
 
@@ -279,19 +286,23 @@ export default function FeedPage() {
         />
 
         {/* Recently Added Episodes */}
-        {realEpisodes.filter(episode => !episode.isMainEvent).length > 0 && (
-          <ContentRow
-            title="Recently Added"
-            subtitle="Latest videos from SOMA"
-            items={realEpisodes.filter(episode => !episode.isMainEvent)}
-            type="episodes"
-            variant="default"
-            onItemClick={handlePlay}
-            onAddToWatchlist={handleAddToWatchlist}
-            isInWatchlist={isInWatchlist}
-            getWatchProgress={getWatchProgress}
-          />
-        )}
+        {(() => {
+          const recentEpisodes = realEpisodes.filter(episode => !episode.isMainEvent);
+          console.log('Recent episodes for display:', recentEpisodes);
+          return recentEpisodes.length > 0 && (
+            <ContentRow
+              title="Recently Added"
+              subtitle="Latest videos from SOMA"
+              items={recentEpisodes}
+              type="episodes"
+              variant="default"
+              onItemClick={handlePlay}
+              onAddToWatchlist={handleAddToWatchlist}
+              isInWatchlist={isInWatchlist}
+              getWatchProgress={getWatchProgress}
+            />
+          );
+        })()}
 
         {/* Trending Now */}
         {filteredContent.trending.length > 0 && (
