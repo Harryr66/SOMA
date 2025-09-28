@@ -339,28 +339,25 @@ export default function AdminPanel() {
     try {
       console.log('Starting video upload process...');
       
-      // Try to upload to Firebase Storage, fallback to placeholder if not set up
-      let videoUrl = '';
+      // Upload video to Firebase Storage
+      console.log('Uploading video file to Firebase Storage...');
+      const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
+      await uploadBytes(videoRef, videoFile);
+      console.log('Video uploaded successfully, getting download URL...');
+      const videoUrl = await getDownloadURL(videoRef);
+      console.log('Video URL obtained:', videoUrl);
+
+      // Upload thumbnail to Firebase Storage (if provided)
       let thumbnailUrl = '';
-      
-      try {
-        console.log('Attempting to upload to Firebase Storage...');
-        const videoRef = ref(storage, `episodes/${Date.now()}_${videoFile.name}`);
-        await uploadBytes(videoRef, videoFile);
-        videoUrl = await getDownloadURL(videoRef);
-        console.log('Video uploaded successfully to Firebase Storage');
-        
-        if (thumbnailFile) {
-          const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
-          await uploadBytes(thumbnailRef, thumbnailFile);
-          thumbnailUrl = await getDownloadURL(thumbnailRef);
-          console.log('Thumbnail uploaded successfully to Firebase Storage');
-        }
-      } catch (storageError) {
-        console.warn('Firebase Storage not available, using placeholder URLs:', storageError);
-        // Use working placeholder URLs
-        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-        thumbnailUrl = thumbnailFile ? URL.createObjectURL(thumbnailFile) : 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
+      if (thumbnailFile) {
+        console.log('Uploading thumbnail file...');
+        const thumbnailRef = ref(storage, `episodes/thumbnails/${Date.now()}_${thumbnailFile.name}`);
+        await uploadBytes(thumbnailRef, thumbnailFile);
+        thumbnailUrl = await getDownloadURL(thumbnailRef);
+        console.log('Thumbnail uploaded successfully');
+      } else {
+        // Use default thumbnail
+        thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
       }
 
       // Create episode document in Firestore
