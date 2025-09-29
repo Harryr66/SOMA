@@ -110,7 +110,22 @@ export default function FeedPage() {
     
     // If it's an Episode, play the video
     if ('videoUrl' in item) {
-      setCurrentVideo(item as Episode);
+      const episode = item as Episode;
+      console.log('Episode video URL:', episode.videoUrl);
+      
+      // Test if the video URL is accessible
+      fetch(episode.videoUrl, { method: 'HEAD' })
+        .then(response => {
+          console.log('Video URL accessibility test:', response.status, response.statusText);
+          if (!response.ok) {
+            console.error('Video URL not accessible:', response.status, response.statusText);
+          }
+        })
+        .catch(error => {
+          console.error('Video URL fetch error:', error);
+        });
+      
+      setCurrentVideo(episode);
       setShowVideoPlayer(true);
       setVideoError(null);
       setIsPlaying(true);
@@ -401,9 +416,18 @@ export default function FeedPage() {
                 autoPlay
                 muted={true}
                 playsInline
-                onLoadStart={() => console.log('Video loading started')}
+                onLoadStart={() => {
+                  console.log('Video loading started');
+                  console.log('Video URL:', currentVideo.videoUrl);
+                }}
+                onLoadedMetadata={() => {
+                  console.log('Video metadata loaded');
+                  console.log('Video duration:', videoRef.current?.duration);
+                  console.log('Video ready state:', videoRef.current?.readyState);
+                }}
                 onCanPlay={() => {
                   console.log('Video can play');
+                  console.log('Video network state:', videoRef.current?.networkState);
                   // Try to play automatically
                   setTimeout(() => {
                     if (videoRef.current && videoRef.current.paused) {
@@ -416,7 +440,9 @@ export default function FeedPage() {
                 onError={(e) => {
                   console.error('Video error:', e);
                   console.error('Video src:', currentVideo.videoUrl);
-                  setVideoError('Failed to load video. Please check the video URL.');
+                  console.error('Video error code:', videoRef.current?.error?.code);
+                  console.error('Video error message:', videoRef.current?.error?.message);
+                  setVideoError(`Failed to load video. Error: ${videoRef.current?.error?.message || 'Unknown error'}`);
                 }}
                 onEnded={() => {
                   setShowVideoPlayer(false);
