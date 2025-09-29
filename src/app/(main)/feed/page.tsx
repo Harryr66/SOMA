@@ -105,27 +105,36 @@ export default function FeedPage() {
     return () => unsubscribe();
   }, []);
 
+  const convertGoogleDriveUrl = (url: string) => {
+    // Convert Google Drive sharing URL to direct download URL
+    if (url.includes('drive.google.com/file/d/')) {
+      const fileId = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+      if (fileId) {
+        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      }
+    }
+    return url;
+  };
+
   const handlePlay = (item: Docuseries | Episode) => {
     console.log('Playing:', item.title);
     
     // If it's an Episode, play the video
     if ('videoUrl' in item) {
       const episode = item as Episode;
-      console.log('Episode video URL:', episode.videoUrl);
+      console.log('Original video URL:', episode.videoUrl);
       
-      // Test if the video URL is accessible
-      fetch(episode.videoUrl, { method: 'HEAD' })
-        .then(response => {
-          console.log('Video URL accessibility test:', response.status, response.statusText);
-          if (!response.ok) {
-            console.error('Video URL not accessible:', response.status, response.statusText);
-          }
-        })
-        .catch(error => {
-          console.error('Video URL fetch error:', error);
-        });
+      // Convert Google Drive URL if needed
+      const convertedUrl = convertGoogleDriveUrl(episode.videoUrl);
+      console.log('Converted video URL:', convertedUrl);
       
-      setCurrentVideo(episode);
+      // Create episode with converted URL
+      const episodeWithConvertedUrl = {
+        ...episode,
+        videoUrl: convertedUrl
+      };
+      
+      setCurrentVideo(episodeWithConvertedUrl);
       setShowVideoPlayer(true);
       setVideoError(null);
       setIsPlaying(true);
