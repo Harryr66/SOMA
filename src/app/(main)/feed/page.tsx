@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FeaturedHero } from '@/components/featured-hero';
 import { ContentRow } from '@/components/content-row';
 import { DocuseriesCard } from '@/components/docuseries-card';
@@ -69,6 +69,8 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [currentVideo, setCurrentVideo] = useState<Episode | null>(null);
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
 
   // Get the main event episode (most recent one marked as main event)
@@ -110,11 +112,25 @@ export default function FeedPage() {
     if ('videoUrl' in item) {
       setCurrentVideo(item as Episode);
       setShowVideoPlayer(true);
+      setVideoError(null);
       setIsPlaying(true);
     } else {
       // For Docuseries, just log for now
       console.log('Docuseries play not implemented yet');
       setIsPlaying(true);
+    }
+  };
+
+  const handleManualPlay = async () => {
+    if (videoRef.current) {
+      try {
+        console.log('Manually starting video playback');
+        await videoRef.current.play();
+        console.log('Video play started successfully');
+      } catch (error) {
+        console.error('Failed to play video:', error);
+        setVideoError('Failed to play video. Please try clicking the play button in the video controls.');
+      }
     }
   };
 
@@ -375,20 +391,54 @@ export default function FeedPage() {
               <X className="h-6 w-6" />
             </button>
             
-            <div className="aspect-video">
+            <div className="aspect-video relative">
               <video
+                ref={videoRef}
                 src={currentVideo.videoUrl}
                 poster={currentVideo.thumbnailUrl}
                 className="w-full h-full object-contain"
                 controls
                 autoPlay
-                muted={isMuted}
+                muted={true}
+                playsInline
+                onLoadStart={() => console.log('Video loading started')}
+                onCanPlay={() => {
+                  console.log('Video can play');
+                  // Try to play automatically
+                  setTimeout(() => {
+                    if (videoRef.current && videoRef.current.paused) {
+                      handleManualPlay();
+                    }
+                  }, 1000);
+                }}
+                onPlay={() => console.log('Video started playing')}
+                onPause={() => console.log('Video paused')}
+                onError={(e) => {
+                  console.error('Video error:', e);
+                  console.error('Video src:', currentVideo.videoUrl);
+                  setVideoError('Failed to load video. Please check the video URL.');
+                }}
                 onEnded={() => {
                   setShowVideoPlayer(false);
                   setCurrentVideo(null);
                   setIsPlaying(false);
                 }}
               />
+              
+              {videoError && (
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+                  <div className="text-center text-white p-4">
+                    <p className="text-lg font-semibold mb-2">Video Error</p>
+                    <p className="text-sm mb-4">{videoError}</p>
+                    <button
+                      onClick={handleManualPlay}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="p-6 text-white">
