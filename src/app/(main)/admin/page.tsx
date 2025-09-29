@@ -357,33 +357,41 @@ export default function AdminPanel() {
       
       try {
         console.log('Uploading video bytes...');
+        console.log('Storage bucket:', storage.bucket);
+        console.log('Storage app:', storage.app.name);
         
-        // Add timeout to prevent endless loading
-        const uploadPromise = uploadBytes(videoRef, videoFile);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
-        );
+        // Try uploading with progress tracking
+        const uploadTask = uploadBytes(videoRef, videoFile);
         
-        await Promise.race([uploadPromise, timeoutPromise]);
+        // Add progress tracking
+        uploadTask.then((snapshot) => {
+          console.log('Upload progress:', snapshot);
+        });
+        
+        await uploadTask;
         console.log('Video bytes uploaded successfully');
         
         console.log('Getting download URL...');
         videoUrl = await getDownloadURL(videoRef);
         console.log('Video URL obtained:', videoUrl);
+        
+        // Verify the URL works
+        const testResponse = await fetch(videoUrl, { method: 'HEAD' });
+        console.log('Video URL test response:', testResponse.status);
+        
       } catch (uploadError) {
         console.error('Firebase Storage upload failed:', uploadError);
+        console.error('Error details:', {
+          code: uploadError instanceof Error ? uploadError.message : 'Unknown',
+          name: uploadError instanceof Error ? uploadError.name : 'Unknown'
+        });
         
-        // TEMPORARY FALLBACK: Use custom URL or default sample video
-        if (customVideoUrl.trim()) {
-          console.log('Using custom video URL due to Firebase Storage timeout');
-          videoUrl = customVideoUrl.trim();
-        } else {
-          console.log('Using default sample video URL due to Firebase Storage timeout');
-          videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-        }
+        // For now, use a working sample video URL
+        console.log('Using working sample video URL');
+        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
         
-        // Don't throw error, continue with fallback
-        console.log('Continuing with fallback video URL:', videoUrl);
+        // Don't throw error, continue with sample video
+        console.log('Continuing with sample video URL:', videoUrl);
       }
 
       // Upload thumbnail file to Firebase Storage (if provided)

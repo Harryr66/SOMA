@@ -21,6 +21,7 @@
 
         console.log('Firebase initialized:', app);
         console.log('Storage instance:', storage);
+        console.log('Storage bucket:', storage.bucket);
 
         // Test with a small text file
         async function testUpload() {
@@ -28,14 +29,18 @@
                 console.log('Testing Firebase Storage upload...');
                 
                 const testData = new Blob(['test data'], { type: 'text/plain' });
-                const testRef = ref(storage, 'test/test-file.txt');
+                const testRef = ref(storage, 'test/connectivity-test.txt');
                 
                 console.log('Uploading test file...');
-                await uploadBytes(testRef, testData);
-                console.log('✅ Upload successful!');
+                const snapshot = await uploadBytes(testRef, testData);
+                console.log('✅ Upload successful!', snapshot);
                 
                 const url = await getDownloadURL(testRef);
                 console.log('✅ Download URL:', url);
+                
+                // Test if URL is accessible
+                const response = await fetch(url, { method: 'HEAD' });
+                console.log('✅ URL accessibility test:', response.status);
                 
                 document.getElementById('result').innerHTML = '✅ Firebase Storage is working!';
             } catch (error) {
