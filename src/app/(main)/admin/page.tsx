@@ -60,6 +60,7 @@ export default function AdminPanel() {
   // Video upload states
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [customVideoUrl, setCustomVideoUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
   const [videoTags, setVideoTags] = useState<string[]>([]);
@@ -372,9 +373,14 @@ export default function AdminPanel() {
       } catch (uploadError) {
         console.error('Firebase Storage upload failed:', uploadError);
         
-        // TEMPORARY FALLBACK: Use a working video URL while Firebase Storage is being fixed
-        console.log('Using temporary fallback URL due to Firebase Storage timeout');
-        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        // TEMPORARY FALLBACK: Use custom URL or default sample video
+        if (customVideoUrl.trim()) {
+          console.log('Using custom video URL due to Firebase Storage timeout');
+          videoUrl = customVideoUrl.trim();
+        } else {
+          console.log('Using default sample video URL due to Firebase Storage timeout');
+          videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        }
         
         // Don't throw error, continue with fallback
         console.log('Continuing with fallback video URL:', videoUrl);
@@ -462,6 +468,7 @@ export default function AdminPanel() {
       // Reset form
       setVideoFile(null);
       setThumbnailFile(null);
+      setCustomVideoUrl('');
       setVideoTitle('');
       setVideoDescription('');
       setVideoTags([]);
@@ -955,6 +962,22 @@ export default function AdminPanel() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Custom Video URL */}
+              <div className="space-y-2">
+                <Label htmlFor="custom-video-url">Custom Video URL (Backup)</Label>
+                <Input
+                  id="custom-video-url"
+                  type="url"
+                  placeholder="https://example.com/video.mp4"
+                  value={customVideoUrl}
+                  onChange={(e) => setCustomVideoUrl(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Provide a direct video URL as backup if Firebase Storage fails. 
+                  Use YouTube, Google Drive, Dropbox, or any direct MP4 URL.
+                </p>
               </div>
 
               {/* Thumbnail Upload */}
