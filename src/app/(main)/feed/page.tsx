@@ -67,6 +67,8 @@ export default function FeedPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [realEpisodes, setRealEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentVideo, setCurrentVideo] = useState<Episode | null>(null);
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const { addToWatchlist, getContinueWatching, isInWatchlist, getWatchProgress } = useWatchlist();
 
   // Get the main event episode (most recent one marked as main event)
@@ -103,7 +105,17 @@ export default function FeedPage() {
 
   const handlePlay = (item: Docuseries | Episode) => {
     console.log('Playing:', item.title);
-    setIsPlaying(true);
+    
+    // If it's an Episode, play the video
+    if ('videoUrl' in item) {
+      setCurrentVideo(item as Episode);
+      setShowVideoPlayer(true);
+      setIsPlaying(true);
+    } else {
+      // For Docuseries, just log for now
+      console.log('Docuseries play not implemented yet');
+      setIsPlaying(true);
+    }
   };
 
   const handleAddToWatchlist = (docuseriesId: string) => {
@@ -347,6 +359,52 @@ export default function FeedPage() {
           />
         )}
       </div>
+
+      {/* Video Player Modal */}
+      {showVideoPlayer && currentVideo && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden">
+            <button
+              onClick={() => {
+                setShowVideoPlayer(false);
+                setCurrentVideo(null);
+                setIsPlaying(false);
+              }}
+              className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            
+            <div className="aspect-video">
+              <video
+                src={currentVideo.videoUrl}
+                poster={currentVideo.thumbnailUrl}
+                className="w-full h-full object-contain"
+                controls
+                autoPlay
+                muted={isMuted}
+                onEnded={() => {
+                  setShowVideoPlayer(false);
+                  setCurrentVideo(null);
+                  setIsPlaying(false);
+                }}
+              />
+            </div>
+            
+            <div className="p-6 text-white">
+              <h2 className="text-2xl font-bold mb-2">{currentVideo.title}</h2>
+              <p className="text-gray-300 mb-4">{currentVideo.description}</p>
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>{currentVideo.artist.name}</span>
+                <span>•</span>
+                <span>{Math.floor(currentVideo.duration / 60)}:{(currentVideo.duration % 60).toString().padStart(2, '0')}</span>
+                <span>•</span>
+                <span>{currentVideo.viewCount} views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
