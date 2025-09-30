@@ -464,7 +464,7 @@ export default function AdminPanel() {
       console.log('Episode data:', episodeData);
       
       const savePromise = addDoc(collection(db, 'episodes'), episodeData);
-      const saveTimeout = new Promise((_, reject) => 
+      const saveTimeout = new Promise<never>((_, reject) => 
         setTimeout(() => reject(new Error('Firestore save timeout after 10 seconds')), 10000)
       );
       const docRef = await Promise.race([savePromise, saveTimeout]);
