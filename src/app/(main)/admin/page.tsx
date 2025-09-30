@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
-import { ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
 import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone, Trash2, Edit } from 'lucide-react';
@@ -360,30 +360,12 @@ export default function AdminPanel() {
         console.log('Storage bucket:', (storage as any).bucket);
         console.log('Storage app:', storage.app.name);
         
-        // Use uploadBytesResumable for better progress tracking and timeout handling
-        const uploadTask = uploadBytesResumable(videoRef, videoFile);
+        // Use uploadBytes with a longer timeout for large files
+        console.log('Starting upload with 10-minute timeout...');
         
-        // Create a promise that resolves when upload completes or rejects on timeout
-        const uploadPromise = new Promise<void>((resolve, reject) => {
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log(`Upload progress: ${progress.toFixed(2)}%`);
-            },
-            (error) => {
-              console.error('Upload error:', error);
-              reject(error);
-            },
-            () => {
-              console.log('Video upload completed successfully');
-              resolve();
-            }
-          );
-        });
-        
-        // Set timeout to 5 minutes for large files
+        const uploadPromise = uploadBytes(videoRef, videoFile);
         const timeoutPromise = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Upload timeout after 5 minutes')), 300000)
+          setTimeout(() => reject(new Error('Upload timeout after 10 minutes')), 600000)
         );
         
         // Race between upload completion and timeout
