@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Play, Info, Plus, Volume2, VolumeX } from 'lucide-react';
+import { Play, Info, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Docuseries } from '@/lib/types';
@@ -110,17 +110,6 @@ export function FeaturedHero({
               </Button>
               
               <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/50 text-white hover:bg-white/10 px-4 sm:px-8 py-3 text-sm sm:text-lg dark:text-white flex-1 sm:flex-none"
-                  onClick={onAddToWatchlist}
-                >
-                  <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  <span className="hidden sm:inline">My List</span>
-                  <span className="sm:hidden">List</span>
-                </Button>
-                
                 <Button
                   size="lg"
                   variant="ghost"
