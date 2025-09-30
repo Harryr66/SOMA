@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small File Upload Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #1a1a1a; color: #e0e0e0; }
+        h1 { color: #bb86fc; }
+        button {
+            background-color: #03dac6;
+            color: #1a1a1a;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background-color: #018786; }
+        button:disabled { background-color: #666; cursor: not-allowed; }
+        #status { margin-top: 20px; padding: 10px; border: 1px solid #333; background-color: #2a2a2a; }
+        .success { color: #03dac6; }
+        .error { color: #cf6679; }
+        .info { color: #bb86fc; }
+        input[type="file"] { margin: 10px 0; }
+        .progress { width: 100%; height: 20px; background-color: #333; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #03dac6; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <h1>Firebase Storage Small File Test</h1>
+    <p>This will test uploading a small file to Firebase Storage to verify connectivity.</p>
+    
+    <div>
+        <input type="file" id="fileInput" accept="*/*">
+        <button id="uploadBtn" onclick="uploadFile()">Upload Selected File</button>
+        <button id="testBtn" onclick="testSmallUpload()">Test Small Text File</button>
+    </div>
+    
+    <div class="progress" id="progressContainer" style="display: none;">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div id="status"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBi_3rG4Kn31tvjsXl6kB_C2iYZhdOEuO0",
+            authDomain: "soma-social.firebaseapp.com",
+            projectId: "soma-social",
+            storageBucket: "soma-social.firebasestorage.app",
+            messagingSenderId: "44064741792",
+            appId: "1:44064741792:web:232214570fc8bc58dcecc5",
+            measurementId: "G-KS591CG0QZ"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = app.storage();
+        const storageRef = storage.ref();
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = type;
+        }
+
+        function updateProgress(percent) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = percent + '%';
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+
+        async function testSmallUpload() {
+            const uploadBtn = document.getElementById('testBtn');
+            uploadBtn.disabled = true;
+            
+            updateStatus('Testing small file upload...', 'info');
+            hideProgress();
+
+            try {
+                const fileName = `test-small-${Date.now()}.txt`;
+                const fileRef = storageRef.child(`episodes/${fileName}`);
+                const data = 'This is a small test file to verify Firebase Storage connectivity.';
+
+                console.log('Starting small file upload to:', fileRef.fullPath);
+                
+                // Use uploadBytesResumable for consistency with main app
+                const uploadTask = storageRef.child(`episodes/${fileName}`).putString(data);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        updateProgress(progress);
+                        console.log(`Upload progress: ${progress.toFixed(2)}%`);
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        updateStatus(`❌ Upload failed: ${error.message}`, 'error');
+                        uploadBtn.disabled = false;
+                        hideProgress();
+                    },
+                    () => {
+                        console.log('Upload completed successfully');
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            console.log('Download URL:', downloadURL);
+                            updateStatus(`✅ Small file upload successful!<br>URL: ${downloadURL}`, 'success');
+                            uploadBtn.disabled = false;
+                            hideProgress();
+                        });
+                    }
+                );
+
+            } catch (error) {
+                console.error('Test upload failed:', error);
+                updateStatus(`❌ Test failed: ${error.message}`, 'error');
+                uploadBtn.disabled = false;
+                hideProgress();
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (!fileInput.files[0]) {
+                updateStatus('Please select a file first.', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            uploadBtn.disabled = true;
+            
+            updateStatus(`Uploading ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)...`, 'info');
+            hideProgress();
+
+            try {
+                const fileName = `upload-${Date.now()}-${file.name}`;
+                const fileRef = storageRef.child(`episodes/${fileName}`);
+
+                console.log('Starting file upload to:', fileRef.fullPath);
+                console.log('File size:', file.size, 'bytes');
+                
+                const uploadTask = fileRef.put(file);
+                
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        updateProgress(progress);
+                        console.log(`Upload progress: ${progress.toFixed(2)}%`);
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        updateStatus(`❌ Upload failed: ${error.message}`, 'error');
+                        uploadBtn.disabled = false;
+                        hideProgress();
+                    },
+                    () => {
+                        console.log('Upload completed successfully');
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            console.log('Download URL:', downloadURL);
+                            updateStatus(`✅ File upload successful!<br>URL: ${downloadURL}`, 'success');
+                            uploadBtn.disabled = false;
+                            hideProgress();
+                        });
+                    }
+                );
+
+            } catch (error) {
+                console.error('File upload failed:', error);
+                updateStatus(`❌ Upload failed: ${error.message}`, 'error');
+                uploadBtn.disabled = false;
+                hideProgress();
+            }
+        }
+    </script>
+</body>
+</html>
