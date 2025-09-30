@@ -360,25 +360,15 @@ export default function AdminPanel() {
         console.log('Storage bucket:', (storage as any).bucket);
         console.log('Storage app:', storage.app.name);
         
-        // Use uploadBytes with a longer timeout for large files
-        console.log('Starting upload with 10-minute timeout...');
-        
-        const uploadPromise = uploadBytes(videoRef, videoFile);
-        const timeoutPromise = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Upload timeout after 10 minutes')), 600000)
-        );
-        
-        // Race between upload completion and timeout
-        await Promise.race([uploadPromise, timeoutPromise]);
+        // Upload the video file
+        console.log('Starting video upload...');
+        await uploadBytes(videoRef, videoFile);
         console.log('Video bytes uploaded successfully');
         
+        // Get the download URL
         console.log('Getting download URL...');
         videoUrl = await getDownloadURL(videoRef);
         console.log('Video URL obtained:', videoUrl);
-        
-        // Verify the URL works
-        const testResponse = await fetch(videoUrl, { method: 'HEAD' });
-        console.log('Video URL test response:', testResponse.status);
         
       } catch (uploadError) {
         console.error('Firebase Storage upload failed:', uploadError);
@@ -402,14 +392,7 @@ export default function AdminPanel() {
         
         try {
           console.log('Uploading thumbnail bytes...');
-          
-          // Add timeout for thumbnail upload too
-          const thumbnailUploadPromise = uploadBytes(thumbnailRef, thumbnailFile);
-          const thumbnailTimeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Thumbnail upload timeout after 15 seconds')), 15000)
-          );
-          
-          await Promise.race([thumbnailUploadPromise, thumbnailTimeoutPromise]);
+          await uploadBytes(thumbnailRef, thumbnailFile);
           console.log('Thumbnail bytes uploaded successfully');
           
           console.log('Getting thumbnail download URL...');
