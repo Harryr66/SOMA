@@ -379,7 +379,7 @@ export default function AdminPanel() {
         // Get the download URL with timeout
         console.log('Getting download URL...');
         const urlPromise = getDownloadURL(videoRef);
-        const urlTimeout = new Promise((_, reject) => 
+        const urlTimeout = new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('URL generation timeout after 10 seconds')), 10000)
         );
         videoUrl = await Promise.race([urlPromise, urlTimeout]);
