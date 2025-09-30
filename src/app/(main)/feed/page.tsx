@@ -258,7 +258,6 @@ export default function FeedPage() {
           docuseries={mockFeaturedContent}
           isPlaying={isPlaying}
           onPlay={() => handlePlay(mockFeaturedContent)}
-          onAddToWatchlist={() => handleAddToWatchlist(mockFeaturedContent.id)}
           onShowInfo={handleShowInfo}
         />
       )}
