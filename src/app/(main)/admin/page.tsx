@@ -369,11 +369,19 @@ export default function AdminPanel() {
         
         // Upload the video file with timeout
         console.log('Starting video upload...');
+        console.log('File size:', videoFile.size, 'bytes (', (videoFile.size / 1024 / 1024).toFixed(2), 'MB)');
+        
         const uploadPromise = uploadBytes(videoRef, videoFile);
-        const uploadTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
+        const uploadTimeout = new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Upload timeout after 2 minutes')), 120000)
         );
-        await Promise.race([uploadPromise, uploadTimeout]);
+        
+        try {
+          await Promise.race([uploadPromise, uploadTimeout]);
+        } catch (error) {
+          console.error('Upload failed with error:', error);
+          throw error;
+        }
         console.log('Video bytes uploaded successfully');
         
         // Get the download URL with timeout
