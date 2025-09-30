@@ -17,7 +17,7 @@ import {
   mockDocuseries 
 } from '@/lib/streaming-data';
 import { Docuseries, Episode } from '@/lib/types';
-import { Filter, X, Play, Bookmark } from 'lucide-react';
+import { Filter, X, Play } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -248,15 +248,6 @@ export default function FeedPage() {
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Play Now
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => handleAddToWatchlist(mainEventEpisode.docuseriesId)}
-                  className="border-white text-white hover:bg-white hover:text-black dark:text-white"
-                >
-                  <Bookmark className="h-5 w-5 mr-2" />
-                  Add to Watchlist
                 </Button>
               </div>
             </div>

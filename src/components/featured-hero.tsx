@@ -10,7 +10,6 @@ interface FeaturedHeroProps {
   docuseries: Docuseries;
   isPlaying?: boolean;
   onPlay?: () => void;
-  onAddToWatchlist?: () => void;
   onShowInfo?: () => void;
   onToggleMute?: () => void;
   isMuted?: boolean;
@@ -21,7 +20,6 @@ export function FeaturedHero({
   docuseries,
   isPlaying = false,
   onPlay,
-  onAddToWatchlist,
   onShowInfo,
   onToggleMute,
   isMuted = false,
@@ -37,7 +35,7 @@ export function FeaturedHero({
   };
 
   return (
-    <div className={`relative h-[85vh] min-h-[600px] sm:h-[90vh] sm:min-h-[700px] overflow-hidden bg-background ${className}`}>
+    <div className={`relative h-screen min-h-[700px] overflow-hidden bg-background ${className}`}>
       {/* Background Image/Video */}
       <div className="absolute inset-0">
         <img
