@@ -106,12 +106,11 @@ export default function FeedPage() {
   }, []);
 
   const convertGoogleDriveUrl = (url: string) => {
-    // Convert Google Drive sharing URL to direct download URL
-    if (url.includes('drive.google.com/file/d/')) {
-      const fileId = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-      if (fileId) {
-        return `https://drive.google.com/uc?export=download&id=${fileId}`;
-      }
+    // Google Drive URLs don't work for video playback due to CORS restrictions
+    // We need to use Firebase Storage URLs instead
+    if (url.includes('drive.google.com')) {
+      console.warn('Google Drive URL detected - this will not work for video playback:', url);
+      return url; // Return as-is, but it won't work
     }
     return url;
   };
