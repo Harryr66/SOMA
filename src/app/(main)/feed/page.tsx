@@ -243,8 +243,8 @@ export default function FeedPage() {
               <div className="flex gap-4">
                 <Button
                   size="lg"
+                  variant="gradient"
                   onClick={() => handlePlay(mainEventEpisode)}
-                  className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:text-white"
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Play Now

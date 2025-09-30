@@ -101,7 +101,8 @@ export function FeaturedHero({
             <div className="flex items-center space-x-4">
               <Button
                 size="lg"
-                className="bg-red-600 text-white hover:bg-red-700 border-2 border-red-600 px-8 py-3 text-lg font-semibold dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
+                variant="gradient"
+                className="px-8 py-3 text-lg font-semibold"
                 onClick={onPlay}
               >
                 <Play className="h-5 w-5 mr-2" />
