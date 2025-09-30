@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, deleteDoc, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
 import { Check, X, Eye, Clock, User, Calendar, ExternalLink, Upload, Video, Plus, Megaphone, Trash2, Edit } from 'lucide-react';
@@ -339,6 +339,8 @@ export default function AdminPanel() {
       return;
     }
 
+    // No file size limit - we'll handle large files with chunked upload
+
     setIsUploading(true);
     console.log('=== STARTING UPLOAD PROCESS ===');
     console.log('Video file:', videoFile?.name, 'Size:', videoFile?.size);
@@ -367,13 +369,34 @@ export default function AdminPanel() {
         console.log('Storage bucket:', (storage as any).bucket);
         console.log('Storage app:', storage.app.name);
         
-        // Upload the video file with timeout
+        // Upload the video file with chunked upload for large files
         console.log('Starting video upload...');
         console.log('File size:', videoFile.size, 'bytes (', (videoFile.size / 1024 / 1024).toFixed(2), 'MB)');
         
-        const uploadPromise = uploadBytes(videoRef, videoFile);
+        // Use uploadBytesResumable for large files with progress tracking
+        const uploadTask = uploadBytesResumable(videoRef, videoFile);
+        
+        // Create promise that resolves when upload completes
+        const uploadPromise = new Promise<void>((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload progress: ${progress.toFixed(2)}%`);
+            },
+            (error) => {
+              console.error('Upload error:', error);
+              reject(error);
+            },
+            () => {
+              console.log('Upload completed successfully');
+              resolve();
+            }
+          );
+        });
+        
+        // Set timeout to 10 minutes for large files
         const uploadTimeout = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Upload timeout after 2 minutes')), 120000)
+          setTimeout(() => reject(new Error('Upload timeout after 10 minutes')), 600000)
         );
         
         try {
@@ -967,7 +990,7 @@ export default function AdminPanel() {
                       <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
                       <div>
                         <span className="text-sm font-medium">Click to upload video</span>
-                        <p className="text-xs text-muted-foreground">MP4, MOV, AVI up to 100MB</p>
+                        <p className="text-xs text-muted-foreground">MP4, MOV, AVI (any size)</p>
                       </div>
                     </div>
                   </Label>
