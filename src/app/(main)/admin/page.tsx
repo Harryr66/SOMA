@@ -386,12 +386,8 @@ export default function AdminPanel() {
           name: uploadError instanceof Error ? uploadError.name : 'Unknown'
         });
         
-        // For now, use a working sample video URL
-        console.log('Using working sample video URL');
-        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-        
-        // Don't throw error, continue with sample video
-        console.log('Continuing with sample video URL:', videoUrl);
+        // NO FALLBACKS - FAIL THE UPLOAD IF FIREBASE STORAGE DOESN'T WORK
+        throw new Error(`Firebase Storage upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Please check Firebase Storage configuration.`);
       }
 
       // Upload thumbnail file to Firebase Storage (if provided)
@@ -420,9 +416,8 @@ export default function AdminPanel() {
           console.log('Thumbnail URL obtained:', thumbnailUrl);
         } catch (thumbnailError) {
           console.error('Thumbnail upload failed:', thumbnailError);
-          // Use default thumbnail if upload fails
-          thumbnailUrl = 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=600&fit=crop';
-          console.log('Using default thumbnail due to upload failure');
+          // NO FALLBACKS - FAIL THE UPLOAD IF THUMBNAIL UPLOAD FAILS
+          throw new Error(`Thumbnail upload failed: ${thumbnailError instanceof Error ? thumbnailError.message : 'Unknown error'}`);
         }
       } else {
         // Generate a thumbnail from the video (placeholder for now)
