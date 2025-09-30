@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { ArtistRequest, Episode, AdvertisingApplication } from '@/lib/types';
@@ -86,36 +86,39 @@ export default function AdminPanel() {
       orderBy('createdAt', 'desc')
     );
 
-    const unsubscribeArtistRequests = onSnapshot(artistRequestsQuery, (snapshot) => {
-      const requests = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as ArtistRequest[];
-      setArtistRequests(requests);
-    });
+    const fetchData = async () => {
+      try {
+        const [artistSnapshot, advertisingSnapshot, episodesSnapshot] = await Promise.all([
+          getDocs(artistRequestsQuery),
+          getDocs(advertisingQuery),
+          getDocs(episodesQuery)
+        ]);
 
-    const unsubscribeAdvertising = onSnapshot(advertisingQuery, (snapshot) => {
-      const applications = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as AdvertisingApplication[];
-      setAdvertisingApplications(applications);
-    });
+        const requests = artistSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as ArtistRequest[];
+        setArtistRequests(requests);
 
-    const unsubscribeEpisodes = onSnapshot(episodesQuery, (snapshot) => {
-      const episodes = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Episode[];
-      setEpisodes(episodes);
-      setLoading(false);
-    });
+        const applications = advertisingSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as AdvertisingApplication[];
+        setAdvertisingApplications(applications);
 
-    return () => {
-      unsubscribeArtistRequests();
-      unsubscribeAdvertising();
-      unsubscribeEpisodes();
+        const episodes = episodesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Episode[];
+        setEpisodes(episodes);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
     };
+
+    fetchData();
   }, []);
 
   const handleApprove = async (request: ArtistRequest) => {

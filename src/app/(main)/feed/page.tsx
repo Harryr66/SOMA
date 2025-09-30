@@ -18,7 +18,7 @@ import {
 } from '@/lib/streaming-data';
 import { Docuseries, Episode } from '@/lib/types';
 import { Filter, X, Play, Bookmark } from 'lucide-react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 const CATEGORIES = [
@@ -83,26 +83,30 @@ export default function FeedPage() {
 
   // Fetch real episodes from database
   useEffect(() => {
-    const q = query(
-      collection(db, 'episodes'),
-      orderBy('createdAt', 'desc')
-    );
+    const fetchEpisodes = async () => {
+      try {
+        const q = query(
+          collection(db, 'episodes'),
+          orderBy('createdAt', 'desc')
+        );
+        
+        const snapshot = await getDocs(q);
+        const episodes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Episode[];
+        
+        console.log('Fetched episodes from Firestore:', episodes);
+        console.log('Number of episodes:', episodes.length);
+        setRealEpisodes(episodes);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching episodes:', error);
+        setLoading(false);
+      }
+    };
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const episodes = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Episode[];
-      console.log('Fetched episodes from Firestore:', episodes);
-      console.log('Number of episodes:', episodes.length);
-      setRealEpisodes(episodes);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching episodes:', error);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    fetchEpisodes();
   }, []);
 
   const convertGoogleDriveUrl = (url: string) => {
