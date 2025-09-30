@@ -337,6 +337,10 @@ export default function AdminPanel() {
     }
 
     setIsUploading(true);
+    console.log('=== STARTING UPLOAD PROCESS ===');
+    console.log('Video file:', videoFile?.name, 'Size:', videoFile?.size);
+    console.log('Title:', videoTitle);
+    console.log('Description:', videoDescription);
     
     let videoUrl = '';
     let thumbnailUrl = '';
@@ -445,7 +449,11 @@ export default function AdminPanel() {
         }
       };
 
-      await addDoc(collection(db, 'episodes'), episodeData);
+      console.log('=== SAVING TO FIRESTORE ===');
+      console.log('Episode data:', episodeData);
+      
+      const docRef = await addDoc(collection(db, 'episodes'), episodeData);
+      console.log('Episode saved to Firestore with ID:', docRef.id);
 
       toast({
         title: "Video Uploaded Successfully",

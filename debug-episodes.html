@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Episodes in Firestore</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #1a1a1a; color: #e0e0e0; }
+        h1 { color: #bb86fc; }
+        button {
+            background-color: #03dac6;
+            color: #1a1a1a;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background-color: #018786; }
+        #status { margin-top: 20px; padding: 10px; border: 1px solid #333; background-color: #2a2a2a; }
+        .success { color: #03dac6; }
+        .error { color: #cf6679; }
+        .info { color: #bb86fc; }
+        .episode { margin: 10px 0; padding: 10px; border: 1px solid #444; background-color: #2a2a2a; }
+        .episode h3 { color: #bb86fc; margin: 0 0 5px 0; }
+        .episode p { margin: 5px 0; color: #ccc; }
+        .video-url { word-break: break-all; color: #03dac6; }
+    </style>
+</head>
+<body>
+    <h1>Debug Episodes in Firestore</h1>
+    <p>This will show all episodes currently stored in Firestore and test if they can be fetched.</p>
+    
+    <button onclick="fetchEpisodes()">Fetch All Episodes</button>
+    <button onclick="testAddEpisode()">Test Add Episode</button>
+    
+    <div id="status"></div>
+    <div id="episodes"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBi_3rG4Kn31tvjsXl6kB_C2iYZhdOEuO0",
+            authDomain: "soma-social.firebaseapp.com",
+            projectId: "soma-social",
+            storageBucket: "soma-social.firebasestorage.app",
+            messagingSenderId: "44064741792",
+            appId: "1:44064741792:web:232214570fc8bc58dcecc5",
+            measurementId: "G-KS591CG0QZ"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = type;
+        }
+
+        async function fetchEpisodes() {
+            updateStatus('Fetching episodes from Firestore...', 'info');
+            
+            try {
+                const episodesRef = db.collection('episodes');
+                const snapshot = await episodesRef.orderBy('createdAt', 'desc').get();
+                
+                console.log('Episodes snapshot:', snapshot);
+                console.log('Number of episodes:', snapshot.size);
+                
+                const episodesDiv = document.getElementById('episodes');
+                episodesDiv.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    updateStatus('❌ No episodes found in Firestore!', 'error');
+                    episodesDiv.innerHTML = '<p>No episodes found in the database.</p>';
+                    return;
+                }
+                
+                updateStatus(`✅ Found ${snapshot.size} episodes in Firestore`, 'success');
+                
+                snapshot.forEach((doc) => {
+                    const episode = doc.data();
+                    console.log('Episode:', doc.id, episode);
+                    
+                    const episodeDiv = document.createElement('div');
+                    episodeDiv.className = 'episode';
+                    episodeDiv.innerHTML = `
+                        <h3>${episode.title || 'No Title'}</h3>
+                        <p><strong>ID:</strong> ${doc.id}</p>
+                        <p><strong>Description:</strong> ${episode.description || 'No Description'}</p>
+                        <p><strong>Video URL:</strong> <span class="video-url">${episode.videoUrl || 'No Video URL'}</span></p>
+                        <p><strong>Thumbnail URL:</strong> <span class="video-url">${episode.thumbnailUrl || 'No Thumbnail URL'}</span></p>
+                        <p><strong>Created:</strong> ${episode.createdAt ? episode.createdAt.toDate().toLocaleString() : 'No Date'}</p>
+                        <p><strong>Artist:</strong> ${episode.artist ? episode.artist.name : 'No Artist'}</p>
+                        <p><strong>Published:</strong> ${episode.isPublished ? 'Yes' : 'No'}</p>
+                        <p><strong>Main Event:</strong> ${episode.isMainEvent ? 'Yes' : 'No'}</p>
+                    `;
+                    episodesDiv.appendChild(episodeDiv);
+                });
+                
+            } catch (error) {
+                console.error('Error fetching episodes:', error);
+                updateStatus(`❌ Error fetching episodes: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAddEpisode() {
+            updateStatus('Testing episode creation...', 'info');
+            
+            try {
+                const testEpisode = {
+                    title: 'Test Episode ' + Date.now(),
+                    description: 'This is a test episode to verify Firestore write access',
+                    videoUrl: 'https://test-video-url.com/test.mp4',
+                    thumbnailUrl: 'https://test-thumbnail-url.com/test.jpg',
+                    duration: 120,
+                    viewCount: 0,
+                    likes: 0,
+                    commentsCount: 0,
+                    tags: ['test'],
+                    categories: ['Test'],
+                    displayLocation: 'new-releases',
+                    likedBy: [],
+                    docuseriesId: 'test-episodes',
+                    episodeNumber: 1,
+                    seasonNumber: 1,
+                    releaseDate: new Date(),
+                    isPublished: true,
+                    isFeatured: false,
+                    isMainEvent: false,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    artist: {
+                        id: 'test-admin',
+                        name: 'Test Admin',
+                        handle: 'test-admin',
+                        avatarUrl: '',
+                        isProfessional: true,
+                        followerCount: 0,
+                        followingCount: 0,
+                        createdAt: new Date(),
+                        isVerified: true
+                    }
+                };
+                
+                const docRef = await db.collection('episodes').add(testEpisode);
+                console.log('Test episode added with ID:', docRef.id);
+                updateStatus(`✅ Test episode added successfully with ID: ${docRef.id}`, 'success');
+                
+                // Refresh the episodes list
+                setTimeout(fetchEpisodes, 1000);
+                
+            } catch (error) {
+                console.error('Error adding test episode:', error);
+                updateStatus(`❌ Error adding test episode: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-fetch episodes on page load
+        fetchEpisodes();
+    </script>
+</body>
+</html>
