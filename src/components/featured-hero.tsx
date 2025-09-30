@@ -37,16 +37,16 @@ export function FeaturedHero({
   };
 
   return (
-    <div className={`relative h-[70vh] min-h-[500px] overflow-hidden bg-background ${className}`}>
+    <div className={`relative h-[85vh] min-h-[600px] sm:h-[90vh] sm:min-h-[700px] overflow-hidden bg-background ${className}`}>
       {/* Background Image/Video */}
       <div className="absolute inset-0">
         <img
           src={docuseries.bannerUrl}
           alt={docuseries.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
       </div>
 
       {/* Content */}
@@ -54,22 +54,22 @@ export function FeaturedHero({
         <div className="container mx-auto px-4">
           <div className="max-w-2xl">
             {/* Title and Badges */}
-            <div className="mb-4">
-              <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                 {docuseries.title}
               </h1>
-              <div className="flex items-center space-x-4 mb-4">
-                <Badge variant="secondary" className="text-sm bg-red-600 text-white">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+                <Badge variant="secondary" className="text-xs sm:text-sm bg-red-600 text-white">
                   {docuseries.status === 'ongoing' ? 'ONGOING' : 'COMPLETED'}
                 </Badge>
-                <Badge variant="secondary" className="text-sm bg-black/50 text-white">
+                <Badge variant="secondary" className="text-xs sm:text-sm bg-black/50 text-white">
                   {docuseries.category}
                 </Badge>
-                <Badge variant="secondary" className="text-sm bg-black/50 text-white">
+                <Badge variant="secondary" className="text-xs sm:text-sm bg-black/50 text-white">
                   {docuseries.genre}
                 </Badge>
                 {docuseries.isNew && (
-                  <Badge variant="secondary" className="text-sm bg-yellow-600 text-white">
+                  <Badge variant="secondary" className="text-xs sm:text-sm bg-yellow-600 text-white">
                     NEW
                   </Badge>
                 )}
@@ -77,77 +77,81 @@ export function FeaturedHero({
             </div>
 
             {/* Description */}
-            <p className="text-lg text-white/90 mb-6 leading-relaxed line-clamp-3">
+            <p className="text-base sm:text-lg text-white/90 mb-4 sm:mb-6 leading-relaxed line-clamp-2 sm:line-clamp-3">
               {docuseries.description}
             </p>
 
             {/* Meta Info */}
-            <div className="flex items-center space-x-6 text-white/80 mb-8">
-              <span className="text-sm">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-white/80 mb-6 sm:mb-8">
+              <span className="text-xs sm:text-sm">
                 {new Date(docuseries.releaseDate).getFullYear()}
               </span>
-              <span className="text-sm">
+              <span className="text-xs sm:text-sm">
                 {docuseries.totalEpisodes} episodes
               </span>
-              <span className="text-sm">
+              <span className="text-xs sm:text-sm">
                 {formatDuration(docuseries.totalDuration)}
               </span>
-              <span className="text-sm">
+              <span className="text-xs sm:text-sm">
                 {docuseries.rating?.toFixed(1) || '0.0'} ⭐
               </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <Button
                 size="lg"
                 variant="gradient"
-                className="px-8 py-3 text-lg font-semibold"
+                className="px-6 sm:px-8 py-3 text-base sm:text-lg font-semibold w-full sm:w-auto"
                 onClick={onPlay}
               >
-                <Play className="h-5 w-5 mr-2" />
+                <Play className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 {isPlaying ? 'Pause' : 'Play'}
               </Button>
               
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/50 text-white hover:bg-white/10 px-8 py-3 text-lg dark:text-white"
-                onClick={onAddToWatchlist}
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                My List
-              </Button>
-              
-              <Button
-                size="lg"
-                variant="ghost"
-                className="text-white hover:bg-white/10 px-8 py-3 text-lg dark:text-white"
-                onClick={onShowInfo}
-              >
-                <Info className="h-5 w-5 mr-2" />
-                More Info
-              </Button>
-
-              {onToggleMute && (
+              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/50 text-white hover:bg-white/10 px-4 sm:px-8 py-3 text-sm sm:text-lg dark:text-white flex-1 sm:flex-none"
+                  onClick={onAddToWatchlist}
+                >
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                  <span className="hidden sm:inline">My List</span>
+                  <span className="sm:hidden">List</span>
+                </Button>
+                
                 <Button
                   size="lg"
                   variant="ghost"
-                  className="text-white hover:bg-white/10 px-4 py-3 dark:text-white"
-                  onClick={onToggleMute}
+                  className="text-white hover:bg-white/10 px-4 sm:px-8 py-3 text-sm sm:text-lg dark:text-white flex-1 sm:flex-none"
+                  onClick={onShowInfo}
                 >
-                  {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  <Info className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                  <span className="hidden sm:inline">More Info</span>
+                  <span className="sm:hidden">Info</span>
                 </Button>
-              )}
+
+                {onToggleMute && (
+                  <Button
+                    size="lg"
+                    variant="ghost"
+                    className="text-white hover:bg-white/10 px-3 sm:px-4 py-3 dark:text-white"
+                    onClick={onToggleMute}
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" /> : <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Featured Artist Info */}
-      <div className="absolute bottom-8 left-4 right-4">
-        <div className="flex items-center space-x-4 text-white/80">
-          <div className="w-12 h-12 rounded-full overflow-hidden">
+      <div className="absolute bottom-4 sm:bottom-8 left-4 right-4">
+        <div className="flex items-center space-x-3 sm:space-x-4 text-white/80">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden">
             <img
               src={docuseries.featuredArtist.avatarUrl || 'https://placehold.co/48x48/2D3748/FFFFFF?text=A'}
               alt={docuseries.featuredArtist.name}
@@ -155,8 +159,8 @@ export function FeaturedHero({
             />
           </div>
           <div>
-            <p className="text-sm font-medium">Featured Artist</p>
-            <p className="text-lg font-semibold">{docuseries.featuredArtist.name}</p>
+            <p className="text-xs sm:text-sm font-medium">Featured Artist</p>
+            <p className="text-sm sm:text-lg font-semibold">{docuseries.featuredArtist.name}</p>
           </div>
         </div>
       </div>
