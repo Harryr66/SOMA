@@ -364,14 +364,22 @@ export default function AdminPanel() {
         console.log('Storage bucket:', (storage as any).bucket);
         console.log('Storage app:', storage.app.name);
         
-        // Upload the video file
+        // Upload the video file with timeout
         console.log('Starting video upload...');
-        await uploadBytes(videoRef, videoFile);
+        const uploadPromise = uploadBytes(videoRef, videoFile);
+        const uploadTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
+        );
+        await Promise.race([uploadPromise, uploadTimeout]);
         console.log('Video bytes uploaded successfully');
         
-        // Get the download URL
+        // Get the download URL with timeout
         console.log('Getting download URL...');
-        videoUrl = await getDownloadURL(videoRef);
+        const urlPromise = getDownloadURL(videoRef);
+        const urlTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('URL generation timeout after 10 seconds')), 10000)
+        );
+        videoUrl = await Promise.race([urlPromise, urlTimeout]);
         console.log('Video URL obtained:', videoUrl);
         
       } catch (uploadError) {
@@ -452,7 +460,11 @@ export default function AdminPanel() {
       console.log('=== SAVING TO FIRESTORE ===');
       console.log('Episode data:', episodeData);
       
-      const docRef = await addDoc(collection(db, 'episodes'), episodeData);
+      const savePromise = addDoc(collection(db, 'episodes'), episodeData);
+      const saveTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Firestore save timeout after 10 seconds')), 10000)
+      );
+      const docRef = await Promise.race([savePromise, saveTimeout]);
       console.log('Episode saved to Firestore with ID:', docRef.id);
 
       toast({
